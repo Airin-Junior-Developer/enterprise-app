@@ -3,12 +3,14 @@ import { createApp } from 'vue';
 
 const app = createApp({});
 
-// --- ของเดิม (ลบทิ้ง หรือ comment ไว้ก็ได้) ---
-// import ExampleComponent from './components/ExampleComponent.vue';
-// app.component('example-component', ExampleComponent);
+// --- ลูกน้อง (ไม่ลงทะเบียนตรงนี้ก็ได้ เพราะเราไปเรียกใน Manager แล้ว) ---
+// แต่ถ้าลงทะเบียนค้างไว้ก็ไม่เป็นไรครับ ไม่มีผลเสีย
 
-// --- ของใหม่: ลงทะเบียน EmployeeList ---
-import EmployeeList from './components/EmployeeList.vue';
-app.component('employee-list', EmployeeList);
+// --- 🔥 ผู้จัดการ (ตัวสำคัญ!) ---
+// 1. ต้องมีบรรทัดนี้ (นำเข้าไฟล์)
+import EmployeeManager from './components/EmployeeManager.vue';
+
+// 2. ต้องมีบรรทัดนี้ (ลงทะเบียนชื่อ)
+app.component('employee-manager', EmployeeManager);
 
 app.mount('#app');

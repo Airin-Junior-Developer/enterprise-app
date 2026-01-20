@@ -11,3 +11,8 @@ Route::get('/user', function (Request $request) {
 // เส้นทางดึงพนักงาน
 Route::get('/employees', [PersonnelController::class, 'index']);
 Route::post('/employees', [PersonnelController::class, 'store']);
+Route::get('/branches', [PersonnelController::class, 'getBranches']);
+
+// แก้ไขข้อมูล (PUT) และ ลบข้อมูล (DELETE)
+Route::put('/employees/{id}', [PersonnelController::class, 'update']);
+Route::delete('/employees/{id}', [PersonnelController::class, 'destroy']);

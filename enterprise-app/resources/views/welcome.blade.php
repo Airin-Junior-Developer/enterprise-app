@@ -9,7 +9,7 @@
 <body style="background-color: #f8f9fa;">
     
     <div id="app">
-        <employee-list></employee-list>
+    <employee-manager></employee-manager>
     </div>
 
 </body>
