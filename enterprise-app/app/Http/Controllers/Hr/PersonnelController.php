@@ -15,8 +15,8 @@ class PersonnelController extends Controller
     public function index()
     {
         $employees = User::with(['branch', 'profile'])
-                         ->whereHas('profile') // ดึงเฉพาะคนที่มีประวัติพนักงาน
-                         ->get();
+            ->whereHas('profile') // ดึงเฉพาะคนที่มีประวัติพนักงาน
+            ->get();
 
         return response()->json([
             'status' => 'success',
@@ -64,18 +64,7 @@ class PersonnelController extends Controller
         });
     }
 
-    // 3. ฟังก์ชันดึงรายชื่อสาขา (สำหรับ Dropdown)
-    public function getBranches()
-    {
-        // ดึงเฉพาะสาขาที่เปิดใช้งาน (active)
-        $branches = \App\Models\Branch::where('status', 'active')->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $branches
-        ]);
-    }
-// 4. ฟังก์ชันแก้ไขข้อมูล (Update)
+    // 4. ฟังก์ชันแก้ไขข้อมูล (Update)
     public function update(Request $request, $id)
     {
         // ค้นหาพนักงานก่อน (รวมประวัติด้วย)
@@ -109,7 +98,7 @@ class PersonnelController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        
+
         // ลบข้อมูล (Profile จะถูกลบอัตโนมัติถ้าตั้ง Database ไว้ดี แต่ลบเผื่อไว้ก่อนก็ได้)
         if ($user->profile) {
             $user->profile->delete();
