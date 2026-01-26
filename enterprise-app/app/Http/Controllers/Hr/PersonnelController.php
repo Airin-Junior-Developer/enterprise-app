@@ -4,107 +4,93 @@ namespace App\Http\Controllers\Hr;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Hr\Employee;
 use App\Models\User;
-use App\Models\HrProfile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class PersonnelController extends Controller
 {
-    // 1. ฟังก์ชันดึงรายชื่อพนักงาน
+    // แสดงรายชื่อทั้งหมด
     public function index()
     {
-        $employees = User::with(['branch', 'profile'])
-            ->whereHas('profile') // ดึงเฉพาะคนที่มีประวัติพนักงาน
+        $employees = Employee::with(['branch', 'position', 'user'])
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $employees
-        ]);
+        return response()->json(['status' => 'success', 'data' => $employees]);
     }
 
-    // 2. ฟังก์ชันเพิ่มพนักงาน (Transaction Save)
+    // เพิ่มพนักงานใหม่
     public function store(Request $request)
     {
-        // รับค่าจากหน้าบ้าน
-        $data = $request->validate([
-            'prefix' => 'nullable|string',
-            'firstname' => 'required|string',
-            'lastname' => 'required|string',
-            'email' => 'required|email|unique:users,email',
-            'position' => 'required|string',
-            'branch_id' => 'required|exists:branches,id',
-            'start_date' => 'required|date',
-            'phone' => 'nullable|string',
-        ]);
-
-        return DB::transaction(function () use ($data) {
-            // 2.1 สร้าง User (Login)
+        DB::beginTransaction();
+        try {
+            // 1. สร้าง User
             $user = User::create([
-                'branch_id' => $data['branch_id'],
-                'name' => $data['firstname'] . ' ' . $data['lastname'],
-                'email' => $data['email'],
-                'password' => Hash::make('password'), // รหัสผ่านเริ่มต้น
-                'role_global' => 'user',
+                'name' => $request->first_name . ' ' . $request->last_name,
+                'email' => $request->email,
+                'password' => Hash::make('12345678'),
             ]);
 
-            // 2.2 สร้างประวัติ (Profile)
-            HrProfile::create([
+            // 2. สร้าง Employee
+            $employee = Employee::create([
                 'user_id' => $user->id,
-                'prefix' => $data['prefix'],
-                'firstname' => $data['firstname'],
-                'lastname' => $data['lastname'],
-                'position' => $data['position'],
-                'phone' => $data['phone'] ?? null,
-                'start_date' => $data['start_date'],
+                'prefix' => $request->prefix,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'phone_number' => $request->phone_number,
+                'id_card_number' => $request->id_card_number,
+                'branch_id' => $request->branch_id,
+                'position_id' => $request->position_id,
+                'status' => 'active',
             ]);
 
-            return response()->json(['status' => 'success', 'message' => 'บันทึกข้อมูลสำเร็จ'], 201);
-        });
+            DB::commit();
+            return response()->json(['message' => 'Created successfully', 'data' => $employee], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
     }
 
-    // 4. ฟังก์ชันแก้ไขข้อมูล (Update)
-    public function update(Request $request, $id)
+    // แก้ไขข้อมูล (Update)
+    public function update(Request $request, string $id)
     {
-        // ค้นหาพนักงานก่อน (รวมประวัติด้วย)
-        $user = User::with('profile')->findOrFail($id);
+        $employee = Employee::findOrFail($id);
 
-        // อัปเดตข้อมูล Login (User)
-        $user->update([
-            'name' => $request->firstname . ' ' . $request->lastname,
-            'email' => $request->email,
+        // อัปเดตข้อมูลในตาราง Employee
+        $employee->update([
+            'prefix' => $request->prefix,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'phone_number' => $request->phone_number,
+            'id_card_number' => $request->id_card_number,
             'branch_id' => $request->branch_id,
+            'position_id' => $request->position_id,
         ]);
 
-        // อัปเดตข้อมูลประวัติ (Profile)
-        // ใช้ updateOrCreate เผื่อว่าข้อมูลเก่าขาดหายไป
-        HrProfile::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'prefix' => $request->prefix,
-                'firstname' => $request->firstname,
-                'lastname' => $request->lastname,
-                'position' => $request->position,
-                'phone' => $request->phone,
-                'start_date' => $request->start_date,
-            ]
-        );
+        // อัปเดตชื่อในตาราง User ด้วย
+        if ($employee->user) {
+            $employee->user->update([
+                'name' => $request->first_name . ' ' . $request->last_name
+            ]);
+        }
 
-        return response()->json(['status' => 'success', 'message' => 'แก้ไขข้อมูลสำเร็จ']);
+        return response()->json(['message' => 'Updated successfully']);
     }
 
-    // 5. ฟังก์ชันลบข้อมูล (Delete)
-    public function destroy($id)
+    // ลบข้อมูล (Delete)
+    public function destroy(string $id)
     {
-        $user = User::findOrFail($id);
+        $employee = Employee::findOrFail($id);
 
-        // ลบข้อมูล (Profile จะถูกลบอัตโนมัติถ้าตั้ง Database ไว้ดี แต่ลบเผื่อไว้ก่อนก็ได้)
-        if ($user->profile) {
-            $user->profile->delete();
+        // ลบ User ที่ผูกกันด้วย (Optional: ถ้าต้องการลบ Account ด้วย)
+        if ($employee->user) {
+            $employee->user->delete();
         }
-        $user->delete();
 
-        return response()->json(['status' => 'success', 'message' => 'ลบข้อมูลสำเร็จ']);
+        $employee->delete();
+        return response()->json(['message' => 'Deleted successfully']);
     }
 }

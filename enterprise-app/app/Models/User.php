@@ -38,6 +38,6 @@ class User extends Authenticatable
     // ** เพิ่มฟังก์ชันนี้: เพื่อดึงประวัติส่วนตัว **
     public function profile()
     {
-        return $this->hasOne(HrProfile::class);
+        return $this->hasOne(Employee::class);
     }
 }

@@ -75,12 +75,14 @@
 import DashboardLayout from './DashboardLayout.vue';
 import EmployeeManager from './EmployeeManager.vue';
 import BranchManager from './BranchManager.vue';
+import PositionManager from './PositionManager.vue';
 
 export default {
     components: {
         'dashboard-layout': DashboardLayout,
         'employee-manager': EmployeeManager,
-        'branch-manager': BranchManager
+        'branch-manager': BranchManager,
+        'position-manager': PositionManager
     },
     data() {
         return {

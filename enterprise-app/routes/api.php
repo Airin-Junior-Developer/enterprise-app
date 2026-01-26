@@ -29,3 +29,9 @@ Route::get('/positions', [PositionController::class, 'index']);
 Route::post('/positions', [PositionController::class, 'store']);     // เส้นทางสำหรับบันทึก
 Route::put('/positions/{id}', [PositionController::class, 'update']);
 Route::delete('/positions/{id}', [PositionController::class, 'destroy']);
+
+// กลุ่ม Route ของ HR
+Route::get('/employees', [PersonnelController::class, 'index']); // ดึงรายชื่อ
+Route::post('/employees', [PersonnelController::class, 'store']); // บันทึก
+Route::get('/branches', [BranchController::class, 'index']);
+Route::get('/positions', [PositionController::class, 'index']);
