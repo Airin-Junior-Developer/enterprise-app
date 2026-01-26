@@ -8,42 +8,47 @@ use App\Models\Hr\Branch;
 
 class BranchController extends Controller
 {
-    // 1. ดึงข้อมูลสาขาทั้งหมด
+    /**
+     * ดึงข้อมูลสาขาทั้งหมด
+     * Method: GET
+     */
     public function index()
     {
-        $branches = Branch::all();
-        return response()->json(['status' => 'success', 'data' => $branches]);
+        // ดึงข้อมูลและเรียงลำดับจากสร้างล่าสุดไปเก่าสุด
+        return response()->json(Branch::orderBy('created_at', 'desc')->get());
     }
 
-    // 2. เพิ่มสาขาใหม่ (Create)
+    /**
+     * เพิ่มสาขาใหม่
+     * Method: POST
+     */
     public function store(Request $request)
     {
-        $branch = Branch::create([
-            'name' => $request->name,
-            'code' => $request->code
-        ]);
-
-        return response()->json(['status' => 'success', 'message' => 'เพิ่มสาขาสำเร็จ']);
+        // สร้างข้อมูลใหม่ตาม Request ที่ส่งมา
+        $branch = Branch::create($request->all());
+        return response()->json(['message' => 'Created', 'data' => $branch]);
     }
 
-    // 3. แก้ไขสาขา (Update)
-    public function update(Request $request, $id)
+    /**
+     * แก้ไขข้อมูลสาขา
+     * Method: PUT/PATCH
+     */
+    public function update(Request $request, string $id)
     {
+        // ค้นหาสาขาตาม ID หากไม่เจอจะแจ้ง Error 404
         $branch = Branch::findOrFail($id);
-        $branch->update([
-            'name' => $request->name,
-            'code' => $request->code
-        ]);
-
-        return response()->json(['status' => 'success', 'message' => 'แก้ไขสาขาสำเร็จ']);
+        $branch->update($request->all());
+        return response()->json(['message' => 'Updated']);
     }
 
-    // 4. ลบสาขา (Delete)
-    public function destroy($id)
+    /**
+     * ลบสาขา
+     * Method: DELETE
+     */
+    public function destroy(string $id)
     {
-        $branch = Branch::findOrFail($id);
-        $branch->delete();
-
-        return response()->json(['status' => 'success', 'message' => 'ลบสาขาสำเร็จ']);
+        // ลบข้อมูลตาม ID ที่ระบุ
+        Branch::destroy($id);
+        return response()->json(['message' => 'Deleted']);
     }
 }
