@@ -60,8 +60,8 @@ return [
             'engine' => null,
             'ssl_mode' => 'required',
             'options' => [
-                \PDO::MYSQL_ATTR_SSL_CA => base_path('isrgrootx1.pem'), // <-- ใส่ชื่อไฟล์ที่คุณโหลดมา
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                \Pdo\Mysql::ATTR_SSL_CA => base_path('isrgrootx1.pem'), // แก้ตรงนี้
+                \Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT => false,       // แก้ตรงนี้
             ],
         ],
 
@@ -150,7 +150,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 

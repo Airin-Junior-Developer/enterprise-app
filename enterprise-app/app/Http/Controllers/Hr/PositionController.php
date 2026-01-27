@@ -8,42 +8,31 @@ use App\Models\Hr\Position;
 
 class PositionController extends Controller
 {
-    // 1. ดึงข้อมูลตำแหน่งทั้งหมด
+    // แสดงรายการทั้งหมด
     public function index()
     {
-        $positions = Position::all();
-        return response()->json(['status' => 'success', 'data' => $positions]);
+        return response()->json(Position::orderBy('created_at', 'desc')->get());
     }
 
-    // 2. เพิ่มตำแหน่งใหม่
+    // เพิ่มข้อมูลใหม่
     public function store(Request $request)
     {
-        $request->validate(['name' => 'required']);
-
-        Position::create([
-            'name' => $request->name
-        ]);
-
-        return response()->json(['status' => 'success', 'message' => 'บันทึกสำเร็จ']);
+        $position = Position::create($request->all());
+        return response()->json(['message' => 'Created', 'data' => $position]);
     }
 
-    // 3. แก้ไขตำแหน่ง
-    public function update(Request $request, $id)
+    // อัปเดตข้อมูล
+    public function update(Request $request, string $id)
     {
         $position = Position::findOrFail($id);
-        $position->update([
-            'name' => $request->name
-        ]);
-
-        return response()->json(['status' => 'success', 'message' => 'แก้ไขสำเร็จ']);
+        $position->update($request->all());
+        return response()->json(['message' => 'Updated']);
     }
 
-    // 4. ลบตำแหน่ง
-    public function destroy($id)
+    // ลบข้อมูล
+    public function destroy(string $id)
     {
-        $position = Position::findOrFail($id);
-        $position->delete();
-
-        return response()->json(['status' => 'success', 'message' => 'ลบสำเร็จ']);
+        Position::destroy($id);
+        return response()->json(['message' => 'Deleted']);
     }
 }
