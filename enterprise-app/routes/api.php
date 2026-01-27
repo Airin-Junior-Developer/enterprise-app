@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Hr\PersonnelController;
 use App\Http\Controllers\Hr\BranchController;
 use App\Http\Controllers\Hr\PositionController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -35,3 +36,6 @@ Route::get('/employees', [PersonnelController::class, 'index']); // ดึงร
 Route::post('/employees', [PersonnelController::class, 'store']); // บันทึก
 Route::get('/branches', [BranchController::class, 'index']);
 Route::get('/positions', [PositionController::class, 'index']);
+
+// Route สำหรับ Dashboard
+Route::get('/dashboard/stats', [DashboardController::class, 'index']);

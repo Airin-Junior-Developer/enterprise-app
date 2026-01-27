@@ -1,47 +1,13 @@
 import './bootstrap';
 import { createApp } from 'vue';
+import router from './router'; // เรียกใช้ Router ที่เราสร้างไว้
+import App from './App.vue';   // เรียกใช้ Layout หลัก (ที่มี Sidebar)
 
-const app = createApp({});
+// สร้าง App โดยใช้ App.vue เป็นตัวตั้งต้น
+const app = createApp(App);
 
-// ---------------------------------------------------------
-// 1. ลงทะเบียน MainApp (สำคัญมาก! ตัวนี้คือผู้กำกับที่คอยสลับหน้า)
-// ---------------------------------------------------------
-import MainApp from './components/MainApp.vue';
-app.component('main-app', MainApp);
+// ใช้งาน Router
+app.use(router);
 
-
-// ---------------------------------------------------------
-// 2. ลงทะเบียน BranchManager (หน้าระบบสาขา)
-// ---------------------------------------------------------
-import BranchManager from './components/BranchManager.vue';
-app.component('branch-manager', BranchManager);
-
-
-// ---------------------------------------------------------
-// 3. ลงทะเบียน EmployeeManager (หน้าระบบพนักงาน)
-// ---------------------------------------------------------
-import EmployeeManager from './components/EmployeeManager.vue';
-app.component('employee-manager', EmployeeManager);
-
-
-// ---------------------------------------------------------
-// 4. ลงทะเบียน DashboardLayout (โครงสร้างหน้าเว็บ Sidebar/Header)
-// ---------------------------------------------------------
-import DashboardLayout from './components/DashboardLayout.vue';
-app.component('dashboard-layout', DashboardLayout);
-
-
-// ---------------------------------------------------------
-// (Optional)
-// ---------------------------------------------------------
-import EmployeeList from './components/EmployeeList.vue';
-app.component('employee-list', EmployeeList);
-
-import EmployeeForm from './components/EmployeeForm.vue';
-app.component('employee-form', EmployeeForm);
-
-import PositionManager from './components/PositionManager.vue';
-app.component('position-manager', PositionManager);
-
-
+// สั่งทำงานที่ <div id="app">
 app.mount('#app');
