@@ -43,7 +43,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    <tr v-for="emp in employees" :key="emp.id" class="hover:bg-slate-50/80 transition-colors">
+                    <tr v-for="emp in filteredEmployees" :key="emp.id" class="hover:bg-slate-50/80 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center">
                                 <div
@@ -246,21 +246,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+// นำเข้า Library ที่จำเป็น
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-import Swal from 'sweetalert2'; // ✅ เรียกใช้ SweetAlert2
+import Swal from 'sweetalert2';
 
-// State
-const searchQuery = ref('');
-const isModalOpen = ref(false);
-const isEditing = ref(false);
-const editingId = ref(null);
-const isLoading = ref(false);
-const employees = ref([]);
-const branches = ref([]);
-const positions = ref([]);
+// --- ประกาศตัวแปร (State) ---
+const searchQuery = ref('');    // คำค้นหา
+const isModalOpen = ref(false); // สถานะเปิด/ปิด Modal
+const isEditing = ref(false);   // สถานะว่ากำลังแก้ไขหรือไม่
+const editingId = ref(null);    // ID ของพนักงานที่กำลังแก้ไข
+const isLoading = ref(false);   // สถานะกำลังโหลด
+const employees = ref([]);      // ข้อมูลพนักงานทั้งหมด
+const branches = ref([]);       // ข้อมูลสาขา (สำหรับ Dropdown)
+const positions = ref([]);      // ข้อมูลตำแหน่ง (สำหรับ Dropdown)
 
-// Form Data
+// ข้อมูลในฟอร์ม
 const form = ref({
     prefix: 'นาย',
     first_name: '',
@@ -272,7 +273,7 @@ const form = ref({
     email: ''
 });
 
-// Actions
+// --- ดึงข้อมูล (Fetch Data) ---
 const fetchEmployees = async () => {
     try {
         const res = await axios.get('/api/employees');
@@ -282,6 +283,7 @@ const fetchEmployees = async () => {
 
 const fetchOptions = async () => {
     try {
+        // ดึงข้อมูลสาขาและตำแหน่งพร้อมกัน
         const [bRes, pRes] = await Promise.all([
             axios.get('/api/branches'),
             axios.get('/api/positions')
@@ -291,6 +293,7 @@ const fetchOptions = async () => {
     } catch (e) { console.error(e); }
 };
 
+// --- การจัดการ Modal ---
 const openModal = () => {
     isEditing.value = false;
     editingId.value = null;
@@ -298,6 +301,7 @@ const openModal = () => {
     isModalOpen.value = true;
 };
 
+// เตรียมข้อมูลสำหรับแก้ไข
 const editEmployee = (emp) => {
     isEditing.value = true;
     editingId.value = emp.id;
@@ -314,43 +318,13 @@ const editEmployee = (emp) => {
     isModalOpen.value = true;
 };
 
-const deleteEmployee = (id) => {
-    // ✅ ใช้ SweetAlert แทน confirm()
-    Swal.fire({
-        title: 'ยืนยันการลบ?',
-        text: "คุณต้องการลบพนักงานคนนี้ใช่หรือไม่? กู้คืนไม่ได้นะ!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#cbd5e1',
-        confirmButtonText: 'ใช่, ลบเลย',
-        cancelButtonText: 'ยกเลิก',
-        reverseButtons: true
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            try {
-                await axios.delete(`/api/employees/${id}`);
-                // แจ้งเตือนลบสำเร็จ
-                Swal.fire({
-                    icon: 'success',
-                    title: 'ลบสำเร็จ!',
-                    text: 'ข้อมูลถูกลบเรียบร้อยแล้ว',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                fetchEmployees();
-            } catch (e) {
-                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถลบข้อมูลได้', 'error');
-            }
-        }
-    });
-};
-
 const closeModal = () => {
     isModalOpen.value = false;
 };
 
+// --- บันทึกข้อมูล (Create / Update) ---
 const saveEmployee = async () => {
+    // ตรวจสอบความถูกต้องเบื้องต้น
     if (!form.value.first_name) {
         Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกชื่อจริง', 'warning');
         return;
@@ -359,12 +333,14 @@ const saveEmployee = async () => {
     isLoading.value = true;
     try {
         if (isEditing.value) {
+            // กรณีแก้ไข (PUT)
             await axios.put(`/api/employees/${editingId.value}`, form.value);
         } else {
+            // กรณีเพิ่มใหม่ (POST)
             await axios.post('/api/employees', form.value);
         }
 
-        // ✅ แจ้งเตือนสำเร็จสวยๆ
+        // แจ้งเตือนความสำเร็จ
         Swal.fire({
             icon: 'success',
             title: isEditing.value ? 'อัปเดตสำเร็จ!' : 'บันทึกสำเร็จ!',
@@ -381,6 +357,53 @@ const saveEmployee = async () => {
     }
 };
 
+// --- ลบข้อมูล (Delete) ---
+const deleteEmployee = (id) => {
+    Swal.fire({
+        title: 'ยืนยันการลบ?',
+        text: "คุณต้องการลบพนักงานคนนี้ใช่หรือไม่? กู้คืนไม่ได้นะ!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#cbd5e1',
+        confirmButtonText: 'ใช่, ลบเลย',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await axios.delete(`/api/employees/${id}`);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ลบสำเร็จ!',
+                    text: 'ข้อมูลถูกลบเรียบร้อยแล้ว',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                fetchEmployees();
+            } catch (e) {
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถลบข้อมูลได้', 'error');
+            }
+        }
+    });
+};
+
+// --- ระบบค้นหา (Search Logic) ---
+const filteredEmployees = computed(() => {
+    // ถ้าไม่มีคำค้นหา ให้คืนค่าทั้งหมด
+    if (!searchQuery.value) return employees.value;
+
+    const lowerSearch = searchQuery.value.toLowerCase();
+    // กรองข้อมูลตาม ชื่อ, นามสกุล, เบอร์โทร, หรืออีเมล
+    return employees.value.filter(emp =>
+        emp.first_name.toLowerCase().includes(lowerSearch) ||
+        emp.last_name.toLowerCase().includes(lowerSearch) ||
+        (emp.phone_number && emp.phone_number.includes(lowerSearch)) ||
+        (emp.user && emp.user.email.toLowerCase().includes(lowerSearch))
+    );
+});
+
+// เริ่มทำงานเมื่อเปิดหน้าเว็บ
 onMounted(() => {
     fetchEmployees();
     fetchOptions();

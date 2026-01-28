@@ -16,6 +16,20 @@
             </button>
         </div>
 
+        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 mb-6 max-w-sm">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" v-model="searchQuery"
+                    class="block w-full pl-10 pr-4 py-2 border-none rounded-xl bg-transparent focus:ring-0 text-slate-700 placeholder-slate-400"
+                    placeholder="ค้นหาสาขา..." />
+            </div>
+        </div>
+
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <table class="min-w-full divide-y divide-slate-100">
                 <thead class="bg-slate-50/50">
@@ -27,7 +41,8 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    <tr v-for="branch in branches" :key="branch.id" class="hover:bg-slate-50/80 transition-colors">
+                    <tr v-for="branch in filteredBranches" :key="branch.id"
+                        class="hover:bg-slate-50/80 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center">
                                 <div
@@ -109,9 +124,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+
+import { ref, onMounted, computed } from 'vue'; // เพิ่ม computed
+
+const searchQuery = ref(''); // เพิ่มตัวแปรรับค่าค้นหา
+
+// Logic กรองสาขา
+const filteredBranches = computed(() => {
+    if (!searchQuery.value) return branches.value;
+    const lowerSearch = searchQuery.value.toLowerCase();
+    return branches.value.filter(b =>
+        b.name.toLowerCase().includes(lowerSearch) ||
+        (b.address && b.address.toLowerCase().includes(lowerSearch))
+    );
+});
 
 // --- ประกาศตัวแปร State ---
 const branches = ref([]);       // เก็บข้อมูลสาขาทั้งหมด
