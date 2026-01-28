@@ -58,10 +58,11 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'ssl_mode' => 'required',
+            'ssl_mode' => 'required', // บาง Host บังคับใส่บรรทัดนี้ด้วย ถ้า Error ให้ลองใส่ดูครับ
             'options' => [
-                \Pdo\Mysql::ATTR_SSL_CA => base_path('isrgrootx1.pem'), // แก้ตรงนี้
-                \Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT => false,       // แก้ตรงนี้
+                    // ใช้ Ternary Operator เช็ค: ถ้ามี Class ใหม่ให้ใช้ตัวใหม่ ถ้าไม่มีให้ใช้ตัวเก่า
+                (defined('Pdo\Mysql::ATTR_SSL_CA') ? \Pdo\Mysql::ATTR_SSL_CA : \PDO::MYSQL_ATTR_SSL_CA) => base_path('isrgrootx1.pem'),
+                (defined('Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT') ? \Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT : \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT) => false,
             ],
         ],
 
