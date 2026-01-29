@@ -9,8 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('positions', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
+            // ตั้งชื่อ Primary Key ว่า position_id ให้ชัดเจน
+            $table->id('position_id');
+
+            // ✅ เปลี่ยนจาก name เป็น position_name
+            $table->string('position_name');
+
             $table->text('description')->nullable();
             $table->timestamps();
         });

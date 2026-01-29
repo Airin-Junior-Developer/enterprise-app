@@ -9,15 +9,10 @@ class Branch extends Model
 {
     use HasFactory;
 
-    // ระบุชื่อตารางใน Database (ปกติ Laravel จะเดาว่า branches แต่ใส่กันเหนียวไว้ครับ)
-    protected $table = 'branches';
+    protected $primaryKey = 'branch_id'; // ระบุ Primary Key
 
-    // 👇 จุดสำคัญคือตรงนี้ครับ ต้องมี 'address' ด้วย
     protected $fillable = [
-        'name',
-        'address',
+        'branch_name', // ✅ แก้เป็น branch_name
+        'description'
     ];
-
-    // อนุญาตให้แก้ไขข้อมูล 2 ช่องนี้ได้
-    // protected $fillable = ['name', 'code'];
 }

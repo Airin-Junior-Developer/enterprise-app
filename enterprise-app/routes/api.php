@@ -2,40 +2,35 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Hr\PersonnelController;
+use App\Http\Controllers\Hr\EmployeeController;
 use App\Http\Controllers\Hr\BranchController;
 use App\Http\Controllers\Hr\PositionController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Hr\RequestController;
+use App\Http\Controllers\Hr\DashboardController;
+use App\Http\Controllers\Hr\AuthController; // เพิ่มบรรทัดนี้
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+*/
 
-// เส้นทางดึงพนักงาน
-Route::get('/employees', [PersonnelController::class, 'index']);
-Route::post('/employees', [PersonnelController::class, 'store']);
+// 1. ประตูด่านหน้า (ไม่ต้องใช้บัตรผ่าน)
+Route::post('/login', [AuthController::class, 'login']);
 
-// แก้ไขข้อมูล (PUT) และ ลบข้อมูล (DELETE)
-Route::put('/employees/{id}', [PersonnelController::class, 'update']);
-Route::delete('/employees/{id}', [PersonnelController::class, 'destroy']);
+// 2. โซนปลอดภัย (ต้องมีบัตรผ่าน)
+Route::middleware('auth:sanctum')->group(function () {
 
-// ส่วนจัดการสาขา (Branch)
-Route::get('/branches', [BranchController::class, 'index']);      // ดึงข้อมูล
-Route::post('/branches', [BranchController::class, 'store']);     // เพิ่มใหม่
-Route::put('/branches/{id}', [BranchController::class, 'update']); // แก้ไข
-Route::delete('/branches/{id}', [BranchController::class, 'destroy']); // ลบ
+    Route::post('/logout', [AuthController::class, 'logout']); // ทางออก
 
-// API จัดการตำแหน่งงาน
-Route::get('/positions', [PositionController::class, 'index']);
-Route::post('/positions', [PositionController::class, 'store']);     // เส้นทางสำหรับบันทึก
-Route::put('/positions/{id}', [PositionController::class, 'update']);
-Route::delete('/positions/{id}', [PositionController::class, 'destroy']);
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
 
-// กลุ่ม Route ของ HR
-Route::get('/employees', [PersonnelController::class, 'index']); // ดึงรายชื่อ
-Route::post('/employees', [PersonnelController::class, 'store']); // บันทึก
-Route::get('/branches', [BranchController::class, 'index']);
-Route::get('/positions', [PositionController::class, 'index']);
+    Route::apiResource('employees', EmployeeController::class);
+    Route::apiResource('branches', BranchController::class);
+    Route::apiResource('positions', PositionController::class);
+    Route::apiResource('requests', RequestController::class);
 
-// Route สำหรับ Dashboard
-Route::get('/dashboard/stats', [DashboardController::class, 'index']);
+    Route::get('/dashboard/stats', [DashboardController::class, 'index']);
+});

@@ -9,9 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('branches', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->text('address')->nullable();
+            // ตั้งชื่อ Primary Key ว่า branch_id ให้ชัดเจน
+            $table->id('branch_id');
+
+            // ✅ เปลี่ยนจาก name เป็น branch_name
+            $table->string('branch_name');
+
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

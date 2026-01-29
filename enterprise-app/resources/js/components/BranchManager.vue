@@ -25,7 +25,7 @@
                     </svg>
                 </div>
                 <input type="text" v-model="searchQuery"
-                    class="block w-full pl-10 pr-4 py-2 border-none rounded-xl bg-transparent focus:ring-0 text-slate-700 placeholder-slate-400"
+                    class="block w-full pl-10 pr-4 py-2 border-none rounded-xl bg-transparent focus:ring-0 text-slate-700 placeholder-slate-400 focus:outline-none"
                     placeholder="ค้นหาสาขา..." />
             </div>
         </div>
@@ -41,7 +41,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    <tr v-for="branch in filteredBranches" :key="branch.id"
+                    <tr v-for="branch in filteredBranches" :key="branch.branch_id"
                         class="hover:bg-slate-50/80 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center">
@@ -49,11 +49,11 @@
                                     class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg mr-3">
                                     🏢
                                 </div>
-                                <div class="text-sm font-bold text-slate-800">{{ branch.name }}</div>
+                                <div class="text-sm font-bold text-slate-800">{{ branch.branch_name }}</div>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-sm text-slate-600">
-                            {{ branch.address || '-' }}
+                            {{ branch.description || '-' }}
                         </td>
                         <td class="px-6 py-4 text-right space-x-2">
                             <button @click="editBranch(branch)"
@@ -64,7 +64,7 @@
                                         d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                 </svg>
                             </button>
-                            <button @click="deleteBranch(branch.id)"
+                            <button @click="deleteBranch(branch.branch_id)"
                                 class="text-rose-600 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -75,7 +75,7 @@
                             </button>
                         </td>
                     </tr>
-                    <tr v-if="branches.length === 0">
+                    <tr v-if="filteredBranches.length === 0">
                         <td colspan="3" class="px-6 py-10 text-center text-slate-400">ยังไม่มีข้อมูลสาขา</td>
                     </tr>
                 </tbody>
@@ -96,13 +96,13 @@
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อสาขา <span
                                     class="text-rose-500">*</span></label>
-                            <input v-model="form.name" type="text" required
+                            <input v-model="form.branch_name" type="text" required
                                 class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
                                 placeholder="เช่น สำนักงานใหญ่" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">ที่อยู่ / รายละเอียด</label>
-                            <textarea v-model="form.address" rows="3"
+                            <textarea v-model="form.description" rows="3"
                                 class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
                                 placeholder="ระบุที่ตั้ง..."></textarea>
                         </div>
@@ -126,50 +126,49 @@
 <script setup>
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { ref, onMounted, computed } from 'vue';
 
-import { ref, onMounted, computed } from 'vue'; // เพิ่ม computed
+const searchQuery = ref('');
 
-const searchQuery = ref(''); // เพิ่มตัวแปรรับค่าค้นหา
-
-// Logic กรองสาขา
+// Logic กรองสาขา (แก้ให้ตรงกับชื่อฟิลด์ใหม่)
 const filteredBranches = computed(() => {
     if (!searchQuery.value) return branches.value;
     const lowerSearch = searchQuery.value.toLowerCase();
     return branches.value.filter(b =>
-        b.name.toLowerCase().includes(lowerSearch) ||
-        (b.address && b.address.toLowerCase().includes(lowerSearch))
+        b.branch_name.toLowerCase().includes(lowerSearch) ||
+        (b.description && b.description.toLowerCase().includes(lowerSearch))
     );
 });
 
-// --- ประกาศตัวแปร State ---
-const branches = ref([]);       // เก็บข้อมูลสาขาทั้งหมด
-const isModalOpen = ref(false); // สถานะการเปิด/ปิด Modal
-const isEditing = ref(false);   // ตรวจสอบสถานะว่ากำลังแก้ไขอยู่หรือไม่
-const editingId = ref(null);    // เก็บ ID ของสาขาที่กำลังแก้ไข
-const isLoading = ref(false);   // สถานะการโหลดข้อมูล
+// State
+const branches = ref([]);
+const isModalOpen = ref(false);
+const isEditing = ref(false);
+const editingId = ref(null);
+const isLoading = ref(false);
 
-// ข้อมูลสำหรับผูกกับฟอร์ม
+// Form Data (แก้ชื่อตัวแปร)
 const form = ref({
-    name: '',
-    address: ''
+    branch_name: '',
+    description: ''
 });
 
-// --- ฟังก์ชันดึงข้อมูล (Read) ---
+// Fetch Data
 const fetchBranches = async () => {
     try {
         const res = await axios.get('/api/branches');
-        // รองรับโครงสร้างข้อมูลทั้งแบบมี key 'data' และไม่มี
-        branches.value = res.data.data || res.data;
+        // API เราส่ง Array ตรงๆ มาเลย ไม่ได้ห่อ data.data
+        branches.value = res.data;
     } catch (e) {
         console.error("Error fetching branches:", e);
     }
 };
 
-// --- จัดการ Modal ---
+// Open Modal
 const openModal = () => {
     isEditing.value = false;
     editingId.value = null;
-    form.value = { name: '', address: '' }; // ล้างค่าในฟอร์ม
+    form.value = { branch_name: '', description: '' };
     isModalOpen.value = true;
 };
 
@@ -177,38 +176,31 @@ const closeModal = () => {
     isModalOpen.value = false;
 };
 
-// --- เตรียมข้อมูลสำหรับแก้ไข (Prepare Edit) ---
+// Edit Branch (แก้ให้แมพกับตัวแปรใหม่)
 const editBranch = (branch) => {
     isEditing.value = true;
-    editingId.value = branch.id;
-    form.value = { name: branch.name, address: branch.address };
+    editingId.value = branch.branch_id; // ใช้ branch_id
+    form.value = {
+        branch_name: branch.branch_name,
+        description: branch.description
+    };
     isModalOpen.value = true;
 };
 
-// --- บันทึกข้อมูล (Create / Update) ---
+// Save Branch
 const saveBranch = async () => {
-    if (!form.value.name) return; // ป้องกันการบันทึกหากไม่มีชื่อ
+    if (!form.value.branch_name) return;
 
     isLoading.value = true;
     try {
         if (isEditing.value) {
-            // กรณีแก้ไขข้อมูล (PUT)
             await axios.put(`/api/branches/${editingId.value}`, form.value);
         } else {
-            // กรณีเพิ่มข้อมูลใหม่ (POST)
             await axios.post('/api/branches', form.value);
         }
-
-        // แสดงแจ้งเตือนเมื่อบันทึกสำเร็จ
-        Swal.fire({
-            icon: 'success',
-            title: 'บันทึกสำเร็จ!',
-            showConfirmButton: false,
-            timer: 1500
-        });
-
+        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 });
         closeModal();
-        fetchBranches(); // โหลดข้อมูลใหม่หลังจากบันทึก
+        fetchBranches();
     } catch (e) {
         Swal.fire('Error', e.message, 'error');
     } finally {
@@ -216,12 +208,11 @@ const saveBranch = async () => {
     }
 };
 
-// --- ลบข้อมูล (Delete) ---
+// Delete Branch
 const deleteBranch = (id) => {
-    // แสดง Pop-up ยืนยันการลบ
     Swal.fire({
         title: 'ยืนยันการลบ?',
-        text: "ข้อมูลพนักงานในสาขานี้จะกลายเป็น 'ไม่มีสังกัด' นะครับ",
+        text: "ข้อมูลพนักงานในสาขานี้จะกลายเป็น 'ไม่มีสังกัด'",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#ef4444',
@@ -240,7 +231,6 @@ const deleteBranch = (id) => {
     });
 };
 
-// --- ทำงานเมื่อเปิดหน้าเว็บ (Lifecycle Hook) ---
 onMounted(() => {
     fetchBranches();
 });

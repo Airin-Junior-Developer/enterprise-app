@@ -6,19 +6,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use App\Models\Hr\Branch;
-use App\Models\Hr\Employee;
+use App\Models\Hr\Position;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
+    // ระบุ Primary Key ให้ตรงกับ Migration
+    protected $primaryKey = 'user_id';
+
+    // เพิ่มรายชื่อฟิลด์ที่อนุญาตให้บันทึก (ต้องตรงกับ Database)
     protected $fillable = [
-        'branch_id',    // <-- สำคัญ: ต้องใส่เพื่อให้อัปเดตสาขาได้
-        'name',
+        'prefix',
+        'first_name',
+        'last_name',
+        'id_card_number',
+        'phone_number',
         'email',
         'password',
-        'role_global',  // <-- สำคัญ: สิทธิ์ admin
+        'branch_id',
+        'position_id',
+        'status',
     ];
 
     protected $hidden = [
@@ -31,15 +41,14 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // ** เพิ่มฟังก์ชันนี้: เพื่อบอกว่า User นี้สังกัดสาขาอะไร **
+    // ความสัมพันธ์ (Relationships)
     public function branch()
     {
-        return $this->belongsTo(Branch::class);
+        return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
 
-    // ** เพิ่มฟังก์ชันนี้: เพื่อดึงประวัติส่วนตัว **
-    public function profile()
+    public function position()
     {
-        return $this->hasOne(Employee::class);
+        return $this->belongsTo(Position::class, 'position_id', 'position_id');
     }
 }

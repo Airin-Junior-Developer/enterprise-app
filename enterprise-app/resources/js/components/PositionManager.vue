@@ -16,6 +16,20 @@
             </button>
         </div>
 
+        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 mb-6 max-w-sm">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" v-model="searchQuery"
+                    class="block w-full pl-10 pr-4 py-2 border-none rounded-xl bg-transparent focus:ring-0 text-slate-700 placeholder-slate-400 focus:outline-none"
+                    placeholder="ค้นหาตำแหน่ง..." />
+            </div>
+        </div>
+
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <table class="min-w-full divide-y divide-slate-100">
                 <thead class="bg-slate-50/50">
@@ -27,14 +41,15 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    <tr v-for="pos in filteredPositions" :key="pos.id" class="hover:bg-slate-50/80 transition-colors">
+                    <tr v-for="pos in filteredPositions" :key="pos.position_id"
+                        class="hover:bg-slate-50/80 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center">
                                 <div
                                     class="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-lg mr-3">
                                     💼
                                 </div>
-                                <div class="text-sm font-bold text-slate-800">{{ pos.name }}</div>
+                                <div class="text-sm font-bold text-slate-800">{{ pos.position_name }}</div>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-sm text-slate-600">
@@ -49,7 +64,7 @@
                                         d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                 </svg>
                             </button>
-                            <button @click="deletePosition(pos.id)"
+                            <button @click="deletePosition(pos.position_id)"
                                 class="text-rose-600 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -82,7 +97,7 @@
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อตำแหน่ง <span
                                     class="text-rose-500">*</span></label>
-                            <input v-model="form.name" type="text" required
+                            <input v-model="form.position_name" type="text" required
                                 class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
                                 placeholder="เช่น ผู้จัดการฝ่ายขาย" />
                         </div>
@@ -113,50 +128,56 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { ref, onMounted, computed } from 'vue';
+
 const searchQuery = ref('');
 
+// Logic กรอง (แก้ชื่อฟิลด์)
 const filteredPositions = computed(() => {
     if (!searchQuery.value) return positions.value;
     const lowerSearch = searchQuery.value.toLowerCase();
     return positions.value.filter(p =>
-        p.name.toLowerCase().includes(lowerSearch) ||
+        p.position_name.toLowerCase().includes(lowerSearch) ||
         (p.description && p.description.toLowerCase().includes(lowerSearch))
     );
 });
 
-// State Variables
+// State
 const positions = ref([]);
 const isModalOpen = ref(false);
 const isEditing = ref(false);
 const editingId = ref(null);
 const isLoading = ref(false);
 
+// Form Data (แก้ชื่อตัวแปร)
 const form = ref({
-    name: '',
+    position_name: '',
     description: ''
 });
 
-// ฟังก์ชันดึงข้อมูลตำแหน่ง
+// Fetch Data
 const fetchPositions = async () => {
     try {
         const res = await axios.get('/api/positions');
-        positions.value = res.data.data || res.data;
+        positions.value = res.data;
     } catch (e) { console.error(e); }
 };
 
-// เปิด Modal (โหมดเพิ่ม)
+// Open Modal
 const openModal = () => {
     isEditing.value = false;
     editingId.value = null;
-    form.value = { name: '', description: '' };
+    form.value = { position_name: '', description: '' };
     isModalOpen.value = true;
 };
 
-// เปิด Modal (โหมดแก้ไข)
+// Edit Position (แก้ให้แมพกับตัวแปรใหม่)
 const editPosition = (pos) => {
     isEditing.value = true;
-    editingId.value = pos.id;
-    form.value = { name: pos.name, description: pos.description };
+    editingId.value = pos.position_id; // ใช้ position_id
+    form.value = {
+        position_name: pos.position_name,
+        description: pos.description
+    };
     isModalOpen.value = true;
 };
 
@@ -164,9 +185,9 @@ const closeModal = () => {
     isModalOpen.value = false;
 };
 
-// บันทึกข้อมูล
+// Save Position
 const savePosition = async () => {
-    if (!form.value.name) return;
+    if (!form.value.position_name) return;
 
     isLoading.value = true;
     try {
@@ -175,7 +196,6 @@ const savePosition = async () => {
         } else {
             await axios.post('/api/positions', form.value);
         }
-
         Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 });
         closeModal();
         fetchPositions();
@@ -186,7 +206,7 @@ const savePosition = async () => {
     }
 };
 
-// ลบข้อมูล
+// Delete Position
 const deletePosition = (id) => {
     Swal.fire({
         title: 'ยืนยันการลบ?',

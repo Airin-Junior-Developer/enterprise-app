@@ -8,46 +8,25 @@ use App\Models\Hr\Branch;
 
 class BranchController extends Controller
 {
-    /**
-     * ดึงข้อมูลสาขาทั้งหมด
-     * Method: GET
-     */
+    // ดึงข้อมูลสาขาทั้งหมด
     public function index()
     {
-        // ดึงข้อมูลและเรียงลำดับจากสร้างล่าสุดไปเก่าสุด
-        return response()->json(Branch::orderBy('created_at', 'desc')->get());
+        return Branch::all();
     }
 
-    /**
-     * เพิ่มสาขาใหม่
-     * Method: POST
-     */
+    // เพิ่มสาขาใหม่
     public function store(Request $request)
     {
-        // สร้างข้อมูลใหม่ตาม Request ที่ส่งมา
-        $branch = Branch::create($request->all());
-        return response()->json(['message' => 'Created', 'data' => $branch]);
+        // ตรวจสอบว่าต้องมีชื่อสาขา (branch_name)
+        $request->validate(['branch_name' => 'required']);
+
+        // สร้างและบันทึกข้อมูลทีเดียว (Mass Assignment)
+        return Branch::create($request->all());
     }
 
-    /**
-     * แก้ไขข้อมูลสาขา
-     * Method: PUT/PATCH
-     */
-    public function update(Request $request, string $id)
+    // ลบสาขา
+    public function destroy($id)
     {
-        // ค้นหาสาขาตาม ID หากไม่เจอจะแจ้ง Error 404
-        $branch = Branch::findOrFail($id);
-        $branch->update($request->all());
-        return response()->json(['message' => 'Updated']);
-    }
-
-    /**
-     * ลบสาขา
-     * Method: DELETE
-     */
-    public function destroy(string $id)
-    {
-        // ลบข้อมูลตาม ID ที่ระบุ
         Branch::destroy($id);
         return response()->json(['message' => 'Deleted']);
     }

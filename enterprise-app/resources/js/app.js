@@ -1,13 +1,32 @@
 import './bootstrap';
 import { createApp } from 'vue';
-import router from './router'; // เรียกใช้ Router ที่เราสร้างไว้
-import App from './App.vue';   // เรียกใช้ Layout หลัก (ที่มี Sidebar)
+import router from './router';
+import App from './App.vue';
+import axios from 'axios'; // Import axios มาด้วย
 
-// สร้าง App โดยใช้ App.vue เป็นตัวตั้งต้น
 const app = createApp(App);
 
-// ใช้งาน Router
-app.use(router);
+// --- ส่วนจัดการ Token ---
+const token = localStorage.getItem('token');
+if (token) {
+    window.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
 
-// สั่งทำงานที่ <div id="app">
+// ✅ เพิ่มโค้ดชุดนี้: ดักจับ Error 401 (กุญแจผิด/หมดอายุ)
+window.axios.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response && error.response.status === 401) {
+            // ถ้า Server บอกว่า Unauthorized (401)
+            // ให้ลบ Token ทิ้ง แล้วถีบไปหน้า Login
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+// -----------------------
+
+app.use(router);
 app.mount('#app');

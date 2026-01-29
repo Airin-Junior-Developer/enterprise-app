@@ -8,29 +8,24 @@ use App\Models\Hr\Position;
 
 class PositionController extends Controller
 {
-    // แสดงรายการทั้งหมด
+    // ดึงตำแหน่งงานทั้งหมด
     public function index()
     {
-        return response()->json(Position::orderBy('created_at', 'desc')->get());
+        return Position::all();
     }
 
-    // เพิ่มข้อมูลใหม่
+    // เพิ่มตำแหน่งงานใหม่
     public function store(Request $request)
     {
-        $position = Position::create($request->all());
-        return response()->json(['message' => 'Created', 'data' => $position]);
+        // ตรวจสอบว่าต้องมีชื่อตำแหน่ง (position_name)
+        $request->validate(['position_name' => 'required']);
+
+        // บันทึกลง Database
+        return Position::create($request->all());
     }
 
-    // อัปเดตข้อมูล
-    public function update(Request $request, string $id)
-    {
-        $position = Position::findOrFail($id);
-        $position->update($request->all());
-        return response()->json(['message' => 'Updated']);
-    }
-
-    // ลบข้อมูล
-    public function destroy(string $id)
+    // ลบตำแหน่งงาน
+    public function destroy($id)
     {
         Position::destroy($id);
         return response()->json(['message' => 'Deleted']);

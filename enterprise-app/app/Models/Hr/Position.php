@@ -9,17 +9,10 @@ class Position extends Model
 {
     use HasFactory;
 
-    protected $table = 'positions';
+    protected $primaryKey = 'position_id'; // ระบุ Primary Key
 
-    // 👇 ต้องเพิ่ม 'description' เข้าไปตรงนี้ครับ
     protected $fillable = [
-        'name',
+        'position_name', // ✅ แก้เป็น position_name
         'description'
     ];
-
-    // ความสัมพันธ์กับพนักงาน
-    public function employees()
-    {
-        return $this->hasMany(Employee::class);
-    }
 }
