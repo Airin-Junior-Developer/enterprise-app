@@ -4,50 +4,62 @@ namespace App\Http\Controllers\Hr;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Hr\Request as RequestModel; // ตั้งชื่อเล่น (Alias) เพื่อไม่ให้ชนกับ Request ของ Laravel
-use Illuminate\Support\Facades\Auth;
+use App\Models\Hr\Request as RequestModel; // ตั้งชื่อเล่น Model เพื่อไม่ให้ชนกับ Request หลัก
+use App\Models\User;
 
 class RequestController extends Controller
 {
-    // 1. ดึงรายการคำร้อง (ของตัวเอง)
+    // ดึงข้อมูลคำร้องทั้งหมด
     public function index()
     {
-        $user = Auth::user();
-
-        // ดึงคำร้องทั้งหมดที่เป็นของ User คนนี้ พร้อมข้อมูลพนักงานและสาขา
-        $requests = RequestModel::with(['user', 'branch'])
-            ->where('user_id', $user->user_id)
+        // with('user') คือการดึงข้อมูลคนขอมาด้วย (Join ตาราง)
+        $requests = RequestModel::with('user')
             ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json($requests);
     }
 
-    // 2. สร้างคำร้องใหม่
+    // สร้างคำร้องใหม่
     public function store(Request $request)
     {
-        $user = Auth::user();
-
-        // ตรวจสอบความถูกต้อง
         $validated = $request->validate([
-            'type' => 'required|string',
-            'reason' => 'required|string',
-            'details' => 'required|array', // ต้องส่งมาเป็น JSON Object
+            'user_id' => 'required|exists:users,user_id',
+            'request_type' => 'required|string',
+            'reason' => 'nullable|string',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'amount' => 'nullable|numeric',
         ]);
 
-        // บันทึกลงฐานข้อมูล
-        $newRequest = RequestModel::create([
-            'user_id' => $user->user_id,
-            'branch_id' => $user->branch_id, // ใช้สาขาปัจจุบันของพนักงาน
-            'type' => $validated['type'],
-            'reason' => $validated['reason'],
-            'details' => $validated['details'], // Laravel จะแปลง array เป็น json ให้เอง (เพราะเราทำ cast ไว้ใน Model)
-            'status' => 'pending'
-        ]);
+        // ตั้งสถานะเริ่มต้นเป็น pending (รออนุมัติ)
+        $validated['status'] = 'pending';
 
-        return response()->json([
-            'message' => 'Created successfully',
-            'data' => $newRequest
-        ]);
+        RequestModel::create($validated);
+
+        return response()->json(['message' => 'สร้างคำร้องสำเร็จ']);
+    }
+
+    // อัปเดตข้อมูล (แก้ไข หรือ เปลี่ยนสถานะ)
+    public function update(Request $request, $id)
+    {
+        $req = RequestModel::findOrFail($id);
+
+        // ถ้ามีการส่ง status มา (เช่น กดอนุมัติ)
+        if ($request->has('status')) {
+            $req->update(['status' => $request->status]);
+        } else {
+            // ถ้าแก้ไขเนื้อหาปกติ
+            $req->update($request->all());
+        }
+
+        return response()->json(['message' => 'อัปเดตข้อมูลสำเร็จ']);
+    }
+
+    // ลบคำร้อง
+    public function destroy($id)
+    {
+        RequestModel::destroy($id);
+        return response()->json(['message' => 'ลบข้อมูลสำเร็จ']);
     }
 }
