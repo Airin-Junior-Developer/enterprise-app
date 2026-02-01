@@ -7,8 +7,7 @@ use App\Http\Controllers\Hr\BranchController;
 use App\Http\Controllers\Hr\PositionController;
 use App\Http\Controllers\Hr\RequestController;
 use App\Http\Controllers\Hr\DashboardController;
-use App\Http\Controllers\Hr\AuthController; // เพิ่มบรรทัดนี้
-
+use App\Http\Controllers\Hr\AuthController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -32,5 +31,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('positions', PositionController::class);
     Route::apiResource('requests', RequestController::class);
 
-    Route::get('/dashboard/stats', [DashboardController::class, 'index']);
+    // Route::get('/dashboard/stats', [DashboardController::class, 'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });

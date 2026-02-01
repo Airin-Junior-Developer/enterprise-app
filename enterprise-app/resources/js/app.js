@@ -12,7 +12,7 @@ if (token) {
     window.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 }
 
-// ✅ เพิ่มโค้ดชุดนี้: ดักจับ Error 401 (กุญแจผิด/หมดอายุ)
+// เพิ่มโค้ดชุดนี้: ดักจับ Error 401 (กุญแจผิด/หมดอายุ)
 window.axios.interceptors.response.use(
     response => response,
     error => {

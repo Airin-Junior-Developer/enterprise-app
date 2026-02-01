@@ -6,6 +6,7 @@ import BranchManager from './components/BranchManager.vue';
 import PositionManager from './components/PositionManager.vue';
 import RequestManager from './components/RequestManager.vue';
 
+
 const routes = [
     { path: '/login', component: Login }, // เพิ่ม Route Login
     { path: '/', component: Dashboard },
