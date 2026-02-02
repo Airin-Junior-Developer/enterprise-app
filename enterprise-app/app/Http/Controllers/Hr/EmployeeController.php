@@ -9,50 +9,70 @@ use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
 {
-    // --- [GET] ดึงรายชื่อพนักงานทั้งหมด ---
     public function index()
     {
-        // ใช้ with(['branch', 'position']) เพื่อ Join ตาราง
-        // ทำให้ตอนเราเรียก employees.branch.branch_name ในหน้าเว็บ มันจะมีข้อมูลโชว์
-        return User::with(['branch', 'position'])->get();
+        // ดึง User พร้อมข้อมูล Branch และ Position
+        $employees = User::with(['branch', 'position'])->get();
+        return response()->json($employees);
     }
 
-    // --- [POST] เพิ่มพนักงานใหม่ ---
     public function store(Request $request)
     {
-        // 1. ตรวจสอบความถูกต้องของข้อมูล (Validation)
+        // 1. ตรวจสอบข้อมูล (Validation)
         $validated = $request->validate([
-            'first_name' => 'required',             // ชื่อห้ามเว้นว่าง
-            'email' => 'required|email|unique:users', // อีเมลห้ามซ้ำ
-            'branch_id' => 'required',              // ต้องเลือกสาขา
-            'position_id' => 'required',            // ต้องเลือกตำแหน่ง
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email', // ห้ามซ้ำ
+            'branch_id' => 'required|exists:branches,branch_id',
+            'position_id' => 'required|exists:positions,position_id',
+            // บังคับใส่รหัสผ่าน และต้องตรงกับช่อง confirm
+            'password' => 'required|string|min:6|confirmed',
+            'id_card_number' => 'nullable|string',
+            'phone_number' => 'nullable|string',
         ]);
 
-        // 2. สร้าง User ใหม่
-        $user = new User();
-        $user->prefix = $request->prefix ?? 'คุณ';  // ถ้าไม่ใส่คำนำหน้า ให้เป็น "คุณ"
-        $user->first_name = $request->first_name;
-        $user->last_name = $request->last_name ?? ''; // นามสกุลถ้าไม่มี ให้เป็นค่าว่าง
-        $user->email = $request->email;
+        // 2. เข้ารหัสรหัสผ่านก่อนบันทึก
+        $validated['password'] = Hash::make($request->password);
 
-        // ตั้งรหัสผ่านเริ่มต้นเป็น 12345678 (เข้ารหัสด้วย Hash)
-        $user->password = Hash::make('12345678');
+        // 3. สร้าง User
+        User::create($validated);
 
-        $user->branch_id = $request->branch_id;
-        $user->position_id = $request->position_id;
-        $user->status = 'active'; // ตั้งสถานะเป็น "ปกติ"
-
-        // 3. บันทึกลง Database
-        $user->save();
-
-        return response()->json($user, 201); // ส่งกลับ 201 (Created)
+        return response()->json(['message' => 'เพิ่มพนักงานสำเร็จ']);
     }
 
-    // --- [DELETE] ลบพนักงาน ---
+    public function update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            // เช็คอีเมลซ้ำ (ยกเว้นตัวเอง)
+            'email' => 'required|email|unique:users,email,' . $id . ',user_id',
+            'branch_id' => 'required|exists:branches,branch_id',
+            'position_id' => 'required|exists:positions,position_id',
+            // รหัสผ่านเป็น Optional (ใส่เมื่อต้องการเปลี่ยน)
+            'password' => 'nullable|string|min:6|confirmed',
+            'id_card_number' => 'nullable|string',
+            'phone_number' => 'nullable|string',
+        ]);
+
+        // ถ้ามีการส่ง password มาใหม่ ให้ Hash แล้วอัปเดต
+        if ($request->filled('password')) {
+            $validated['password'] = Hash::make($request->password);
+        } else {
+            // ถ้าไม่ส่งมา ให้ลบ key นี้ออก (ใช้รหัสเดิม)
+            unset($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return response()->json(['message' => 'อัปเดตข้อมูลสำเร็จ']);
+    }
+
     public function destroy($id)
     {
-        // ค้นหาและลบ User ตาม ID ที่ส่งมา
         User::destroy($id);
-        return response()->json(['message' => 'Deleted successfully']);
+        return response()->json(['message' => 'ลบข้อมูลสำเร็จ']);
     }
 }

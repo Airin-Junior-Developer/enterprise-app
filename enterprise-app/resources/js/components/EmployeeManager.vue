@@ -2,10 +2,10 @@
     <div class="p-6 bg-slate-50 min-h-screen font-sans text-slate-900">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">ทำเนียบบุคลากร</h1>
-                <p class="text-slate-500 mt-1 text-base">บริหารจัดการข้อมูลพนักงานและสิทธิ์การเข้าใช้งาน</p>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">รายชื่อพนักงาน (Employees)</h1>
+                <p class="text-slate-500 mt-1 text-base">จัดการข้อมูลพนักงาน, สร้างบัญชีผู้ใช้ และกำหนดสิทธิ์</p>
             </div>
-            <button @click="openModal()"
+            <button @click="openModal"
                 class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-200 flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
@@ -16,7 +16,7 @@
             </button>
         </div>
 
-        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 mb-8 max-w-lg">
+        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 mb-6 max-w-sm">
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,8 +25,8 @@
                     </svg>
                 </div>
                 <input type="text" v-model="searchQuery"
-                    class="block w-full pl-10 pr-4 py-3 border-none rounded-xl bg-transparent focus:ring-0 text-slate-700 placeholder-slate-400 focus:outline-none"
-                    placeholder="ค้นหาด้วยชื่อ, อีเมล, หรือเบอร์โทร..." />
+                    class="block w-full pl-10 pr-4 py-2 border-none rounded-xl bg-transparent focus:ring-0 text-slate-700 placeholder-slate-400 focus:outline-none"
+                    placeholder="ค้นหาชื่อ, อีเมล..." />
             </div>
         </div>
 
@@ -35,10 +35,9 @@
                 <thead class="bg-slate-50/50">
                     <tr>
                         <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">ชื่อ-นามสกุล</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">ตำแหน่ง / สังกัด
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">ตำแหน่ง / สาขา
                         </th>
-                        <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase">เบอร์โทร</th>
-                        <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase">สถานะ</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">ข้อมูลติดต่อ</th>
                         <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">จัดการ</th>
                     </tr>
                 </thead>
@@ -48,33 +47,26 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center">
                                 <div
-                                    class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md mr-3">
-                                    {{ emp.first_name ? emp.first_name.charAt(0) : '?' }}
+                                    class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg mr-3">
+                                    {{ emp.first_name.charAt(0) }}
                                 </div>
                                 <div>
                                     <div class="text-sm font-bold text-slate-800">{{ emp.first_name }} {{ emp.last_name
-                                    }}</div>
-                                    <div class="text-xs text-slate-500">{{ emp.email }}</div>
+                                        }}</div>
+                                    <div class="text-xs text-slate-500">ID: {{ emp.id_card_number || '-' }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm font-medium text-slate-700">
-                                {{ emp.position ? emp.position.position_name : '-' }}
+                            <div class="text-sm font-semibold text-slate-700">{{ emp.position ?
+                                emp.position.position_name : '-' }}</div>
+                            <div class="text-xs text-slate-500 bg-slate-100 inline-block px-2 py-0.5 rounded mt-1">
+                                {{ emp.branch ? emp.branch.branch_name : '-' }}
                             </div>
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 mt-1">
-                                🏢 {{ emp.branch ? emp.branch.branch_name : '-' }}
-                            </span>
                         </td>
-                        <td class="px-6 py-4 text-center text-sm text-slate-600 font-mono">
-                            {{ emp.phone_number || '-' }}
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span
-                                class="px-3 py-1 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase">
-                                {{ emp.status || 'Active' }}
-                            </span>
+                        <td class="px-6 py-4 text-sm text-slate-600">
+                            <div>📧 {{ emp.email }}</div>
+                            <div>📞 {{ emp.phone_number }}</div>
                         </td>
                         <td class="px-6 py-4 text-right space-x-2">
                             <button @click="editEmployee(emp)"
@@ -101,140 +93,126 @@
         </div>
 
         <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-slate-900/60 backdrop-clear-sm transition-opacity" @click="closeModal"></div>
+            <div class="fixed inset-0 bg-slate-900/75 transition-opacity" @click="closeModal"></div>
 
             <div
                 class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-10 overflow-hidden flex flex-col max-h-[90vh]">
-                <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-800">{{ isEditing ? 'แก้ไขข้อมูลพนักงาน' :
-                            'เพิ่มพนักงานใหม่' }}</h3>
-                        <p class="text-sm text-slate-500 mt-1">กรอกข้อมูลให้ครบถ้วนเพื่อ{{ isEditing ? 'อัปเดต' :
-                            'สร้าง' }}บัญชี</p>
-                    </div>
-                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600 transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h3 class="text-lg font-bold text-slate-800">{{ isEditing ? 'แก้ไขข้อมูลพนักงาน' :
+                        'เพิ่มพนักงานใหม่' }}</h3>
+                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600">✕</button>
                 </div>
 
-                <div class="overflow-y-auto p-8 custom-scrollbar grow bg-white">
-                    <form @submit.prevent="saveEmployee" class="space-y-8">
+                <div class="p-6 overflow-y-auto custom-scrollbar">
+                    <form @submit.prevent="saveEmployee" class="space-y-6">
 
-                        <div class="space-y-4">
-                            <h4
-                                class="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-2">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px]">1</span>
-                                ข้อมูลส่วนตัว (PERSONAL INFO)
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">ข้อมูลส่วนตัว
                             </h4>
-
-                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                                <div class="md:col-span-3">
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">คำนำหน้า</label>
-                                    <select v-model="form.prefix"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-slate-700">
-                                        <option value="นาย">นาย</option>
-                                        <option value="นาง">นาง</option>
-                                        <option value="นางสาว">นางสาว</option>
-                                    </select>
-                                </div>
-                                <div class="md:col-span-9">
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">เลขบัตรประชาชน</label>
-                                    <input v-model="form.id_card_number" type="text" maxlength="13"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-                                        placeholder="" />
-                                </div>
-                            </div>
-
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อจริง <span
                                             class="text-rose-500">*</span></label>
                                     <input v-model="form.first_name" type="text" required
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                                        class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="สมชาย">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">นามสกุล <span
                                             class="text-rose-500">*</span></label>
                                     <input v-model="form.last_name" type="text" required
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                                        class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="ใจดี">
                                 </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">เบอร์โทรศัพท์</label>
-                                <input v-model="form.phone_number" type="tel"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none" />
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">เลขบัตรประชาชน</label>
+                                    <input v-model="form.id_card_number" type="text" maxlength="13"
+                                        class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">เบอร์โทรศัพท์</label>
+                                    <input v-model="form.phone_number" type="tel"
+                                        class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
                             </div>
                         </div>
 
-                        <div class="space-y-4">
+                        <div>
                             <h4
-                                class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-2">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-[10px]">2</span>
-                                สังกัดและการทำงาน (WORK)
-                            </h4>
+                                class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 border-t border-slate-100 pt-4">
+                                ตำแหน่งงาน</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">สาขา</label>
-                                    <select v-model="form.branch_id"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-slate-700">
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">สาขา <span
+                                            class="text-rose-500">*</span></label>
+                                    <select v-model="form.branch_id" required
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500">
                                         <option value="">-- เลือกสาขา --</option>
-                                        <option v-for="b in branches" :key="b.branch_id" :value="b.branch_id">{{
-                                            b.branch_name }}</option>
+                                        <option v-for="branch in branches" :key="branch.branch_id"
+                                            :value="branch.branch_id">{{ branch.branch_name }}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">ตำแหน่ง</label>
-                                    <select v-model="form.position_id"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-slate-700">
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">ตำแหน่ง <span
+                                            class="text-rose-500">*</span></label>
+                                    <select v-model="form.position_id" required
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500">
                                         <option value="">-- เลือกตำแหน่ง --</option>
-                                        <option v-for="p in positions" :key="p.position_id" :value="p.position_id">{{
-                                            p.position_name }}</option>
+                                        <option v-for="pos in positions" :key="pos.position_id"
+                                            :value="pos.position_id">{{ pos.position_name }}</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="space-y-4">
-                            <h4
-                                class="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2">
-                                <span
-                                    class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">3</span>
-                                บัญชีผู้ใช้ (LOGIN)
-                            </h4>
-                            <div class="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/50">
-                                <label class="block text-sm font-medium text-slate-700 mb-1">อีเมล <span
-                                        class="text-rose-500">*</span></label>
-                                <input v-model="form.email" type="email" required
-                                    class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
-                                    :disabled="isEditing" />
+                        <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                            <h4 class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">ตั้งค่าบัญชีผู้ใช้
+                                (สำหรับเข้าสู่ระบบ)</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">อีเมล (Username) <span
+                                            class="text-rose-500">*</span></label>
+                                    <input v-model="form.email" type="email" required
+                                        class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="employee@enterprise.com">
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">
+                                            {{ isEditing ? 'รหัสผ่านใหม่ (เว้นว่างถ้าไม่เปลี่ยน)' : 'รหัสผ่าน' }}
+                                            <span v-if="!isEditing" class="text-rose-500">*</span>
+                                        </label>
+                                        <input v-model="form.password" type="password" :required="!isEditing"
+                                            class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                                            placeholder="••••••••">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">
+                                            ยืนยันรหัสผ่าน <span v-if="form.password" class="text-rose-500">*</span>
+                                        </label>
+                                        <input v-model="form.password_confirmation" type="password"
+                                            :required="!!form.password"
+                                            class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                                            :class="{ 'border-rose-300 ring-2 ring-rose-100': passwordMismatch }"
+                                            placeholder="••••••••">
+                                        <p v-if="passwordMismatch" class="text-xs text-rose-500 mt-1">รหัสผ่านไม่ตรงกัน
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
+                        <div class="pt-4 flex justify-end gap-3 border-t border-slate-100">
+                            <button type="button" @click="closeModal"
+                                class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">ยกเลิก</button>
+                            <button type="submit"
+                                class="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-md font-bold"
+                                :disabled="isLoading || passwordMismatch">
+                                {{ isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล' }}
+                            </button>
+                        </div>
                     </form>
-                </div>
-
-                <div class="px-8 py-5 border-t border-slate-100 bg-white flex justify-end gap-3 shrink-0">
-                    <button @click="closeModal"
-                        class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-800 transition-all">ยกเลิก</button>
-                    <button @click="saveEmployee"
-                        class="px-6 py-2.5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all transform active:scale-95 flex items-center gap-2"
-                        :class="{ 'opacity-75 cursor-not-allowed': isLoading }" :disabled="isLoading">
-                        <svg v-if="isLoading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
-                            fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                            </circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                            </path>
-                        </svg>
-                        {{ isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล' }}
-                    </button>
                 </div>
             </div>
         </div>
@@ -242,80 +220,102 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { ref, onMounted, computed } from 'vue';
 
-// --- State ---
 const searchQuery = ref('');
+
+// Computed Filter
+const filteredEmployees = computed(() => {
+    if (!searchQuery.value) return employees.value;
+    const lowerSearch = searchQuery.value.toLowerCase();
+    return employees.value.filter(e =>
+        e.first_name.toLowerCase().includes(lowerSearch) ||
+        e.last_name.toLowerCase().includes(lowerSearch) ||
+        e.email.toLowerCase().includes(lowerSearch)
+    );
+});
+
+// Check Password Match
+const passwordMismatch = computed(() => {
+    return form.value.password && form.value.password !== form.value.password_confirmation;
+});
+
+// State
+const employees = ref([]);
+const branches = ref([]);
+const positions = ref([]);
 const isModalOpen = ref(false);
 const isEditing = ref(false);
 const editingId = ref(null);
 const isLoading = ref(false);
-const employees = ref([]);
-const branches = ref([]);
-const positions = ref([]);
 
 const form = ref({
-    prefix: 'นาย',
     first_name: '',
     last_name: '',
-    phone_number: '',
     id_card_number: '',
+    phone_number: '',
+    email: '',
     branch_id: '',
     position_id: '',
-    email: ''
+    password: '',
+    password_confirmation: ''
 });
 
-// --- API Calls ---
-const fetchEmployees = async () => {
+// Fetch Data
+const fetchData = async () => {
     try {
-        const res = await axios.get('/api/employees');
-        employees.value = res.data;
-    } catch (e) { console.error(e); }
-};
-
-const fetchOptions = async () => {
-    try {
-        const [bRes, pRes] = await Promise.all([
+        const [empRes, branchRes, posRes] = await Promise.all([
+            axios.get('/api/employees'),
             axios.get('/api/branches'),
             axios.get('/api/positions')
         ]);
-        branches.value = bRes.data;
-        positions.value = pRes.data;
+        employees.value = empRes.data;
+        branches.value = branchRes.data;
+        positions.value = posRes.data;
     } catch (e) { console.error(e); }
 };
 
-// --- Modal Logic ---
+// Open Modal (Add)
 const openModal = () => {
     isEditing.value = false;
     editingId.value = null;
-    form.value = { prefix: 'นาย', first_name: '', last_name: '', phone_number: '', id_card_number: '', branch_id: '', position_id: '', email: '' };
+    // Reset Form
+    form.value = {
+        first_name: '', last_name: '', id_card_number: '', phone_number: '',
+        email: '', branch_id: '', position_id: '',
+        password: '', password_confirmation: ''
+    };
     isModalOpen.value = true;
 };
 
+// Edit Employee
 const editEmployee = (emp) => {
     isEditing.value = true;
     editingId.value = emp.user_id;
+    // Fill Form (ไม่ใส่ password เดิม เพราะเป็นความลับ)
     form.value = {
-        prefix: emp.prefix,
         first_name: emp.first_name,
         last_name: emp.last_name,
-        phone_number: emp.phone_number,
         id_card_number: emp.id_card_number,
+        phone_number: emp.phone_number,
+        email: emp.email,
         branch_id: emp.branch_id,
         position_id: emp.position_id,
-        email: emp.email
+        password: '',             // เว้นว่างไว้
+        password_confirmation: '' // เว้นว่างไว้
     };
     isModalOpen.value = true;
 };
 
 const closeModal = () => isModalOpen.value = false;
 
-// --- Save & Delete ---
+// Save
 const saveEmployee = async () => {
-    if (!form.value.first_name) {
-        Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกชื่อจริง', 'warning');
+    // Client-side validation เพิ่มเติม
+    if (form.value.password && form.value.password !== form.value.password_confirmation) {
+        Swal.fire('Error', 'รหัสผ่านไม่ตรงกัน', 'error');
         return;
     }
 
@@ -326,11 +326,11 @@ const saveEmployee = async () => {
         } else {
             await axios.post('/api/employees', form.value);
         }
-        Swal.fire({ icon: 'success', title: 'สำเร็จ!', showConfirmButton: false, timer: 1500 });
+        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 });
         closeModal();
-        fetchEmployees();
+        fetchData();
     } catch (e) {
-        Swal.fire('เกิดข้อผิดพลาด', (e.response?.data?.message || e.message), 'error');
+        Swal.fire('Error', e.response?.data?.message || e.message, 'error');
     } finally {
         isLoading.value = false;
     }
@@ -339,7 +339,7 @@ const saveEmployee = async () => {
 const deleteEmployee = (id) => {
     Swal.fire({
         title: 'ยืนยันการลบ?',
-        text: "ข้อมูลจะหายไปถาวร",
+        text: "ข้อมูลพนักงานและบัญชีผู้ใช้จะถูกลบถาวร",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#ef4444',
@@ -347,27 +347,14 @@ const deleteEmployee = (id) => {
     }).then(async (result) => {
         if (result.isConfirmed) {
             await axios.delete(`/api/employees/${id}`);
-            fetchEmployees();
+            fetchData();
             Swal.fire('ลบสำเร็จ!', '', 'success');
         }
     });
 };
 
-// --- Search Filter ---
-const filteredEmployees = computed(() => {
-    if (!searchQuery.value) return employees.value;
-    const lowerSearch = searchQuery.value.toLowerCase();
-    return employees.value.filter(emp =>
-        emp.first_name.toLowerCase().includes(lowerSearch) ||
-        emp.last_name.toLowerCase().includes(lowerSearch) ||
-        (emp.phone_number && emp.phone_number.includes(lowerSearch)) ||
-        (emp.email && emp.email.toLowerCase().includes(lowerSearch))
-    );
-});
-
 onMounted(() => {
-    fetchEmployees();
-    fetchOptions();
+    fetchData();
 });
 </script>
 

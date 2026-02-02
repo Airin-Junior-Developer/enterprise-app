@@ -51,4 +51,17 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Position::class, 'position_id', 'position_id');
     }
+
+    // เพิ่มฟังก์ชันเช็คสิทธิ์
+    public function isAdminOrHr()
+    {
+        // โหลดข้อมูลตำแหน่ง (ถ้ายังไม่มี)
+        if (!$this->relationLoaded('position')) {
+            $this->load('position');
+        }
+
+        // เช็คว่าชื่อตำแหน่งตรงกับที่เราต้องการไหม
+        $posName = $this->position->position_name ?? '';
+        return in_array($posName, ['System Admin', 'HR Manager']);
+    }
 }
