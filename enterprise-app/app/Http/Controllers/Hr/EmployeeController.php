@@ -6,13 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\ViewEmployee;
 
 class EmployeeController extends Controller
 {
     public function index()
     {
-        // ดึง User พร้อมข้อมูล Branch และ Position
-        $employees = User::with(['branch', 'position'])->get();
+        // 2. ดึงข้อมูลจาก View ได้เลย (ไม่ต้อง Join แล้ว โค้ดสั้นลงเยอะ!)
+        $employees = ViewEmployee::all();
+
         return response()->json($employees);
     }
 

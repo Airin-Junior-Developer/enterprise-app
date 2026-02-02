@@ -58,10 +58,10 @@
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm font-semibold text-slate-700">{{ emp.position ?
-                                emp.position.position_name : '-' }}</div>
+                            <div class="text-sm font-semibold text-slate-700">{{ emp.position_name || '-' }}</div>
+
                             <div class="text-xs text-slate-500 bg-slate-100 inline-block px-2 py-0.5 rounded mt-1">
-                                {{ emp.branch ? emp.branch.branch_name : '-' }}
+                                {{ emp.branch_name || '-' }}
                             </div>
                         </td>
                         <td class="px-6 py-4 text-sm text-slate-600">

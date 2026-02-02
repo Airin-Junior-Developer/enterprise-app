@@ -1,153 +1,267 @@
 <template>
-    <div class="p-6 bg-slate-50 min-h-screen font-sans text-slate-900">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div class="p-6 bg-slate-50 min-h-screen font-sans text-slate-800">
+        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">รายการคำร้อง (Requests)</h1>
-                <p class="text-slate-500 mt-1 text-base">ประวัติคำขอวันลา, ปรับเงินเดือน และคำร้องทั้งหมด</p>
+                <h2 class="text-2xl font-bold text-slate-800">รายการคำร้อง</h2>
+                <p class="text-sm text-slate-500">จัดการและตรวจสอบสถานะเอกสารคำร้องทั้งหมด</p>
             </div>
             <button @click="openModal"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-200 flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95">
+                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2 font-medium">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd"
+                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                        clip-rule="evenodd" />
                 </svg>
-                <span class="font-semibold">สร้างคำร้องใหม่</span>
+                สร้างคำร้องใหม่
             </button>
         </div>
 
-        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 mb-6 max-w-sm">
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div @click="setFilter(null)"
+                class="cursor-pointer p-5 rounded-xl border transition-all duration-200 flex items-center justify-between group relative overflow-hidden"
+                :class="currentStatusFilter === null ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500 shadow-md' : 'bg-white border-slate-100 hover:border-blue-300 hover:shadow-sm'">
+                <div class="relative z-10">
+                    <p class="text-sm font-medium mb-1"
+                        :class="currentStatusFilter === null ? 'text-blue-700' : 'text-slate-500'">ทั้งหมด</p>
+                    <h3 class="text-3xl font-bold"
+                        :class="currentStatusFilter === null ? 'text-blue-900' : 'text-slate-800'">{{ stats.total }}
+                    </h3>
+                </div>
+                <div class="h-12 w-12 rounded-full flex items-center justify-center transition-colors relative z-10"
+                    :class="currentStatusFilter === null ? 'bg-blue-200 text-blue-700' : 'bg-blue-50 text-blue-600 group-hover:bg-blue-100'">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
-                <input type="text" v-model="searchQuery"
-                    class="block w-full pl-10 pr-4 py-2 border-none rounded-xl bg-transparent focus:ring-0 text-slate-700 placeholder-slate-400 focus:outline-none"
-                    placeholder="ค้นหาชื่อ, ประเภทคำขอ..." />
+            </div>
+            <div @click="setFilter('pending')"
+                class="cursor-pointer p-5 rounded-xl border transition-all duration-200 flex items-center justify-between group"
+                :class="currentStatusFilter === 'pending' ? 'bg-amber-50 border-amber-500 ring-1 ring-amber-500 shadow-md' : 'bg-white border-slate-100 hover:border-amber-300 hover:shadow-sm'">
+                <div>
+                    <p class="text-sm font-medium mb-1"
+                        :class="currentStatusFilter === 'pending' ? 'text-amber-700' : 'text-slate-500'">รออนุมัติ</p>
+                    <h3 class="text-3xl font-bold"
+                        :class="currentStatusFilter === 'pending' ? 'text-amber-900' : 'text-amber-500'">{{
+                            stats.pending }}</h3>
+                </div>
+                <div class="h-12 w-12 rounded-full flex items-center justify-center transition-colors"
+                    :class="currentStatusFilter === 'pending' ? 'bg-amber-200 text-amber-700' : 'bg-amber-50 text-amber-500 group-hover:bg-amber-100'">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div @click="setFilter('approved')"
+                class="cursor-pointer p-5 rounded-xl border transition-all duration-200 flex items-center justify-between group"
+                :class="currentStatusFilter === 'approved' ? 'bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500 shadow-md' : 'bg-white border-slate-100 hover:border-emerald-300 hover:shadow-sm'">
+                <div>
+                    <p class="text-sm font-medium mb-1"
+                        :class="currentStatusFilter === 'approved' ? 'text-emerald-700' : 'text-slate-500'">อนุมัติแล้ว
+                    </p>
+                    <h3 class="text-3xl font-bold"
+                        :class="currentStatusFilter === 'approved' ? 'text-emerald-900' : 'text-emerald-600'">{{
+                            stats.approved }}</h3>
+                </div>
+                <div class="h-12 w-12 rounded-full flex items-center justify-center transition-colors"
+                    :class="currentStatusFilter === 'approved' ? 'bg-emerald-200 text-emerald-700' : 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100'">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div @click="setFilter('rejected')"
+                class="cursor-pointer p-5 rounded-xl border transition-all duration-200 flex items-center justify-between group"
+                :class="currentStatusFilter === 'rejected' ? 'bg-rose-50 border-rose-500 ring-1 ring-rose-500 shadow-md' : 'bg-white border-slate-100 hover:border-rose-300 hover:shadow-sm'">
+                <div>
+                    <p class="text-sm font-medium mb-1"
+                        :class="currentStatusFilter === 'rejected' ? 'text-rose-700' : 'text-slate-500'">ไม่อนุมัติ</p>
+                    <h3 class="text-3xl font-bold"
+                        :class="currentStatusFilter === 'rejected' ? 'text-rose-900' : 'text-rose-500'">{{
+                            stats.rejected }}</h3>
+                </div>
+                <div class="h-12 w-12 rounded-full flex items-center justify-center transition-colors"
+                    :class="currentStatusFilter === 'rejected' ? 'bg-rose-200 text-rose-700' : 'bg-rose-50 text-rose-500 group-hover:bg-rose-100'">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <table class="min-w-full divide-y divide-slate-100">
-                <thead class="bg-slate-50/50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">ผู้ยื่นคำร้อง</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">ประเภท / เหตุผล</th>
-                        <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase">วันที่ / ข้อมูลเพิ่มเติม</th>
-                        <th class="px-6 py-4 text-center text-xs font-semibold text-slate-500 uppercase">สถานะ</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    <tr v-for="req in filteredRequests" :key="req.request_id" class="hover:bg-slate-50/80 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center">
-                                <div class="h-9 w-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm mr-3">
-                                    {{ req.user ? req.user.first_name.charAt(0) : '?' }}
+        <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm mb-6">
+            <div class="flex flex-col md:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <input type="text" v-model="searchQuery"
+                        class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all"
+                        placeholder="ค้นหาชื่อ, รหัสเอกสาร หรือประเภทคำร้อง..." />
+                    <svg class="h-5 w-5 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <select v-model="filterYear"
+                    class="w-full md:w-40 border border-slate-200 rounded-lg px-3 py-2.5 bg-white text-slate-600 outline-none focus:ring-2 focus:ring-blue-100">
+                    <option value="">ทุกปี</option>
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                </select>
+                <button @click="resetFilters"
+                    class="bg-slate-100 text-slate-600 px-6 py-2.5 rounded-lg font-medium hover:bg-slate-200 transition-colors">ล้างตัวกรอง</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-4 w-16 text-center">ลำดับ</th>
+                            <th class="px-6 py-4">ผู้ยื่นคำร้อง</th>
+                            <th class="px-6 py-4">รายละเอียด</th>
+                            <th class="px-6 py-4">วัน-เวลาที่เริ่ม</th>
+                            <th class="px-6 py-4">วัน-เวลาที่สิ้นสุด</th>
+                            <th class="px-6 py-4 text-center">สถานะ</th>
+                            <th class="px-6 py-4 text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <tr v-for="(req, index) in paginatedRequests" :key="req.request_id"
+                            class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-center text-slate-400">{{ (currentPage - 1) * itemsPerPage + index
+                                + 1 }}</td>
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-slate-700">{{ req.requester_first_name }} {{
+                                    req.requester_last_name }}</div>
+                                <div class="text-xs text-slate-400">{{ req.requester_branch || '-' }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-slate-700">{{ req.request_type }}</div>
+                                <div class="text-xs text-slate-500 truncate max-w-[200px]">{{ req.reason || '-' }}</div>
+                                <div v-if="req.amount" class="text-xs font-mono text-blue-600 mt-1">{{
+                                    Number(req.amount).toLocaleString() }} บาท</div>
+                            </td>
+                            <td class="px-6 py-4 text-slate-600">{{ req.start_date ? formatDate(req.start_date) : '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-slate-600">{{ req.end_date ? formatDate(req.end_date) : '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-center"><span :class="statusBadgeClass(req.status)"
+                                    class="px-3 py-1 rounded-full text-xs font-bold border">{{ getStatusText(req.status)
+                                    }}</span></td>
+                            <td class="px-6 py-4 text-center"><button v-if="req.status === 'pending'"
+                                    @click="deleteRequest(req.request_id)"
+                                    class="p-2 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
+                                    title="ยกเลิกคำร้อง"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 000-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg></button><span v-else class="text-slate-300 text-xs">-</span></td>
+                        </tr>
+                        <tr v-if="paginatedRequests.length === 0">
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                                <div class="flex flex-col items-center justify-center"><span
+                                        class="text-3xl mb-2">📄</span><span>ไม่พบข้อมูลคำร้องตามเงื่อนไขที่เลือก</span>
                                 </div>
-                                <div>
-                                    <div class="text-sm font-bold text-slate-800">{{ req.user ? req.user.first_name + ' ' + req.user.last_name : 'ไม่ระบุ' }}</div>
-                                    <div class="text-xs text-slate-500">{{ formatDate(req.created_at) }}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="inline-block px-2 py-1 text-xs font-semibold bg-blue-50 text-blue-700 rounded-md border border-blue-100 mb-1">
-                                {{ req.request_type }}
-                            </span>
-                            <div class="text-sm text-slate-600 line-clamp-1">{{ req.reason || '-' }}</div>
-                        </td>
-                        <td class="px-6 py-4 text-center text-sm text-slate-600">
-                            <div v-if="req.start_date">
-                                <span class="font-mono">{{ formatDateShort(req.start_date) }}</span>
-                                <span v-if="req.end_date" class="mx-1 text-slate-400">➜</span>
-                                <span v-if="req.end_date" class="font-mono">{{ formatDateShort(req.end_date) }}</span>
-                            </div>
-                            <div v-else-if="req.amount">
-                                {{ Number(req.amount).toLocaleString() }} บาท
-                            </div>
-                            <div v-else>-</div>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <span :class="statusClass(req.status)" class="px-3 py-1 text-xs font-bold rounded-full border uppercase">
-                                {{ req.status }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <button @click="deleteRequest(req.request_id)" 
-                                class="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                                title="ยกเลิก/ลบคำร้อง">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 000-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr v-if="filteredRequests.length === 0">
-                        <td colspan="5" class="px-6 py-10 text-center text-slate-400">ไม่พบรายการคำร้อง</td>
-                    </tr>
-                </tbody>
-            </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div class="text-xs text-slate-500">แสดง {{ paginatedRequests.length > 0 ? (currentPage - 1) *
+                    itemsPerPage + 1 : 0 }} ถึง {{ Math.min(currentPage * itemsPerPage, filteredRequests.length) }} จาก
+                    {{ filteredRequests.length }} รายการ</div>
+                <div class="flex gap-1">
+                    <button @click="currentPage--" :disabled="currentPage === 1"
+                        class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600">ก่อนหน้า</button>
+                    <span class="px-3 py-1 border bg-blue-600 text-white rounded text-xs font-bold">{{ currentPage
+                    }}</span>
+                    <button @click="currentPage++" :disabled="currentPage >= totalPages"
+                        class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600">ถัดไป</button>
+                </div>
+            </div>
         </div>
 
         <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-slate-900/75 transition-opacity" @click="closeModal"></div>
-
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg z-10 overflow-hidden flex flex-col max-h-[90vh]">
-                <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <div class="fixed inset-0 bg-slate-900/60 backdrop-clear-sm transition-opacity" @click="closeModal"></div>
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg z-10 overflow-hidden flex flex-col max-h-[90vh]">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 class="text-lg font-bold text-slate-800">สร้างคำร้องใหม่</h3>
                     <button @click="closeModal" class="text-slate-400 hover:text-slate-600">✕</button>
                 </div>
-
                 <div class="p-6 overflow-y-auto custom-scrollbar">
                     <form @submit.prevent="saveRequest" class="space-y-4">
+
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">พนักงาน (ผู้ยื่น) <span class="text-rose-500">*</span></label>
-                            <select v-model="form.user_id" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="">-- เลือกพนักงาน --</option>
-                                <option v-for="user in users" :key="user.user_id" :value="user.user_id">
-                                    {{ user.first_name }} {{ user.last_name }}
-                                </option>
-                            </select>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">พนักงาน (ผู้ยื่น) <span
+                                    class="text-rose-500">*</span></label>
+                            <div
+                                class="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2.5 text-slate-600 font-medium cursor-not-allowed flex items-center gap-2">
+                                <div
+                                    class="h-6 w-6 rounded-full bg-slate-300 flex items-center justify-center text-xs text-white font-bold">
+                                    {{ currentUser?.first_name ? currentUser.first_name.charAt(0) : 'U' }}</div>
+                                <span>{{ currentUser?.first_name }} {{ currentUser?.last_name }}</span>
+                                <span class="text-xs text-slate-400 border-l border-slate-300 pl-2 ml-1">{{
+                                    currentUser?.position?.position_name || 'My Request' }}</span>
+                            </div>
                         </div>
+
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">ประเภทคำร้อง <span class="text-rose-500">*</span></label>
-                            <select v-model="form.request_type" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="ลากิจ">ลากิจ (Personal Leave)</option>
-                                <option value="ลาป่วย">ลาป่วย (Sick Leave)</option>
-                                <option value="ลาพักร้อน">ลาพักร้อน (Vacation)</option>
-                                <option value="ปรับเงินเดือน">ปรับเงินเดือน (Salary Adjustment)</option>
-                                <option value="เบิกค่าใช้จ่าย">เบิกค่าใช้จ่าย (Reimbursement)</option>
-                                <option value="อื่นๆ">อื่นๆ (Others)</option>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">ประเภทคำร้อง <span
+                                    class="text-rose-500">*</span></label>
+                            <select v-model="form.request_type" required
+                                class="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none bg-white focus:ring-2 focus:ring-blue-500">
+                                <option value="ลากิจ">ลากิจ</option>
+                                <option value="ลาป่วย">ลาป่วย</option>
+                                <option value="ลาพักร้อน">ลาพักร้อน</option>
+                                <option value="ปรับเงินเดือน">ปรับเงินเดือน</option>
+                                <option value="เบิกค่าใช้จ่าย">เบิกค่าใช้จ่าย</option>
+                                <option value="อื่นๆ">อื่นๆ</option>
                             </select>
                         </div>
 
-                        <div v-if="['ลากิจ', 'ลาป่วย', 'ลาพักร้อน'].includes(form.request_type)" class="grid grid-cols-2 gap-4">
+                        <div v-if="['ลากิจ', 'ลาป่วย', 'ลาพักร้อน'].includes(form.request_type)"
+                            class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">วันที่เริ่ม</label>
-                                <input v-model="form.start_date" type="date" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500" />
+                                <label class="block text-xs font-bold text-slate-500 mb-1">วันที่เริ่ม</label>
+                                <input v-model="form.start_date" type="date"
+                                    class="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">ถึงวันที่</label>
-                                <input v-model="form.end_date" type="date" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500" />
+                                <label class="block text-xs font-bold text-slate-500 mb-1">ถึงวันที่</label>
+                                <input v-model="form.end_date" :min="form.start_date" :disabled="!form.start_date"
+                                    type="date"
+                                    class="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 disabled:cursor-not-allowed" />
                             </div>
                         </div>
 
                         <div v-if="['ปรับเงินเดือน', 'เบิกค่าใช้จ่าย'].includes(form.request_type)">
-                            <label class="block text-sm font-medium text-slate-700 mb-1">จำนวนเงิน (บาท)</label>
-                            <input v-model="form.amount" type="number" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500" placeholder="0.00" />
+                            <label class="block text-xs font-bold text-slate-500 mb-1">จำนวนเงิน (บาท)</label>
+                            <input v-model="form.amount" type="number"
+                                class="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="0.00" />
                         </div>
-
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">รายละเอียด / เหตุผล</label>
-                            <textarea v-model="form.reason" rows="3" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">รายละเอียด</label>
+                            <textarea v-model="form.reason" rows="3"
+                                class="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="ระบุเหตุผล..."></textarea>
                         </div>
-
                         <div class="pt-4 flex justify-end gap-3 border-t border-slate-100 mt-6">
-                            <button type="button" @click="closeModal" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">ยกเลิก</button>
-                            <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-md" :disabled="isLoading">
-                                {{ isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล' }}
-                            </button>
+                            <button type="button" @click="closeModal"
+                                class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">ยกเลิก</button>
+                            <button type="submit"
+                                class="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-bold shadow-md"
+                                :disabled="isLoading">{{ isLoading ? '...' : 'บันทึก' }}</button>
                         </div>
                     </form>
                 </div>
@@ -159,112 +273,98 @@
 <script setup>
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 
-const searchQuery = ref('');
-
-// Computed Filter
-const filteredRequests = computed(() => {
-    if (!searchQuery.value) return requests.value;
-    const lowerSearch = searchQuery.value.toLowerCase();
-    return requests.value.filter(req => 
-        (req.user && (req.user.first_name.toLowerCase().includes(lowerSearch) || req.user.last_name.toLowerCase().includes(lowerSearch))) ||
-        req.request_type.toLowerCase().includes(lowerSearch)
-    );
-});
-
-// State
 const requests = ref([]);
-const users = ref([]);
+const currentUser = ref(null);
+const searchQuery = ref('');
+const filterYear = ref('');
+const currentStatusFilter = ref(null);
 const isModalOpen = ref(false);
 const isLoading = ref(false);
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const form = ref({ user_id: '', request_type: 'ลากิจ', reason: '', start_date: '', end_date: '', amount: '' });
 
-const form = ref({
-    user_id: '',
-    request_type: 'ลากิจ',
-    reason: '',
-    start_date: '',
-    end_date: '',
-    amount: ''
+// ✅ Watcher: ถ้าเปลี่ยนวันเริ่ม -> ให้เคลียร์วันสิ้นสุด (ถ้าน้อยกว่า)
+watch(() => form.value.start_date, (newStart) => {
+    if (newStart && form.value.end_date) {
+        if (new Date(form.value.end_date) < new Date(newStart)) {
+            form.value.end_date = ''; // รีเซ็ตถ้าวันที่สิ้นสุดน้อยกว่าวันเริ่ม
+        }
+    }
 });
 
-// Fetch Data
-const fetchData = async () => {
-    try {
-        const [reqRes, userRes] = await Promise.all([
-            axios.get('/api/requests'),
-            axios.get('/api/employees')
-        ]);
-        requests.value = reqRes.data;
-        users.value = userRes.data;
-    } catch (e) { console.error(e); }
-};
+const stats = computed(() => {
+    const total = requests.value.length;
+    const pending = requests.value.filter(r => r.status === 'pending').length;
+    const approved = requests.value.filter(r => r.status === 'approved').length;
+    const rejected = requests.value.filter(r => r.status === 'rejected').length;
+    return { total, pending, approved, rejected };
+});
 
-// Actions
+const filteredRequests = computed(() => {
+    let result = requests.value;
+    if (currentStatusFilter.value) result = result.filter(req => req.status === currentStatusFilter.value);
+    if (searchQuery.value) {
+        const lowerSearch = searchQuery.value.toLowerCase();
+        result = result.filter(req => (req.requester_first_name && req.requester_first_name.toLowerCase().includes(lowerSearch)) || (req.requester_last_name && req.requester_last_name.toLowerCase().includes(lowerSearch)) || req.request_type.toLowerCase().includes(lowerSearch));
+    }
+    if (filterYear.value) result = result.filter(req => req.created_at && req.created_at.includes(filterYear.value));
+    return result;
+});
+
+const totalPages = computed(() => Math.ceil(filteredRequests.value.length / itemsPerPage.value));
+const paginatedRequests = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return filteredRequests.value.slice(start, end);
+});
+
+const setFilter = (status) => { currentStatusFilter.value = status; currentPage.value = 1; };
+const resetFilters = () => { searchQuery.value = ''; filterYear.value = ''; currentStatusFilter.value = null; currentPage.value = 1; };
+watch([searchQuery, filterYear, currentStatusFilter], () => { currentPage.value = 1; });
+
+const fetchData = async () => { try { const reqRes = await axios.get('/api/requests'); requests.value = reqRes.data; } catch (e) { console.error(e); } };
+
 const openModal = () => {
-    form.value = { user_id: '', request_type: 'ลากิจ', reason: '', start_date: '', end_date: '', amount: '' };
+    if (!currentUser.value) { Swal.fire('Error', 'กรุณา Login ใหม่', 'error'); return; }
+    form.value = { user_id: currentUser.value.user_id, request_type: 'ลากิจ', reason: '', start_date: '', end_date: '', amount: '' };
     isModalOpen.value = true;
 };
 const closeModal = () => isModalOpen.value = false;
 
-// Create Request
 const saveRequest = async () => {
-    if(!form.value.user_id) return;
+    if (!form.value.user_id) return;
     isLoading.value = true;
     try {
         await axios.post('/api/requests', form.value);
-        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 });
+        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1500 });
         closeModal();
         fetchData();
-    } catch (e) {
-        Swal.fire('Error', e.response?.data?.message || e.message, 'error');
-    } finally {
-        isLoading.value = false;
-    }
+    } catch (e) { Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error'); }
+    finally { isLoading.value = false; }
 };
 
-// Delete
-const deleteRequest = (id) => {
-    Swal.fire({
-        title: 'ยืนยันการยกเลิก?',
-        text: 'ข้อมูลคำร้องจะถูกลบออกจากระบบ',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        confirmButtonText: 'ลบเลย'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            await axios.delete(`/api/requests/${id}`);
-            fetchData();
-            Swal.fire('ลบสำเร็จ!', '', 'success');
-        }
-    });
-};
-
-// Helpers
-const statusClass = (status) => {
-    switch(status) {
-        case 'approved': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-        case 'rejected': return 'bg-rose-100 text-rose-700 border-rose-200';
-        default: return 'bg-amber-100 text-amber-700 border-amber-200';
-    }
-};
-
-const formatDate = (d) => {
-    if(!d) return '-';
-    return new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
-};
-const formatDateShort = (d) => {
-    if(!d) return '';
-    return new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
-};
+const deleteRequest = (id) => { Swal.fire({ title: 'ยืนยันการลบ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ', confirmButtonColor: '#ef4444' }).then(async (result) => { if (result.isConfirmed) { await axios.delete(`/api/requests/${id}`); fetchData(); } }); };
+const statusBadgeClass = (status) => { switch (status) { case 'approved': return 'bg-emerald-50 text-emerald-600 border-emerald-100'; case 'rejected': return 'bg-rose-50 text-rose-600 border-rose-100'; default: return 'bg-amber-50 text-amber-600 border-amber-100'; } };
+const getStatusText = (status) => { switch (status) { case 'approved': return 'อนุมัติแล้ว'; case 'rejected': return 'ไม่อนุมัติ'; default: return 'รออนุมัติ'; } };
+const formatDate = (d) => { if (!d) return '-'; return new Date(d).toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
 
 onMounted(() => {
     fetchData();
+    const userStr = localStorage.getItem('user');
+    if (userStr) { try { currentUser.value = JSON.parse(userStr); } catch (e) { console.error("Parse error", e); } }
 });
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar { width: 6px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 20px;
+}
 </style>
