@@ -10,12 +10,21 @@ use App\Models\ViewEmployee;
 
 class EmployeeController extends Controller
 {
+    // ดึงข้อมูลทั้งหมด (สำหรับตาราง)
     public function index()
     {
-        // 2. ดึงข้อมูลจาก View ได้เลย (ไม่ต้อง Join แล้ว โค้ดสั้นลงเยอะ!)
         $employees = ViewEmployee::all();
-
         return response()->json($employees);
+    }
+
+    // เพิ่มฟังก์ชัน show: ดึงข้อมูลรายคนจาก View (สำหรับ Modal แก้ไข)
+    public function show($id)
+    {
+        // ใช้ ViewEmployee แทน User::find() เพื่อลดการ JOIN หน้าบ้าน
+        // ข้อมูลที่ได้จะมีทั้ง branch_name, position_name มาให้เลย
+        $employee = ViewEmployee::where('user_id', $id)->firstOrFail();
+
+        return response()->json($employee);
     }
 
     public function store(Request $request)
@@ -24,16 +33,15 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email', // ห้ามซ้ำ
+            'email' => 'required|email|unique:users,email',
             'branch_id' => 'required|exists:branches,branch_id',
             'position_id' => 'required|exists:positions,position_id',
-            // บังคับใส่รหัสผ่าน และต้องตรงกับช่อง confirm
             'password' => 'required|string|min:6|confirmed',
             'id_card_number' => 'nullable|string',
             'phone_number' => 'nullable|string',
         ]);
 
-        // 2. เข้ารหัสรหัสผ่านก่อนบันทึก
+        // 2. เข้ารหัสรหัสผ่าน
         $validated['password'] = Hash::make($request->password);
 
         // 3. สร้าง User
@@ -49,21 +57,17 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            // เช็คอีเมลซ้ำ (ยกเว้นตัวเอง)
             'email' => 'required|email|unique:users,email,' . $id . ',user_id',
             'branch_id' => 'required|exists:branches,branch_id',
             'position_id' => 'required|exists:positions,position_id',
-            // รหัสผ่านเป็น Optional (ใส่เมื่อต้องการเปลี่ยน)
             'password' => 'nullable|string|min:6|confirmed',
             'id_card_number' => 'nullable|string',
             'phone_number' => 'nullable|string',
         ]);
 
-        // ถ้ามีการส่ง password มาใหม่ ให้ Hash แล้วอัปเดต
         if ($request->filled('password')) {
             $validated['password'] = Hash::make($request->password);
         } else {
-            // ถ้าไม่ส่งมา ให้ลบ key นี้ออก (ใช้รหัสเดิม)
             unset($validated['password']);
         }
 

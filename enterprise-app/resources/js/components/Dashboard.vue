@@ -1,139 +1,193 @@
 <template>
-    <div class="p-6 bg-slate-50 min-h-screen font-sans text-slate-900">
+    <div class="p-6 bg-[#F8F9FD] min-h-screen font-sans text-slate-800">
+
         <div class="mb-8">
             <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">ภาพรวมระบบ (Dashboard)</h1>
-            <p class="text-slate-500 mt-1 text-base">สรุปข้อมูลสถิติและการเคลื่อนไหวล่าสุด</p>
+            <p class="text-sm text-slate-500 mt-1">สรุปข้อมูลพนักงานและสถานะคำร้องล่าสุด</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center">
-                <div>
-                    <p class="text-sm font-bold text-slate-500 mb-1">พนักงานทั้งหมด</p>
-                    <h2 class="text-4xl font-extrabold text-blue-600">{{ stats.employees_count }}</h2>
-                </div>
-                <div class="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
-                    👥
-                </div>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center">
-                <div>
-                    <p class="text-sm font-bold text-slate-500 mb-1">สาขาที่เปิดใช้งาน</p>
-                    <h2 class="text-4xl font-extrabold text-emerald-600">{{ stats.branches_count }}</h2>
-                </div>
-                <div class="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">
-                    🏢
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center">
-                <div>
-                    <p class="text-sm font-bold text-slate-500 mb-1">ตำแหน่งงาน</p>
-                    <h2 class="text-4xl font-extrabold text-indigo-600">{{ stats.positions_count }}</h2>
-                </div>
-                <div class="h-12 w-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl">
-                    💼
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center">
-                <div>
-                    <p class="text-sm font-bold text-slate-500 mb-1">สถานะระบบ</p>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="relative flex h-3 w-3">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                        </span>
-                        <h2 class="text-xl font-bold text-slate-800">{{ stats.system_status }}</h2>
+            <div
+                class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                <div class="flex justify-between items-start relative z-10">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-semibold text-slate-500 mb-1">พนักงานทั้งหมด</span>
+                        <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats.employees }}</span>
+                    </div>
+                    <div
+                        class="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
                     </div>
                 </div>
-                <div class="h-12 w-12 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center text-2xl">
-                    ⚡
+                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-indigo-500"></div>
+            </div>
+
+            <div
+                class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                <div class="flex justify-between items-start relative z-10">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-semibold text-slate-500 mb-1">คำร้องทั้งหมด</span>
+                        <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats.requests_total
+                            }}</span>
+                    </div>
+                    <div
+                        class="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
                 </div>
+                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-blue-500"></div>
+            </div>
+
+            <div
+                class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                <div class="flex justify-between items-start relative z-10">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-semibold text-slate-500 mb-1">รออนุมัติ</span>
+                        <span class="text-4xl font-extrabold text-amber-500 tracking-tight">{{ stats.requests_pending
+                            }}</span>
+                    </div>
+                    <div
+                        class="h-12 w-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-amber-400"></div>
+            </div>
+
+            <div
+                class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                <div class="flex justify-between items-start relative z-10">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-semibold text-slate-500 mb-1">อนุมัติแล้ว</span>
+                        <span class="text-4xl font-extrabold text-emerald-600 tracking-tight">{{ stats.requests_approved
+                            }}</span>
+                    </div>
+                    <div
+                        class="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-emerald-500"></div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h3 class="text-lg font-bold text-slate-800">พนักงานที่เพิ่มล่าสุด (Recent Added)</h3>
-                <router-link to="/employees" class="text-sm text-blue-600 font-bold hover:underline">ดูทั้งหมด →</router-link>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-white">
+                <h3 class="text-lg font-bold text-slate-700">รายการล่าสุด (Recent Activities)</h3>
+                <router-link to="/requests" class="text-sm text-blue-600 hover:text-blue-800 font-medium">ดูทั้งหมด
+                    →</router-link>
             </div>
-            
-            <table class="min-w-full divide-y divide-slate-100">
-                <thead class="bg-white">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase">ชื่อ-นามสกุล</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase">ตำแหน่ง</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase">สาขา</th>
-                        <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase">วันที่เพิ่ม</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    <tr v-for="emp in stats.recent_employees" :key="emp.user_id" class="hover:bg-slate-50/50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center">
-                                <div class="h-9 w-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm mr-3">
-                                    {{ emp.first_name.charAt(0) }}
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead
+                        class="bg-slate-50/80 text-slate-500 font-bold border-b border-slate-100 uppercase text-xs tracking-wider">
+                        <tr>
+                            <th class="px-6 py-4">พนักงาน</th>
+                            <th class="px-6 py-4">ประเภท</th>
+                            <th class="px-6 py-4">วันที่ยื่น</th>
+                            <th class="px-6 py-4 text-center">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <tr v-for="req in recentRequests" :key="req.request_id"
+                            class="group hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs border border-white shadow-sm">
+                                        {{ req.requester_first_name ? req.requester_first_name.charAt(0) : '?' }}
+                                    </div>
+                                    <div class="font-bold text-slate-700">{{ req.requester_first_name }} {{
+                                        req.requester_last_name }}</div>
                                 </div>
-                                <div class="font-bold text-slate-700">{{ emp.first_name }} {{ emp.last_name }}</div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-600">
-                            {{ emp.position ? emp.position.position_name : '-' }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-600">
-                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
-                                {{ emp.branch ? emp.branch.branch_name : '-' }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-right text-sm text-slate-500">
-                            {{ formatDate(emp.created_at) }}
-                        </td>
-                    </tr>
-                    <tr v-if="stats.recent_employees.length === 0">
-                        <td colspan="4" class="px-6 py-10 text-center text-slate-400">ยังไม่มีข้อมูลพนักงาน</td>
-                    </tr>
-                </tbody>
-            </table>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="font-medium text-slate-600">{{ req.request_type }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-slate-500 text-xs font-mono">
+                                {{ formatDate(req.created_at) }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span :class="statusBadgeClass(req.status)"
+                                    class="px-2.5 py-1 rounded-full text-[10px] font-bold border inline-flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full" :class="statusDotClass(req.status)"></span>
+                                    {{ req.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr v-if="recentRequests.length === 0">
+                            <td colspan="4" class="px-6 py-10 text-center text-slate-400">ยังไม่มีรายการคำร้อง</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
+
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
 
-// State เก็บข้อมูล Dashboard
 const stats = ref({
-    employees_count: 0,
-    branches_count: 0,
-    positions_count: 0,
-    system_status: 'Offline',
-    recent_employees: []
+    employees: 0,
+    requests_total: 0,
+    requests_pending: 0,
+    requests_approved: 0
 });
+const recentRequests = ref([]);
 
-// ฟังก์ชันดึงข้อมูลจาก API
-const fetchDashboardData = async () => {
+const fetchData = async () => {
     try {
         const res = await axios.get('/api/dashboard');
-        stats.value = res.data;
+        stats.value = res.data.stats;
+        recentRequests.value = res.data.recent_requests;
     } catch (e) {
-        console.error("Error fetching dashboard:", e);
+        console.error(e);
     }
 };
 
-// ฟังก์ชันแปลงวันที่เป็นแบบไทย
-const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('th-TH', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    });
+const statusBadgeClass = (status) => {
+    switch (status) {
+        case 'approved': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        case 'rejected': return 'bg-rose-50 text-rose-700 border-rose-200';
+        default: return 'bg-amber-50 text-amber-700 border-amber-200';
+    }
+};
+
+const statusDotClass = (status) => {
+    switch (status) {
+        case 'approved': return 'bg-emerald-500';
+        case 'rejected': return 'bg-rose-500';
+        default: return 'bg-amber-500';
+    }
+};
+
+const formatDate = (d) => {
+    if (!d) return '-';
+    return new Date(d).toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
 onMounted(() => {
-    fetchDashboardData();
+    fetchData();
 });
 </script>

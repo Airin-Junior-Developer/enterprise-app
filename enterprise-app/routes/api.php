@@ -46,6 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/requests', [RequestController::class, 'store']);
     Route::delete('/requests/{id}', [RequestController::class, 'destroy']);
 
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+
 
     // --- 🔴 โซนหวงห้าม (เฉพาะ Admin และ HR) ---
     Route::middleware('admin_hr')->group(function () {
@@ -67,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/positions', [PositionController::class, 'store']);
         Route::put('/positions/{id}', [PositionController::class, 'update']);
         Route::delete('/positions/{id}', [PositionController::class, 'destroy']);
+
     });
 
 });
