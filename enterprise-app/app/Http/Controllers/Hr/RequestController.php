@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Hr\Request as RequestModel; // ตั้งชื่อเล่น Model เพื่อไม่ให้ชนกับ Request หลัก
 use App\Models\User;
 use App\Models\ViewRequest;
-use App\Models\Requests;
+
 
 class RequestController extends Controller
 {
@@ -55,7 +55,7 @@ class RequestController extends Controller
     public function update(Request $request, $id)
     {
         // ถูกต้อง: ใช้ Model จริงเพื่อแก้ไขข้อมูล
-        $req = \App\Models\Requests::findOrFail($id);
+        $req = RequestModel::findOrFail($id);
 
         // ผิด: ViewRequest::findOrFail($id) (View แก้ไขไม่ได้)
 
