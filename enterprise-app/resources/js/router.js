@@ -17,6 +17,7 @@ const routes = [
     { path: '/approvals', component: ApprovalManager },
 ];
 
+
 const router = createRouter({
     history: createWebHistory(),
     routes,

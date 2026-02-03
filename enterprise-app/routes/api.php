@@ -22,9 +22,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::get('/user', [AuthController::class, 'user']);
 
     // Dashboard: ให้ทุกคนดูได้ (หรือจะย้ายไป Admin ก็ได้แล้วแต่คุณ)
     Route::get('/dashboard', [DashboardController::class, 'index']);

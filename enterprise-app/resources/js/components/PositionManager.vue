@@ -1,160 +1,112 @@
 <template>
-    <div class="p-6 bg-slate-50 min-h-screen font-sans text-slate-900">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div class="p-6 bg-slate-50 min-h-screen font-sans text-slate-800">
+
+        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">ตำแหน่งงาน (Positions)</h1>
-                <p class="text-slate-500 mt-1 text-base">บริหารจัดการชื่อตำแหน่งและรายละเอียดหน้าที่ความรับผิดชอบ</p>
+                <h2 class="text-2xl font-bold text-slate-800">จัดการตำแหน่งงาน (Positions)</h2>
+                <p class="text-sm text-slate-500">เพิ่ม ลบ แก้ไข รายชื่อตำแหน่งในบริษัท</p>
             </div>
-            <button @click="openModal"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-200 flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95">
+            <button @click="openModal()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-200 transition-all flex items-center gap-2 font-bold">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                         clip-rule="evenodd" />
                 </svg>
-                <span class="font-semibold">เพิ่มตำแหน่งใหม่</span>
+                เพิ่มตำแหน่งใหม่
             </button>
         </div>
 
-        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 mb-6 max-w-sm">
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-                <input type="text" v-model="searchQuery"
-                    class="block w-full pl-10 pr-4 py-2 border-none rounded-xl bg-transparent focus:ring-0 text-slate-700 placeholder-slate-400 focus:outline-none"
-                    placeholder="ค้นหาตำแหน่ง..." />
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-4 w-16 text-center">#</th>
+                            <th class="px-6 py-4">ชื่อตำแหน่ง</th>
+                            <th class="px-6 py-4 text-center w-40">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <tr v-for="(position, index) in positions" :key="position.position_id"
+                            class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-center text-slate-400">{{ index + 1 }}</td>
+                            <td class="px-6 py-4 font-medium text-slate-700">{{ position.position_name }}</td>
+                            <td class="px-6 py-4 text-center flex justify-center gap-2">
+                                <button @click="openModal(position)"
+                                    class="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path
+                                            d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                    </svg>
+                                </button>
+                                <button @click="deletePosition(position.position_id)"
+                                    class="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr v-if="positions.length === 0">
+                            <td colspan="3" class="px-6 py-12 text-center text-slate-400">
+                                ยังไม่มีข้อมูลตำแหน่ง
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <table class="min-w-full divide-y divide-slate-100">
-                <thead class="bg-slate-50/50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">ชื่อตำแหน่ง</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">รายละเอียด
-                            (Description)</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase">จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    <tr v-for="pos in filteredPositions" :key="pos.position_id"
-                        class="hover:bg-slate-50/80 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center">
-                                <div
-                                    class="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-lg mr-3">
-                                    💼
-                                </div>
-                                <div class="text-sm font-bold text-slate-800">{{ pos.position_name }}</div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-slate-600">
-                            {{ pos.description || '-' }}
-                        </td>
-                        <td class="px-6 py-4 text-right space-x-2">
-                            <button @click="editPosition(pos)"
-                                class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 p-2 rounded-lg transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path
-                                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                </svg>
-                            </button>
-                            <button @click="deletePosition(pos.position_id)"
-                                class="text-rose-600 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 000-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr v-if="positions.length === 0">
-                        <td colspan="3" class="px-6 py-10 text-center text-slate-400">ยังไม่มีข้อมูลตำแหน่ง</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-slate-900/75 transition-opacity" @click="closeModal"></div>
-
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md z-10 overflow-hidden flex flex-col">
-                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h3 class="text-lg font-bold text-slate-800">{{ isEditing ? 'แก้ไขตำแหน่ง' : 'เพิ่มตำแหน่งใหม่' }}
+        <div v-if="showModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-lg text-slate-800">{{ isEditMode ? 'แก้ไขตำแหน่ง' : 'เพิ่มตำแหน่งใหม่' }}
                     </h3>
-                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600">✕</button>
+                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
-
                 <div class="p-6">
-                    <form @submit.prevent="savePosition" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อตำแหน่ง <span
-                                    class="text-rose-500">*</span></label>
-                            <input v-model="form.position_name" type="text" required
-                                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
-                                placeholder="เช่น ผู้จัดการฝ่ายขาย" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">รายละเอียด</label>
-                            <textarea v-model="form.description" rows="3"
-                                class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
-                                placeholder="หน้าที่ความรับผิดชอบ..."></textarea>
-                        </div>
-
-                        <div class="pt-4 flex justify-end gap-3">
-                            <button type="button" @click="closeModal"
-                                class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">ยกเลิก</button>
-                            <button type="submit"
-                                class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-md"
-                                :disabled="isLoading">
-                                {{ isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล' }}
-                            </button>
-                        </div>
-                    </form>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-slate-700 mb-1.5">ชื่อตำแหน่ง</label>
+                        <input type="text" v-model="form.position_name"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none text-slate-600"
+                            placeholder="ระบุชื่อตำแหน่ง..." />
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button @click="closeModal"
+                            class="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 font-bold transition-all">ยกเลิก</button>
+                        <button @click="savePosition"
+                            class="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-200 font-bold transition-all">บันทึก</button>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 </template>
 
 <script setup>
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 
-const searchQuery = ref('');
-
-// Logic กรอง (แก้ชื่อฟิลด์)
-const filteredPositions = computed(() => {
-    if (!searchQuery.value) return positions.value;
-    const lowerSearch = searchQuery.value.toLowerCase();
-    return positions.value.filter(p =>
-        p.position_name.toLowerCase().includes(lowerSearch) ||
-        (p.description && p.description.toLowerCase().includes(lowerSearch))
-    );
-});
-
-// State
 const positions = ref([]);
-const isModalOpen = ref(false);
-const isEditing = ref(false);
-const editingId = ref(null);
-const isLoading = ref(false);
+const showModal = ref(false);
+const isEditMode = ref(false);
+const form = ref({ position_id: null, position_name: '' });
 
-// Form Data (แก้ชื่อตัวแปร)
-const form = ref({
-    position_name: '',
-    description: ''
-});
-
-// Fetch Data
+// โหลดข้อมูล
 const fetchPositions = async () => {
     try {
         const res = await axios.get('/api/positions');
@@ -162,68 +114,57 @@ const fetchPositions = async () => {
     } catch (e) { console.error(e); }
 };
 
-// Open Modal
-const openModal = () => {
-    isEditing.value = false;
-    editingId.value = null;
-    form.value = { position_name: '', description: '' };
-    isModalOpen.value = true;
+// เปิด Modal
+const openModal = (pos = null) => {
+    if (pos) {
+        isEditMode.value = true;
+        form.value = { ...pos };
+    } else {
+        isEditMode.value = false;
+        form.value = { position_id: null, position_name: '' };
+    }
+    showModal.value = true;
 };
 
-// Edit Position (แก้ให้แมพกับตัวแปรใหม่)
-const editPosition = (pos) => {
-    isEditing.value = true;
-    editingId.value = pos.position_id; // ใช้ position_id
-    form.value = {
-        position_name: pos.position_name,
-        description: pos.description
-    };
-    isModalOpen.value = true;
-};
+const closeModal = () => { showModal.value = false; };
 
-const closeModal = () => {
-    isModalOpen.value = false;
-};
-
-// Save Position
+// บันทึกข้อมูล
 const savePosition = async () => {
-    if (!form.value.position_name) return;
+    if (!form.value.position_name) return Swal.fire('แจ้งเตือน', 'กรุณาระบุชื่อตำแหน่ง', 'warning');
 
-    isLoading.value = true;
     try {
-        if (isEditing.value) {
-            await axios.put(`/api/positions/${editingId.value}`, form.value);
+        if (isEditMode.value) {
+            await axios.put(`/api/positions/${form.value.position_id}`, form.value);
+            Swal.fire('สำเร็จ', 'แก้ไขข้อมูลเรียบร้อย', 'success');
         } else {
             await axios.post('/api/positions', form.value);
+            Swal.fire('สำเร็จ', 'เพิ่มข้อมูลเรียบร้อย', 'success');
         }
-        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1500 });
         closeModal();
         fetchPositions();
-    } catch (e) {
-        Swal.fire('Error', e.message, 'error');
-    } finally {
-        isLoading.value = false;
+    } catch (error) {
+        Swal.fire('เกิดข้อผิดพลาด', error.response?.data?.message || 'ไม่สามารถบันทึกข้อมูลได้', 'error');
     }
 };
 
-// Delete Position
+// ลบข้อมูล
 const deletePosition = (id) => {
     Swal.fire({
         title: 'ยืนยันการลบ?',
-        text: "ตำแหน่งนี้จะหายไปจากระบบ",
+        text: "ข้อมูลตำแหน่งนี้จะหายไปถาวร!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        confirmButtonText: 'ลบเลย',
+        confirmButtonColor: '#f43f5e',
+        confirmButtonText: 'ลบข้อมูล',
         cancelButtonText: 'ยกเลิก'
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
                 await axios.delete(`/api/positions/${id}`);
-                Swal.fire('ลบสำเร็จ!', '', 'success');
+                Swal.fire('ลบสำเร็จ', 'ข้อมูลถูกลบเรียบร้อยแล้ว', 'success');
                 fetchPositions();
             } catch (e) {
-                Swal.fire('Error', 'ไม่สามารถลบได้ (อาจมีการใช้งานอยู่)', 'error');
+                Swal.fire('Error', 'ไม่สามารถลบข้อมูลได้ (อาจมีการใช้งานอยู่)', 'error');
             }
         }
     });
@@ -233,3 +174,21 @@ onMounted(() => {
     fetchPositions();
 });
 </script>
+
+<style scoped>
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fade-in-up 0.3s ease-out;
+}
+</style>

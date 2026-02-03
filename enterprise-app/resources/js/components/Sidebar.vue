@@ -106,7 +106,8 @@
 
         </nav>
 
-        <div class="p-4 border-t border-slate-100 bg-white">
+        <div class="p-4 border-t border-slate-100 bg-white flex flex-col gap-2">
+
             <div class="flex items-center rounded-xl bg-slate-50 border border-slate-100 overflow-hidden hover:bg-slate-100 transition-colors cursor-pointer"
                 :class="isOpen ? 'p-3 gap-3' : 'p-2 justify-center'">
                 <div
@@ -116,16 +117,36 @@
                 <div v-if="isOpen" class="overflow-hidden whitespace-nowrap">
                     <p class="text-sm font-bold text-slate-700 truncate">{{ currentUser?.first_name }} {{
                         currentUser?.last_name }}</p>
-                    <p class="text-xs text-slate-500 truncate">{{ currentUser?.position?.position_name ||
-                        'พนักงานทั่วไป' }}</p>
+
+                    <p class="text-xs text-slate-500 truncate">{{ currentUser?.position_name || 'พนักงานทั่วไป' }}</p>
                 </div>
             </div>
+
+            <button @click="handleLogout"
+                class="flex items-center rounded-xl transition-all duration-200 text-slate-400 hover:bg-rose-50 hover:text-rose-600 group"
+                :class="isOpen ? 'w-full px-3 py-2 gap-3 justify-center' : 'w-9 h-9 justify-center mx-auto'">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 shrink-0 transition-transform group-hover:-translate-x-1" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+
+                <span v-if="isOpen" class="font-bold text-sm">ออกจากระบบ</span>
+            </button>
+
         </div>
     </aside>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
+const router = useRouter();
 
 defineProps({
     isOpen: {
@@ -135,10 +156,8 @@ defineProps({
 });
 defineEmits(['toggle']);
 
-// State เก็บข้อมูล User ปัจจุบัน
 const currentUser = ref(null);
 
-// โหลดข้อมูล User จาก LocalStorage เมื่อเปิดหน้าเว็บ
 onMounted(() => {
     const userStr = localStorage.getItem('user');
     if (userStr) {
@@ -150,23 +169,50 @@ onMounted(() => {
     }
 });
 
-// ตัวแปร Computed เช็คสิทธิ์แบบยืดหยุ่น
+// ✅ แก้ไขจุดที่ 2: Logic เช็คสิทธิ์
 const canManage = computed(() => {
-    // 1. ถ้าไม่มีข้อมูล User หรือ Position ให้ซ่อนไว้ก่อน
-    if (!currentUser.value || !currentUser.value.position) return false;
+    // ใช้ position_name ตรงๆ เพราะข้อมูลจาก ViewEmployee เป็น Flat Object
+    if (!currentUser.value || !currentUser.value.position_name) return false;
 
-    // 2. ดึงชื่อตำแหน่งมา แล้ว "ตัดช่องว่างหน้าหลัง" และ "แปลงเป็นตัวพิมพ์เล็ก"
-    const posName = currentUser.value.position.position_name.trim().toLowerCase();
-
-    // 3. เปรียบเทียบกับคำว่า system admin หรือ hr manager (พิมพ์เล็กหมด)
+    const posName = currentUser.value.position_name.trim().toLowerCase();
     const allowedRoles = ['system admin', 'hr manager'];
-
-    // 4. (แถม) ลอง Log ดูค่าใน Console เผื่อยังไม่ได้อีก
-    console.log("Current Role:", posName);
-    console.log("Is Allowed?", allowedRoles.includes(posName));
 
     return allowedRoles.includes(posName);
 });
+
+const handleLogout = async () => {
+    const result = await Swal.fire({
+        title: 'ยืนยันการออกจากระบบ?',
+        text: "คุณต้องการออกจากระบบใช่หรือไม่",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f43f5e',
+        cancelButtonColor: '#cbd5e1',
+        confirmButtonText: 'ใช่, ออกจากระบบ',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
+        try {
+            await axios.post('/api/logout');
+        } catch (error) {
+            console.error('Logout API Error:', error);
+        } finally {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            delete axios.defaults.headers.common['Authorization'];
+            Swal.fire({
+                icon: 'success',
+                title: 'ออกจากระบบสำเร็จ',
+                showConfirmButton: false,
+                timer: 1000
+            }).then(() => {
+                router.push('/login');
+            });
+        }
+    }
+};
 </script>
 
 <style scoped>

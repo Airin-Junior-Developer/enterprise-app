@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers; // ปกติ AuthController จะอยู่ที่นี่ (เช็ค Namespace อีกทีนะครับ)
+namespace App\Http\Controllers\Hr; // ✅ Namespace ต้องเป็นแบบนี้
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\ViewEmployee; // เรียกใช้ Model ของ View
+use App\Models\ViewEmployee;
 
 class AuthController extends Controller
 {
@@ -16,17 +16,17 @@ class AuthController extends Controller
             return response()->json(['message' => 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'], 401);
         }
 
-        // ดึง User ธรรมดามาเพื่อสร้าง Token (Eloquent Model ปกติ)
+        // ใช้ user_id หรือ id ตามโครงสร้าง Database ของคุณ
         $user = User::where('email', $request['email'])->firstOrFail();
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        // ดึงข้อมูลพนักงานจาก View (เพื่อให้ได้ข้อมูลครบๆ เช่น position_name, branch_name)
-        // ใช้ user_id ในการค้นหา
+        // ดึงข้อมูลพนักงานจาก View
+        // ตรวจสอบว่า ViewEmployee ใช้ column 'user_id' หรือ 'id'
         $employeeData = ViewEmployee::where('user_id', $user->user_id)->first();
 
         return response()->json([
             'message' => 'Login success',
-            'user' => $employeeData, // ส่งข้อมูลจาก View กลับไป Frontend
+            'user' => $employeeData,
             'token' => $token
         ]);
     }
@@ -39,10 +39,8 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        // แก้ให้ดึงจาก View แทนการใช้ $request->user()->load(...)
-        // วิธีนี้จะลดการ JOIN database หน้าบ้าน และได้ข้อมูลที่ format สวยงามตาม View
+        // ดึงข้อมูลจาก View เช่นกัน
         $user = ViewEmployee::where('user_id', $request->user()->user_id)->first();
-
         return response()->json($user);
     }
 }
