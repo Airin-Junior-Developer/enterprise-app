@@ -6,6 +6,7 @@ import BranchManager from './components/BranchManager.vue';
 import PositionManager from './components/PositionManager.vue';
 import RequestManager from './components/RequestManager.vue';
 import ApprovalManager from './components/ApprovalManager.vue';
+import RequestTypeManager from './components/RequestTypeManager.vue';
 
 const routes = [
     { path: '/login', component: Login }, // เพิ่ม Route Login
@@ -15,6 +16,7 @@ const routes = [
     { path: '/positions', component: PositionManager },
     { path: '/requests', component: RequestManager },
     { path: '/approvals', component: ApprovalManager },
+    { path: '/request-types', component: RequestTypeManager },
 ];
 
 

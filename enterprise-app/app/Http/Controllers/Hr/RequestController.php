@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Hr\Request as RequestModel; // ตั้งชื่อเล่น Model เพื่อไม่ให้ชนกับ Request หลัก
 use App\Models\User;
 use App\Models\ViewRequest;
-
+use Illuminate\Support\Facades\DB;
 
 class RequestController extends Controller
 {
@@ -48,6 +48,65 @@ class RequestController extends Controller
         RequestModel::create($validated);
 
         return response()->json(['message' => 'สร้างคำร้องสำเร็จ']);
+    }
+
+    public function getTypes()
+    {
+        // ดึงข้อมูลจากตาราง requests_type โดยตรง
+        $types = DB::table('requests_type')
+            ->where('is_active', true)
+            ->get();
+
+        return response()->json($types);
+    }
+
+    // ดึงข้อมูลทั้งหมด (สำหรับหน้า Admin)
+    public function getAllTypesForAdmin()
+    {
+        $types = DB::table('requests_type')->orderBy('id', 'asc')->get();
+        return response()->json($types);
+    }
+
+    // เพิ่มประเภทใหม่
+    public function storeType(Request $request)
+    {
+        $request->validate(['Name_Type' => 'required|string|max:255']);
+
+        DB::table('requests_type')->insert([
+            'Name_Type' => $request->Name_Type,
+            'is_active' => true // default เปิดใช้งาน
+        ]);
+
+        return response()->json(['message' => 'เพิ่มข้อมูลสำเร็จ']);
+    }
+
+    // แก้ไขชื่อ
+    public function updateType(Request $request, $id)
+    {
+        $request->validate(['Name_Type' => 'required|string|max:255']);
+
+        DB::table('requests_type')->where('id', $id)->update([
+            'Name_Type' => $request->Name_Type
+        ]);
+
+        return response()->json(['message' => 'แก้ไขข้อมูลสำเร็จ']);
+    }
+
+    // สลับสถานะ เปิด/ปิด
+    public function toggleType($id)
+    {
+        // หาค่าปัจจุบันก่อน
+        $type = DB::table('requests_type')->where('id', $id)->first();
+
+        if ($type) {
+            // สลับค่า (ถ้า 1 เป็น 0, ถ้า 0 เป็น 1)
+            DB::table('requests_type')->where('id', $id)->update([
+                'is_active' => !$type->is_active
+            ]);
+            return response()->json(['message' => 'อัปเดตสถานะสำเร็จ']);
+        }
+
+        return response()->json(['message' => 'ไม่พบข้อมูล'], 404);
     }
 
     // RequestController.php

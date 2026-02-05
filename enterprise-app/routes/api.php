@@ -36,9 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/branches', [BranchController::class, 'index']);
     Route::get('/branches/{id}', [BranchController::class, 'show']);
-    
+
     Route::get('/positions', [PositionController::class, 'index']);
     Route::get('/positions/{id}', [PositionController::class, 'show']);
+
 
     // จัดการคำร้องของตัวเอง (ดู, สร้าง, ยกเลิก)
     Route::get('/requests', [RequestController::class, 'index']);
@@ -47,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
+    Route::get('/request-types', [RequestController::class, 'getTypes']);
 
     // --- โซนหวงห้าม (เฉพาะ Admin และ HR) ---
     Route::middleware('admin_hr')->group(function () {
@@ -70,5 +72,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/positions/{id}', [PositionController::class, 'destroy']);
 
     });
+
+    // จัดการประเภทคำร้อง
+    Route::get('/request-types/all', [RequestController::class, 'getAllTypesForAdmin']); // ดึงทั้งหมด (รวมที่ปิดอยู่)
+    Route::post('/request-types', [RequestController::class, 'storeType']); // เพิ่มใหม่
+    Route::put('/request-types/{id}', [RequestController::class, 'updateType']); // แก้ไข
+    Route::patch('/request-types/{id}/toggle', [RequestController::class, 'toggleType']); // เปิด/ปิด
+
+
 
 });

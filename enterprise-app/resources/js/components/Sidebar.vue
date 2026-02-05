@@ -104,6 +104,23 @@
                 <span v-if="isOpen" class="font-medium text-sm">พิจารณาคำร้อง</span>
             </router-link>
 
+            <router-link v-if="canManage" to="/request-types"
+                class="flex items-center px-3 py-2.5 rounded-xl transition-all group overflow-hidden whitespace-nowrap mt-1"
+                active-class="bg-amber-100 text-amber-700 shadow-sm shadow-amber-100 border border-amber-200"
+                :class="{ 'text-slate-600 hover:bg-slate-50 hover:text-slate-900': $route.path !== '/request-types' }">
+                <div class="p-1 rounded-lg shrink-0 transition-colors" :class="[
+                    isOpen ? 'mr-2' : 'mx-auto',
+                    $route.path === '/request-types' ? 'bg-amber-500 text-white' : 'text-slate-400'
+                ]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <span v-if="isOpen" class="font-medium text-sm">ประเภทคำร้อง</span>
+            </router-link>
+
         </nav>
 
         <div class="p-4 border-t border-slate-100 bg-white flex flex-col gap-2">
@@ -135,6 +152,7 @@
 
                 <span v-if="isOpen" class="font-bold text-sm">ออกจากระบบ</span>
             </button>
+
 
         </div>
     </aside>

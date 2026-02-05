@@ -184,7 +184,7 @@
                     <button @click="currentPage--" :disabled="currentPage === 1"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600">ก่อนหน้า</button>
                     <span class="px-3 py-1 border bg-blue-600 text-white rounded text-xs font-bold">{{ currentPage
-                    }}</span>
+                        }}</span>
                     <button @click="currentPage++" :disabled="currentPage >= totalPages"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600">ถัดไป</button>
                 </div>
@@ -220,12 +220,12 @@
                                     class="text-rose-500">*</span></label>
                             <select v-model="form.request_type" required
                                 class="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none bg-white focus:ring-2 focus:ring-blue-500">
-                                <option value="ลากิจ">ลากิจ</option>
-                                <option value="ลาป่วย">ลาป่วย</option>
-                                <option value="ลาพักร้อน">ลาพักร้อน</option>
-                                <option value="ปรับเงินเดือน">ปรับเงินเดือน</option>
-                                <option value="เบิกค่าใช้จ่าย">เบิกค่าใช้จ่าย</option>
-                                <option value="อื่นๆ">อื่นๆ</option>
+
+                                <option value="" disabled>-- กรุณาเลือกประเภท --</option>
+                                <option v-for="type in requestTypes" :key="type.id" :value="type.Name_Type">
+                                    {{ type.Name_Type }}
+                                </option>
+
                             </select>
                         </div>
 
@@ -284,13 +284,14 @@ const isModalOpen = ref(false);
 const isLoading = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-const form = ref({ user_id: '', request_type: 'ลากิจ', reason: '', start_date: '', end_date: '', amount: '' });
+const form = ref({ user_id: '', request_type: '', reason: '', start_date: '', end_date: '', amount: '' });
+const requestTypes = ref([]); // ตัวแปรเก็บประเภทคำร้อง
 
-// ✅ Watcher: ถ้าเปลี่ยนวันเริ่ม -> ให้เคลียร์วันสิ้นสุด (ถ้าน้อยกว่า)
+// ถ้าเปลี่ยนวันเริ่ม -> ให้เคลียร์วันสิ้นสุด (ถ้าน้อยกว่า)
 watch(() => form.value.start_date, (newStart) => {
     if (newStart && form.value.end_date) {
         if (new Date(form.value.end_date) < new Date(newStart)) {
-            form.value.end_date = ''; // รีเซ็ตถ้าวันที่สิ้นสุดน้อยกว่าวันเริ่ม
+            form.value.end_date = '';
         }
     }
 });
@@ -327,9 +328,19 @@ watch([searchQuery, filterYear, currentStatusFilter], () => { currentPage.value 
 
 const fetchData = async () => { try { const reqRes = await axios.get('/api/requests'); requests.value = reqRes.data; } catch (e) { console.error(e); } };
 
+// ✅ ฟังก์ชันดึงประเภทคำร้องจาก API
+const fetchRequestTypes = async () => {
+    try {
+        const res = await axios.get('/api/request-types');
+        requestTypes.value = res.data;
+    } catch (e) {
+        console.error("Error fetching request types:", e);
+    }
+};
+
 const openModal = () => {
     if (!currentUser.value) { Swal.fire('Error', 'กรุณา Login ใหม่', 'error'); return; }
-    form.value = { user_id: currentUser.value.user_id, request_type: 'ลากิจ', reason: '', start_date: '', end_date: '', amount: '' };
+    form.value = { user_id: currentUser.value.user_id, request_type: '', reason: '', start_date: '', end_date: '', amount: '' };
     isModalOpen.value = true;
 };
 const closeModal = () => isModalOpen.value = false;
@@ -353,6 +364,7 @@ const formatDate = (d) => { if (!d) return '-'; return new Date(d).toLocaleDateS
 
 onMounted(() => {
     fetchData();
+    fetchRequestTypes(); // เรียกฟังก์ชันดึงประเภทคำร้องตอนโหลดหน้า
     const userStr = localStorage.getItem('user');
     if (userStr) { try { currentUser.value = JSON.parse(userStr); } catch (e) { console.error("Parse error", e); } }
 });
