@@ -7,6 +7,7 @@ use App\Http\Controllers\Hr\BranchController;
 use App\Http\Controllers\Hr\PositionController;
 use App\Http\Controllers\Hr\RequestController;
 use App\Http\Controllers\Hr\DashboardController;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Hr\AuthController;
 
 /*
@@ -27,7 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Dashboard: ให้ทุกคนดูได้ (หรือจะย้ายไป Admin ก็ได้แล้วแต่คุณ)
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    // --- 🟢 โซนทั่วไป (ทุกคนเข้าได้) ---
+    // --- โซนทั่วไป (ทุกคนเข้าได้) ---
 
     // ดูรายชื่อเพื่อนร่วมงาน, สาขา, ตำแหน่ง (เอาไว้โชว์ใน Dropdown) แต่ห้ามแก้ไข
     Route::get('/employees', [EmployeeController::class, 'index']);
@@ -35,7 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/branches', [BranchController::class, 'index']);
     Route::get('/branches/{id}', [BranchController::class, 'show']);
-
+    
     Route::get('/positions', [PositionController::class, 'index']);
     Route::get('/positions/{id}', [PositionController::class, 'show']);
 
@@ -47,7 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
 
-    // --- 🔴 โซนหวงห้าม (เฉพาะ Admin และ HR) ---
+    // --- โซนหวงห้าม (เฉพาะ Admin และ HR) ---
     Route::middleware('admin_hr')->group(function () {
 
         // อนุมัติคำร้อง (Approve/Reject)

@@ -12,16 +12,18 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        // 1. ตรวจสอบว่ามีอีเมลนี้ในระบบหรือไม่
+        $user = User::where('email', $request->email)->first();
+
+        // 2. ตรวจสอบรหัสผ่าน (ใช้ Hash::check แทน Auth::attempt)
+        if (!$user || !\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'], 401);
         }
 
-        // ใช้ user_id หรือ id ตามโครงสร้าง Database ของคุณ
-        $user = User::where('email', $request['email'])->firstOrFail();
+        // 3. สร้าง Token (Sanctum)
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        // ดึงข้อมูลพนักงานจาก View
-        // ตรวจสอบว่า ViewEmployee ใช้ column 'user_id' หรือ 'id'
+        // 4. ดึงข้อมูลพนักงานจาก View (ถ้ามี)
         $employeeData = ViewEmployee::where('user_id', $user->user_id)->first();
 
         return response()->json([
