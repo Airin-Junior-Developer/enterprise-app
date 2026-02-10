@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "@heroicons/vue": "^2.2.0",
+        "@testsprite/testsprite-mcp": "^0.0.21",
         "@vitejs/plugin-vue": "^6.0.3",
         "sweetalert2": "^11.26.17",
         "vue": "^3.5.27",

@@ -52,7 +52,7 @@
                                 </div>
                                 <div>
                                     <div class="text-sm font-bold text-slate-800">{{ emp.first_name }} {{ emp.last_name
-                                        }}</div>
+                                    }}</div>
                                     <div class="text-xs text-slate-500">ID: {{ emp.id_card_number || '-' }}</div>
                                 </div>
                             </div>
@@ -91,7 +91,6 @@
                 </tbody>
             </table>
         </div>
-
         <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-slate-900/75 transition-opacity" @click="closeModal"></div>
 

@@ -1,134 +1,222 @@
 <template>
-    <div class="p-6 bg-[#F8FAFC] min-h-screen font-sans text-slate-800">
-
-        <div class="mb-8">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">ตำแหน่งงาน (Positions)</h2>
-                    <p class="text-slate-500 mt-1 text-sm">กำหนดบทบาทและหน้าที่รับผิดชอบในองค์กร ทั้งหมด {{
-                        positions.length }} ตำแหน่ง</p>
+    <div class="p-8 bg-[#F3F4F6] min-h-screen font-sans text-slate-700">
+        <div class="bg-white p-6 rounded-t-2xl border-b border-slate-200">
+            <div class="flex items-center gap-2 mb-6">
+                <div class="bg-slate-100 p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-500" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
                 </div>
-                <button @click="openModal()"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 font-bold group">
-                    <div class="bg-indigo-500 rounded-lg p-1 group-hover:bg-indigo-400 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                                clip-rule="evenodd" />
+                <h2 class="text-xl font-bold text-[#1E293B]">จัดการตำแหน่งงาน</h2>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex gap-4 w-full md:w-auto">
+                    <div class="relative w-full md:w-80">
+                        <input type="text" v-model="searchQuery" placeholder="ค้นหาชื่อตำแหน่ง..."
+                            class="w-full pl-4 pr-10 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm" />
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <span>เพิ่มตำแหน่งใหม่</span>
+                </div>
+
+                <button @click="openModal()"
+                    class="bg-[#2B54A3] hover:bg-[#1E3A8A] text-white px-5 py-2 rounded-full flex items-center gap-2 text-sm font-medium transition-colors shadow-sm">
+                    <span class="text-lg">+</span> สร้างตำแหน่ง
                 </button>
             </div>
-
-            <div class="mt-6 max-w-md relative">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input type="text" v-model="searchQuery"
-                    class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 outline-none text-slate-600 shadow-sm transition-all"
-                    placeholder="ค้นหาชื่อตำแหน่ง..." />
-            </div>
         </div>
 
-        <div v-if="isLoading" class="flex justify-center py-20">
-            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
-        </div>
-
-        <div v-else-if="filteredPositions.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            <div v-for="position in filteredPositions" :key="position.position_id"
-                class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all group relative overflow-hidden">
-
-                <div
-                    class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-indigo-50 to-transparent rounded-bl-full opacity-50 group-hover:scale-110 transition-transform duration-500">
-                </div>
-
-                <div class="flex items-start justify-between relative z-10">
-                    <div class="flex gap-4 items-center">
-                        <div
-                            class="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-indigo-200">
-                            {{ position.position_name.charAt(0).toUpperCase() }}
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-slate-800">{{ position.position_name }}</h3>
-                            <p class="text-xs text-slate-400 mt-1">ID: {{ String(position.position_id).padStart(4, '0')
-                                }}</p>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-1">
-                        <button @click="openModal(position)"
-                            class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </button>
-                        <button @click="deletePosition(position.position_id)"
-                            class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+        <div class="bg-white rounded-b-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-50 flex justify-between items-center">
+                <h3 class="text-[#2B54A3] font-bold">ตำแหน่งทั้งหมด {{ filteredPositions.length }} รายการ</h3>
+                <div v-if="isLoading" class="text-sm text-slate-400">กำลังโหลด...</div>
             </div>
-        </div>
 
-        <div v-else class="bg-white rounded-2xl border border-slate-100 p-12 text-center shadow-sm">
-            <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/50 text-slate-500 text-sm">
+                            <th class="px-6 py-4 font-semibold border-b w-16">ลำดับ</th>
+                            <th class="px-6 py-4 font-semibold border-b">ตำแหน่ง (ไทย)</th>
+                            <th class="px-6 py-4 font-semibold border-b">ตำแหน่ง (อังกฤษ)</th>
+                            <th class="px-6 py-4 font-semibold border-b text-center">Level</th>
+                            <th class="px-6 py-4 font-semibold border-b text-center">สถานะ</th>
+                            <th class="px-6 py-4 font-semibold border-b text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr v-for="(pos, index) in filteredPositions" :key="pos.position_id"
+                            class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 text-sm text-slate-400">{{ index + 1 }}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-slate-700">{{ pos.position_name }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">{{ pos.position_name_en || '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-center">
+                                <span class="px-2 py-1 bg-slate-100 rounded text-xs font-bold text-slate-600">
+                                    {{ pos.level_code }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span v-if="pos.is_active"
+                                    class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold border border-green-100">ใช้งาน</span>
+                                <span v-else
+                                    class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200">ปิดใช้งาน</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center gap-4">
+                                    <button @click="openModal(pos)"
+                                        class="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                        แก้ไข
+                                    </button>
+                                    <button @click="deletePosition(pos.position_id)"
+                                        class="flex items-center gap-1 text-slate-400 hover:text-rose-600 text-sm font-medium transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        ลบ
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <h3 class="text-lg font-bold text-slate-800">ไม่พบข้อมูลตำแหน่ง</h3>
-            <button @click="openModal()" class="text-indigo-600 font-bold hover:underline mt-2">สร้างตำแหน่งแรก
-                +</button>
         </div>
 
         <div v-if="showModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
-
-                <div class="bg-white px-6 py-5 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="font-bold text-xl text-slate-800">{{ isEditMode ? 'แก้ไขตำแหน่ง' : 'สร้างตำแหน่งใหม่' }}
+            <div
+                class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h3 class="font-bold text-[#2B54A3] text-lg">{{ isEditMode ? 'แก้ไขตำแหน่ง' : 'สร้างตำแหน่งใหม่' }}
                     </h3>
-                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                    <button @click="closeModal"
+                        class="text-slate-400 hover:text-slate-600 text-2xl transition-colors">&times;</button>
                 </div>
 
-                <div class="p-6">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">ชื่อตำแหน่ง <span
+                <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1">
+                        <label class="text-sm font-bold text-slate-700">ชื่อตำแหน่ง (ไทย) <span
                                 class="text-rose-500">*</span></label>
-                        <input type="text" v-model="form.position_name"
-                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 outline-none text-slate-700 font-medium transition-all"
-                            placeholder="เช่น Programmer, HR Manager..." />
+                        <input type="text" v-model="form.position_name" placeholder="เช่น ผู้จัดการฝ่ายขาย"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all" />
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-sm font-bold text-slate-700">ชื่อตำแหน่ง (อังกฤษ)</label>
+                        <input type="text" v-model="form.position_name_en" placeholder="e.g. Sales Manager"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all" />
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-sm font-bold text-slate-700">ระดับ (Level) <span
+                                class="text-rose-500">*</span></label>
+                        <select v-model="form.level_code"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none bg-white">
+                            <option value="" disabled>-- เลือกระดับ --</option>
+                            <option value="CEO">CEO (ผู้บริหารระดับสูง)</option>
+                            <option value="M">Manager (ผู้จัดการ)</option>
+                            <option value="O1">Officer (เจ้าหน้าที่)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-sm font-bold text-slate-700">ประเภทการจ้าง</label>
+                        <select v-model="form.employment_type_id"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none bg-white">
+                            <option :value="null" disabled>-- เลือกประเภท --</option>
+                            <option v-for="type in masterData.employment_types" :key="type.id" :value="type.id">
+                                {{ type.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-sm font-bold text-slate-700">ประเภทพนักงาน</label>
+                        <select v-model="form.employee_category_id"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none bg-white">
+                            <option :value="null" disabled>-- เลือกประเภท --</option>
+                            <option v-for="cat in masterData.employee_categories" :key="cat.id" :value="cat.id">
+                                {{ cat.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-span-1 md:col-span-2 mt-2 pt-4 border-t border-slate-100">
+                        <p class="text-sm font-bold text-[#2B54A3] mb-4 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path
+                                    d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            โครงสร้างเงินเดือน (Salary Base)
+                        </p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">ต่ำสุด
+                                    (Min)</label>
+                                <div class="relative">
+                                    <input type="number" v-model="form.min_salary" placeholder="0.00"
+                                        class="w-full pl-4 pr-12 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 outline-none font-mono" />
+                                    <span
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs">THB</span>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">สูงสุด
+                                    (Max)</label>
+                                <div class="relative">
+                                    <input type="number" v-model="form.max_salary" placeholder="0.00"
+                                        class="w-full pl-4 pr-12 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 outline-none font-mono" />
+                                    <span
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs">THB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="col-span-1 md:col-span-2 flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-slate-700">สถานะการใช้งาน</span>
+                            <span class="text-xs text-slate-500">เปิด/ปิด การใช้งานตำแหน่งนี้ในระบบ</span>
+                        </div>
+                        <div @click="form.is_active = !form.is_active"
+                            :class="form.is_active ? 'bg-green-500' : 'bg-slate-300'"
+                            class="w-12 h-7 rounded-full relative cursor-pointer transition-colors shadow-inner">
+                            <div :class="form.is_active ? 'translate-x-6' : 'translate-x-1'"
+                                class="absolute top-1 w-5 h-5 bg-white rounded-full transition-transform shadow-sm">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+                <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                     <button @click="closeModal"
-                        class="flex-1 px-4 py-3 border border-slate-200 bg-white rounded-xl text-slate-600 hover:bg-slate-50 font-bold transition-all">ยกเลิก</button>
+                        class="px-6 py-2.5 border border-slate-300 text-slate-600 rounded-full text-sm font-bold hover:bg-white hover:border-slate-400 transition-all">ยกเลิก</button>
                     <button @click="savePosition"
-                        class="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 font-bold transition-all transform active:scale-95">บันทึก</button>
+                        class="px-8 py-2.5 bg-[#2B54A3] text-white rounded-full text-sm font-bold hover:bg-[#1E3A8A] shadow-lg shadow-blue-200 hover:shadow-xl transition-all transform active:scale-95">
+                        {{ isEditMode ? 'บันทึกการแก้ไข' : 'ยืนยันสร้าง' }}
+                    </button>
                 </div>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -142,76 +230,112 @@ const showModal = ref(false);
 const isEditMode = ref(false);
 const isLoading = ref(true);
 const searchQuery = ref('');
-const form = ref({ position_id: null, position_name: '' });
 
-// Fetch Data
+const masterData = ref({
+    employment_types: [],
+    employee_categories: []
+});
+
+// ✅ แก้ไข: ชื่อตัวแปรต้องตรงกับ DB (_id) และ Default ต้องเป็น null
+const form = ref({
+    position_id: null,
+    position_name: '',
+    position_name_en: '',
+    level_code: '',
+    employment_type_id: null,   // ✅ แก้จาก employment_type
+    employee_category_id: null, // ✅ แก้จาก employee_category
+    min_salary: '',
+    max_salary: '',
+    is_active: true
+});
+
+const fetchMasterData = async () => {
+    try {
+        const res = await axios.get('/api/master-data');
+        masterData.value = res.data;
+    } catch (e) {
+        console.error("Master Data Error:", e);
+    }
+};
+
 const fetchPositions = async () => {
     isLoading.value = true;
     try {
         const res = await axios.get('/api/positions');
-        positions.value = res.data;
+        positions.value = res.data.map(p => ({
+            ...p,
+            is_active: Boolean(p.is_active)
+        }));
     } catch (e) {
-        console.error(e);
+        console.error("Fetch Error:", e);
         if (positions.value.length === 0) positions.value = [];
     } finally {
         isLoading.value = false;
     }
 };
 
-// Filter Logic
 const filteredPositions = computed(() => {
     if (!searchQuery.value) return positions.value;
-    const lowerQuery = searchQuery.value.toLowerCase();
+    const query = searchQuery.value.toLowerCase();
     return positions.value.filter(p =>
-        p.position_name.toLowerCase().includes(lowerQuery)
+        p.position_name.includes(query) ||
+        (p.position_name_en && p.position_name_en.toLowerCase().includes(query))
     );
 });
 
-// Modal Actions
 const openModal = (pos = null) => {
     if (pos) {
         isEditMode.value = true;
         form.value = { ...pos };
     } else {
         isEditMode.value = false;
-        form.value = { position_id: null, position_name: '' };
+        // ✅ แก้ไข: Reset ให้ชื่อตัวแปรถูกต้องและเป็น null
+        form.value = {
+            position_id: null,
+            position_name: '',
+            position_name_en: '',
+            level_code: '',
+            employment_type_id: null,   // ✅ ต้องเป็น _id และ null
+            employee_category_id: null, // ✅ ต้องเป็น _id และ null
+            min_salary: '',
+            max_salary: '',
+            is_active: true
+        };
     }
     showModal.value = true;
 };
 
 const closeModal = () => { showModal.value = false; };
 
-// Save Data
 const savePosition = async () => {
-    if (!form.value.position_name) return Swal.fire('แจ้งเตือน', 'กรุณาระบุชื่อตำแหน่ง', 'warning');
+    if (!form.value.position_name) return Swal.fire('แจ้งเตือน', 'กรุณาระบุชื่อตำแหน่ง (ไทย)', 'warning');
+    if (!form.value.level_code) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกระดับ (Level)', 'warning');
 
     try {
         if (isEditMode.value) {
             await axios.put(`/api/positions/${form.value.position_id}`, form.value);
-            Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'แก้ไขข้อมูลเรียบร้อย', timer: 1500, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: 'แก้ไขสำเร็จ', showConfirmButton: false, timer: 1000 });
         } else {
             await axios.post('/api/positions', form.value);
-            Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'เพิ่มข้อมูลเรียบร้อย', timer: 1500, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: 'สร้างสำเร็จ', showConfirmButton: false, timer: 1000 });
         }
         closeModal();
         fetchPositions();
-    } catch (error) {
-        Swal.fire('เกิดข้อผิดพลาด', error.response?.data?.message || 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+    } catch (e) {
+        Swal.fire('Error', e.response?.data?.message || 'เกิดข้อผิดพลาดในการบันทึก', 'error');
     }
 };
 
-// Delete Data
 const deletePosition = (id) => {
     Swal.fire({
         title: 'ยืนยันการลบ?',
-        text: "ข้อมูลนี้จะหายไปถาวร!",
+        text: "ข้อมูลนี้จะถูกลบถาวร",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#f43f5e',
         cancelButtonColor: '#cbd5e1',
         confirmButtonText: 'ลบข้อมูล',
-        cancelButtonText: 'ยกเลิก',
-        reverseButtons: true
+        cancelButtonText: 'ยกเลิก'
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
@@ -219,7 +343,7 @@ const deletePosition = (id) => {
                 Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1000 });
                 fetchPositions();
             } catch (e) {
-                Swal.fire('Error', 'ไม่สามารถลบได้ (อาจมีการใช้งานอยู่)', 'error');
+                Swal.fire('Error', 'ไม่สามารถลบได้', 'error');
             }
         }
     });
@@ -227,23 +351,6 @@ const deletePosition = (id) => {
 
 onMounted(() => {
     fetchPositions();
+    fetchMasterData();
 });
 </script>
-
-<style scoped>
-@keyframes fade-in-up {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in-up {
-    animation: fade-in-up 0.3s ease-out;
-}
-</style>

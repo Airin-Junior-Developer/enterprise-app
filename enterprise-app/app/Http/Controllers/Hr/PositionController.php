@@ -8,26 +8,59 @@ use App\Models\Hr\Position;
 
 class PositionController extends Controller
 {
-    // ดึงตำแหน่งงานทั้งหมด
     public function index()
     {
-        return Position::all();
+        // ✅ เพิ่ม with(...) เพื่อดึงชื่อประเภทการจ้าง/พนักงาน มาแสดงในตาราง
+        return Position::with(['employmentType', 'employeeCategory'])
+            ->orderBy('level', 'asc')
+            ->get();
     }
 
-    // เพิ่มตำแหน่งงานใหม่
     public function store(Request $request)
     {
-        // ตรวจสอบว่าต้องมีชื่อตำแหน่ง (position_name)
-        $request->validate(['position_name' => 'required']);
+        $validated = $request->validate([
+            'position_name' => 'required|string|max:255',
+            'position_name_en' => 'nullable|string|max:255',
+            'level_code' => 'required|string',
+            'employment_type_id' => 'nullable|integer',   // ✅ รับเป็น ID
+            'employee_category_id' => 'nullable|integer', // ✅ รับเป็น ID
+            'min_salary' => 'nullable|numeric',
+            'max_salary' => 'nullable|numeric',
+            'is_active' => 'boolean'
+        ]);
 
-        // บันทึกลง Database
-        return Position::create($request->all());
+        $priorityMap = ['CEO' => 1, 'M' => 5, 'O1' => 10];
+        $validated['level'] = $priorityMap[$validated['level_code']] ?? 99;
+
+        $position = Position::create($validated);
+        return response()->json(['message' => 'สร้างสำเร็จ', 'data' => $position], 201);
     }
 
-    // ลบตำแหน่งงาน
+    public function update(Request $request, $id)
+    {
+        $position = Position::findOrFail($id);
+
+        $validated = $request->validate([
+            'position_name' => 'required|string|max:255',
+            'position_name_en' => 'nullable|string|max:255',
+            'level_code' => 'required|string',
+            'employment_type_id' => 'nullable|integer',   // ✅ รับเป็น ID
+            'employee_category_id' => 'nullable|integer', // ✅ รับเป็น ID
+            'min_salary' => 'nullable|numeric',
+            'max_salary' => 'nullable|numeric',
+            'is_active' => 'boolean'
+        ]);
+
+        $priorityMap = ['CEO' => 1, 'M' => 5, 'O1' => 10];
+        $validated['level'] = $priorityMap[$validated['level_code']] ?? 99;
+
+        $position->update($validated);
+        return response()->json(['message' => 'แก้ไขสำเร็จ', 'data' => $position]);
+    }
+
     public function destroy($id)
     {
         Position::destroy($id);
-        return response()->json(['message' => 'Deleted']);
+        return response()->json(['message' => 'ลบสำเร็จ']);
     }
 }

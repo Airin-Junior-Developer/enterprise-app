@@ -9,12 +9,13 @@ use App\Http\Controllers\Hr\RequestController;
 use App\Http\Controllers\Hr\DashboardController;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Hr\AuthController;
-
+use App\Http\Controllers\Hr\MasterDataController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 */
+
 
 // 1. ประตูด่านหน้า (Public)
 Route::post('/login', [AuthController::class, 'login']);
@@ -27,6 +28,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard: ให้ทุกคนดูได้ (หรือจะย้ายไป Admin ก็ได้แล้วแต่คุณ)
     Route::get('/dashboard', [DashboardController::class, 'index']);
+
+    // Route สำหรับดึงข้อมูล Dropdown (ประเภทการจ้าง, ประเภทพนักงาน)
+    Route::get('/master-data', [MasterDataController::class, 'index']);
 
     // --- โซนทั่วไป (ทุกคนเข้าได้) ---
 

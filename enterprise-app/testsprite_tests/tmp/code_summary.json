@@ -1,0 +1,434 @@
+{
+  "tech_stack": [
+    "PHP",
+    "Laravel",
+    "MySQL",
+    "Vue.js"
+  ],
+  "features": [
+    {
+      "name": "Authentication",
+      "description": "User login and logout functionality",
+      "files": [
+        "app/Http/Controllers/Hr/AuthController.php"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Authentication API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/login": {
+            "post": {
+              "summary": "Login user",
+              "responses": {
+                "200": {
+                  "description": "Successful login"
+                }
+              }
+            }
+          },
+          "/logout": {
+            "post": {
+              "summary": "Logout user",
+              "responses": {
+                "200": {
+                  "description": "Successful logout"
+                }
+              }
+            }
+          },
+          "/user": {
+            "get": {
+              "summary": "Get authenticated user info",
+              "responses": {
+                "200": {
+                  "description": "User details"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Employee Management",
+      "description": "Manage employees (List, Create, Update, Delete)",
+      "files": [
+        "app/Http/Controllers/Hr/EmployeeController.php"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Employee API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/employees": {
+            "get": {
+              "summary": "List employees",
+              "responses": {
+                "200": {
+                  "description": "List of employees"
+                }
+              }
+            },
+            "post": {
+              "summary": "Create new employee",
+              "responses": {
+                "201": {
+                  "description": "Employee created"
+                }
+              }
+            }
+          },
+          "/employees/{id}": {
+            "get": {
+              "summary": "Get employee details",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Employee details"
+                }
+              }
+            },
+            "put": {
+              "summary": "Update employee",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Employee updated"
+                }
+              }
+            },
+            "delete": {
+              "summary": "Delete employee",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Employee deleted"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Branch Management",
+      "description": "Manage branches",
+      "files": [
+        "app/Http/Controllers/Hr/BranchController.php"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Branch API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/branches": {
+            "get": {
+              "summary": "List branches",
+              "responses": {
+                "200": {
+                  "description": "List of branches"
+                }
+              }
+            },
+            "post": {
+              "summary": "Create branch",
+              "responses": {
+                "201": {
+                  "description": "Branch created"
+                }
+              }
+            }
+          },
+          "/branches/{id}": {
+            "get": {
+              "summary": "Get branch details",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Branch details"
+                }
+              }
+            },
+            "put": {
+              "summary": "Update branch",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Branch updated"
+                }
+              }
+            },
+            "delete": {
+              "summary": "Delete branch",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Branch deleted"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Position Management",
+      "description": "Manage positions",
+      "files": [
+        "app/Http/Controllers/Hr/PositionController.php"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Position API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/positions": {
+            "get": {
+              "summary": "List positions",
+              "responses": {
+                "200": {
+                  "description": "List of positions"
+                }
+              }
+            },
+            "post": {
+              "summary": "Create position",
+              "responses": {
+                "201": {
+                  "description": "Position created"
+                }
+              }
+            }
+          },
+          "/positions/{id}": {
+            "get": {
+              "summary": "Get position details",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Position details"
+                }
+              }
+            },
+            "put": {
+              "summary": "Update position",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Position updated"
+                }
+              }
+            },
+            "delete": {
+              "summary": "Delete position",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Position deleted"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Request Management",
+      "description": "Manage requests (Leave, etc.)",
+      "files": [
+        "app/Http/Controllers/Hr/RequestController.php"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Request API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/requests": {
+            "get": {
+              "summary": "List my requests",
+              "responses": {
+                "200": {
+                  "description": "List of requests"
+                }
+              }
+            },
+            "post": {
+              "summary": "Create request",
+              "responses": {
+                "201": {
+                  "description": "Request created"
+                }
+              }
+            }
+          },
+          "/requests/{id}": {
+            "put": {
+              "summary": "Update/Approve request",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Request updated"
+                }
+              }
+            },
+            "delete": {
+              "summary": "Delete request",
+              "parameters": [
+                {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Request deleted"
+                }
+              }
+            }
+          },
+          "/request-types": {
+            "get": {
+              "summary": "Get request available types",
+              "responses": {
+                "200": {
+                  "description": "List of types"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Dashboard",
+      "description": "Dashboard statistics",
+      "files": [
+        "app/Http/Controllers/Hr/DashboardController.php"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "info": {
+          "title": "Dashboard API",
+          "version": "1.0.0"
+        },
+        "paths": {
+          "/dashboard": {
+            "get": {
+              "summary": "Get dashboard data",
+              "responses": {
+                "200": {
+                  "description": "Dashboard data"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
