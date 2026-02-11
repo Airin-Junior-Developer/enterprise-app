@@ -10,6 +10,8 @@ use App\Http\Controllers\Hr\DashboardController;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Hr\AuthController;
 use App\Http\Controllers\Hr\MasterDataController;
+use App\Http\Controllers\Hr\RequestTypeController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -74,6 +76,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/positions', [PositionController::class, 'store']);
         Route::put('/positions/{id}', [PositionController::class, 'update']);
         Route::delete('/positions/{id}', [PositionController::class, 'destroy']);
+
+        // นำส่วนจัดการประเภทคำร้องมาไว้ตรงนี้ (และแก้เป็น RequestTypeController)
+        Route::get('/request-types/all', [RequestTypeController::class, 'indexAll']); // ดึงทั้งหมด
+        Route::post('/request-types', [RequestTypeController::class, 'store']); // เพิ่มใหม่
+        Route::put('/request-types/{id}', [RequestTypeController::class, 'update']); // แก้ไข
+        Route::patch('/request-types/{id}/toggle', [RequestTypeController::class, 'toggleStatus']); // เปิด/ปิด
 
     });
 

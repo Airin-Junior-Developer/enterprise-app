@@ -56,7 +56,7 @@
                 <span v-if="isOpen" class="font-semibold text-sm">ข้อมูลสาขา</span>
             </router-link>
 
-            <router-link v-if="canManage" to="/positions"
+            <router-link v-if="isSuperAdmin" to="/positions"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all group overflow-hidden whitespace-nowrap"
                 active-class="bg-blue-50 text-blue-600 shadow-sm shadow-blue-100"
                 :class="{ 'text-slate-600 hover:bg-slate-50 hover:text-slate-900': $route.path !== '/positions' }">
@@ -104,7 +104,7 @@
                 <span v-if="isOpen" class="font-medium text-sm">พิจารณาคำร้อง</span>
             </router-link>
 
-            <router-link v-if="canManage" to="/request-types"
+            <router-link v-if="isSuperAdmin" to="/request-types"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all group overflow-hidden whitespace-nowrap mt-1"
                 active-class="bg-amber-100 text-amber-700 shadow-sm shadow-amber-100 border border-amber-200"
                 :class="{ 'text-slate-600 hover:bg-slate-50 hover:text-slate-900': $route.path !== '/request-types' }">
@@ -187,15 +187,17 @@ onMounted(() => {
     }
 });
 
-// ✅ แก้ไขจุดที่ 2: Logic เช็คสิทธิ์
 const canManage = computed(() => {
-    // ใช้ position_name ตรงๆ เพราะข้อมูลจาก ViewEmployee เป็น Flat Object
     if (!currentUser.value || !currentUser.value.position_name) return false;
-
     const posName = currentUser.value.position_name.trim().toLowerCase();
-    const allowedRoles = ['system admin', 'hr manager'];
-
+    const allowedRoles = ['super admin', 'hr manager', 'system admin'];
     return allowedRoles.includes(posName);
+});
+
+const isSuperAdmin = computed(() => {
+    if (!currentUser.value || !currentUser.value.position_name) return false;
+    const posName = currentUser.value.position_name.trim().toLowerCase();
+    return posName === 'super admin';
 });
 
 const handleLogout = async () => {

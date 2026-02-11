@@ -157,7 +157,10 @@ const saveType = async () => {
         closeModal();
         fetchTypes();
     } catch (e) {
-        Swal.fire('Error', 'เกิดข้อผิดพลาด', 'error');
+        // ให้มันโชว์ข้อความ Error จากหลังบ้านออกมาเลย
+        let errorMsg = e.response?.data?.message || 'เกิดข้อผิดพลาด';
+        Swal.fire('Error', errorMsg, 'error');
+        console.error("รายละเอียด Error:", e.response?.data);
     }
 };
 
