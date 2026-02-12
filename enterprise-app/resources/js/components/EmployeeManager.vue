@@ -52,14 +52,13 @@
                                 </div>
                                 <div>
                                     <div class="text-sm font-bold text-slate-800">{{ emp.first_name }} {{ emp.last_name
-                                    }}</div>
+                                        }}</div>
                                     <div class="text-xs text-slate-500">ID: {{ emp.id_card_number || '-' }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm font-semibold text-slate-700">{{ emp.position_name || '-' }}</div>
-
                             <div class="text-xs text-slate-500 bg-slate-100 inline-block px-2 py-0.5 rounded mt-1">
                                 {{ emp.branch_name || '-' }}
                             </div>
@@ -91,6 +90,7 @@
                 </tbody>
             </table>
         </div>
+
         <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-slate-900/75 transition-opacity" @click="closeModal"></div>
 
@@ -165,8 +165,18 @@
                         </div>
 
                         <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                            <h4 class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-3">ตั้งค่าบัญชีผู้ใช้
-                                (สำหรับเข้าสู่ระบบ)</h4>
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="text-xs font-bold text-blue-600 uppercase tracking-wider">ตั้งค่าบัญชีผู้ใช้
+                                    (สำหรับเข้าสู่ระบบ)</h4>
+
+                                <div v-if="isEditing" class="flex items-center">
+                                    <input type="checkbox" id="changePass" v-model="enablePasswordEdit"
+                                        class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                                    <label for="changePass"
+                                        class="ml-2 text-sm font-bold text-slate-600 cursor-pointer">ต้องการเปลี่ยนรหัสผ่าน?</label>
+                                </div>
+                            </div>
+
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">อีเมล (Username) <span
@@ -176,22 +186,23 @@
                                         placeholder="employee@enterprise.com">
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div v-if="enablePasswordEdit"
+                                    class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">
-                                            {{ isEditing ? 'รหัสผ่านใหม่ (เว้นว่างถ้าไม่เปลี่ยน)' : 'รหัสผ่าน' }}
-                                            <span v-if="!isEditing" class="text-rose-500">*</span>
+                                            {{ isEditing ? 'รหัสผ่านใหม่' : 'รหัสผ่าน' }} <span
+                                                class="text-rose-500">*</span>
                                         </label>
-                                        <input v-model="form.password" type="password" :required="!isEditing"
+                                        <input v-model="form.password" type="password" required
+                                            autocomplete="new-password"
                                             class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
                                             placeholder="••••••••">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-700 mb-1">
-                                            ยืนยันรหัสผ่าน <span v-if="form.password" class="text-rose-500">*</span>
+                                            ยืนยันรหัสผ่าน <span class="text-rose-500">*</span>
                                         </label>
-                                        <input v-model="form.password_confirmation" type="password"
-                                            :required="!!form.password"
+                                        <input v-model="form.password_confirmation" type="password" required
                                             class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
                                             :class="{ 'border-rose-300 ring-2 ring-rose-100': passwordMismatch }"
                                             placeholder="••••••••">
@@ -206,7 +217,7 @@
                             <button type="button" @click="closeModal"
                                 class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">ยกเลิก</button>
                             <button type="submit"
-                                class="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-md font-bold"
+                                class="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-md font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                                 :disabled="isLoading || passwordMismatch">
                                 {{ isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล' }}
                             </button>
@@ -225,7 +236,6 @@ import { ref, onMounted, computed } from 'vue';
 
 const searchQuery = ref('');
 
-// Computed Filter
 const filteredEmployees = computed(() => {
     if (!searchQuery.value) return employees.value;
     const lowerSearch = searchQuery.value.toLowerCase();
@@ -236,12 +246,12 @@ const filteredEmployees = computed(() => {
     );
 });
 
-// Check Password Match
+// ✅ 3. เช็ค Password Match เฉพาะตอนที่เปิดใช้งานช่องรหัสผ่าน
 const passwordMismatch = computed(() => {
+    if (!enablePasswordEdit.value) return false; // ถ้าซ่อนอยู่ ถือว่าผ่าน
     return form.value.password && form.value.password !== form.value.password_confirmation;
 });
 
-// State
 const employees = ref([]);
 const branches = ref([]);
 const positions = ref([]);
@@ -250,19 +260,15 @@ const isEditing = ref(false);
 const editingId = ref(null);
 const isLoading = ref(false);
 
+// ✅ 4. ตัวแปรควบคุมการเปิด/ปิดช่องรหัสผ่าน
+const enablePasswordEdit = ref(false);
+
 const form = ref({
-    first_name: '',
-    last_name: '',
-    id_card_number: '',
-    phone_number: '',
-    email: '',
-    branch_id: '',
-    position_id: '',
-    password: '',
-    password_confirmation: ''
+    first_name: '', last_name: '', id_card_number: '', phone_number: '',
+    email: '', branch_id: '', position_id: '',
+    password: '', password_confirmation: ''
 });
 
-// Fetch Data
 const fetchData = async () => {
     try {
         const [empRes, branchRes, posRes] = await Promise.all([
@@ -276,11 +282,10 @@ const fetchData = async () => {
     } catch (e) { console.error(e); }
 };
 
-// Open Modal (Add)
 const openModal = () => {
     isEditing.value = false;
     editingId.value = null;
-    // Reset Form
+    enablePasswordEdit.value = true; // ✅ ถ้าเพิ่มใหม่ ให้โชว์ช่องรหัสเสมอ
     form.value = {
         first_name: '', last_name: '', id_card_number: '', phone_number: '',
         email: '', branch_id: '', position_id: '',
@@ -289,11 +294,10 @@ const openModal = () => {
     isModalOpen.value = true;
 };
 
-// Edit Employee
 const editEmployee = (emp) => {
     isEditing.value = true;
     editingId.value = emp.user_id;
-    // Fill Form (ไม่ใส่ password เดิม เพราะเป็นความลับ)
+    enablePasswordEdit.value = false; // ✅ ถ้าแก้ไข ให้ซ่อนช่องรหัสไว้ก่อน (แก้ Autofill)
     form.value = {
         first_name: emp.first_name,
         last_name: emp.last_name,
@@ -302,20 +306,24 @@ const editEmployee = (emp) => {
         email: emp.email,
         branch_id: emp.branch_id,
         position_id: emp.position_id,
-        password: '',             // เว้นว่างไว้
-        password_confirmation: '' // เว้นว่างไว้
+        password: '',
+        password_confirmation: ''
     };
     isModalOpen.value = true;
 };
 
 const closeModal = () => isModalOpen.value = false;
 
-// Save
 const saveEmployee = async () => {
-    // Client-side validation เพิ่มเติม
-    if (form.value.password && form.value.password !== form.value.password_confirmation) {
+    if (enablePasswordEdit.value && form.value.password && form.value.password !== form.value.password_confirmation) {
         Swal.fire('Error', 'รหัสผ่านไม่ตรงกัน', 'error');
         return;
+    }
+
+    // ✅ ถ้าไม่ได้เปิดแก้รหัสผ่าน ให้ลบค่าทิ้งก่อนส่ง เพื่อความชัวร์
+    if (!enablePasswordEdit.value) {
+        delete form.value.password;
+        delete form.value.password_confirmation;
     }
 
     isLoading.value = true;
@@ -365,5 +373,21 @@ onMounted(() => {
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background-color: #cbd5e1;
     border-radius: 20px;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
 }
 </style>

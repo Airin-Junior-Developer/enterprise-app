@@ -62,6 +62,6 @@ class User extends Authenticatable
 
         // เช็คว่าชื่อตำแหน่งตรงกับที่เราต้องการไหม
         $posName = $this->position->position_name ?? '';
-        return in_array($posName, ['System Admin', 'HR Manager']);
+        return in_array($posName, ['System Admin', 'HR Manager', 'Super Admin']);
     }
 }

@@ -60,7 +60,7 @@ class EmployeeController extends Controller
             'email' => 'required|email|unique:users,email,' . $id . ',user_id',
             'branch_id' => 'required|exists:branches,branch_id',
             'position_id' => 'required|exists:positions,position_id',
-            'password' => 'nullable|string|min:6|confirmed',
+            'password' => 'nullable|min:6|confirmed',
             'id_card_number' => 'nullable|string',
             'phone_number' => 'nullable|string',
         ]);
