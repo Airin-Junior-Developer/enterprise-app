@@ -2,95 +2,84 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Hr\AuthController;
+use App\Http\Controllers\Hr\DashboardController;
 use App\Http\Controllers\Hr\EmployeeController;
 use App\Http\Controllers\Hr\BranchController;
 use App\Http\Controllers\Hr\PositionController;
 use App\Http\Controllers\Hr\RequestController;
-use App\Http\Controllers\Hr\DashboardController;
-use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\Hr\AuthController;
-use App\Http\Controllers\Hr\MasterDataController;
 use App\Http\Controllers\Hr\RequestTypeController;
+use App\Http\Controllers\Hr\MasterDataController;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| API Routes - Modular Enterprise Management System
 |--------------------------------------------------------------------------
 */
-
 
 // 1. ประตูด่านหน้า (Public)
 Route::post('/login', [AuthController::class, 'login']);
 
-// 2. โซนสมาชิก (Login แล้วเข้าได้ทุกคน)
+// 2. โซนสมาชิก (ต้อง Login ผ่าน Sanctum เท่านั้น)
 Route::middleware('auth:sanctum')->group(function () {
 
+    // ระบบ Authentication
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
-    // Dashboard: ให้ทุกคนดูได้ (หรือจะย้ายไป Admin ก็ได้แล้วแต่คุณ)
+    // ระบบ Dashboard (รองรับการดึง Stats และ Recent Requests)
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    // Route สำหรับดึงข้อมูล Dropdown (ประเภทการจ้าง, ประเภทพนักงาน)
-    Route::get('/master-data', [MasterDataController::class, 'index']);
+    // ข้อมูลพื้นฐานสำหรับ Dropdown ทั่วไป
+    Route::get('/branches', [BranchController::class, 'index']);
+    Route::get('/positions', [PositionController::class, 'index']);
+    Route::get('/request-types', [RequestController::class, 'getTypes']); // ดึงเฉพาะที่ Is_Active = 1
 
-    // --- โซนทั่วไป (ทุกคนเข้าได้) ---
+    // Master Data ใหม่ (สำหรับหน้า Employee Manager)
+    Route::get('/employment-types', [MasterDataController::class, 'employmentTypes']);
+    Route::get('/employee-categories', [MasterDataController::class, 'employeeCategories']);
 
-    // ดูรายชื่อเพื่อนร่วมงาน, สาขา, ตำแหน่ง (เอาไว้โชว์ใน Dropdown) แต่ห้ามแก้ไข
+    // รายชื่อพนักงาน (ดูได้อย่างเดียวสำหรับคนทั่วไป)
     Route::get('/employees', [EmployeeController::class, 'index']);
     Route::get('/employees/{id}', [EmployeeController::class, 'show']);
 
-    Route::get('/branches', [BranchController::class, 'index']);
-    Route::get('/branches/{id}', [BranchController::class, 'show']);
-
-    Route::get('/positions', [PositionController::class, 'index']);
-    Route::get('/positions/{id}', [PositionController::class, 'show']);
-
-
-    // จัดการคำร้องของตัวเอง (ดู, สร้าง, ยกเลิก)
+    // การจัดการคำร้องส่วนตัว (Employee Zone)
     Route::get('/requests', [RequestController::class, 'index']);
     Route::post('/requests', [RequestController::class, 'store']);
     Route::delete('/requests/{id}', [RequestController::class, 'destroy']);
 
-    Route::get('/dashboard', [DashboardController::class, 'index']);
-
-    Route::get('/request-types', [RequestController::class, 'getTypes']);
-
-    // --- โซนหวงห้าม (เฉพาะ Admin และ HR) ---
+    // ---------------------------------------------------------
+    // 3. โซนหวงห้าม (Admin & HR) - จัดการผ่าน Custom Middleware
+    // ---------------------------------------------------------
     Route::middleware('admin_hr')->group(function () {
 
-        // อนุมัติคำร้อง (Approve/Reject)
+        Route::put('/requests/{id}/status', [RequestController::class, 'updateStatus']);
+
+        // อนุมัติ/ปฏิเสธ คำร้อง (Approve/Reject)
         Route::put('/requests/{id}', [RequestController::class, 'update']);
 
-        // จัดการพนักงาน (เพิ่ม/ลบ/แก้ไข)
+        // จัดการพนักงาน (Full CRUD)
         Route::post('/employees', [EmployeeController::class, 'store']);
         Route::put('/employees/{id}', [EmployeeController::class, 'update']);
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
 
-        // จัดการสาขา (เพิ่ม/ลบ/แก้ไข)
+        // จัดการสาขา (Full CRUD)
         Route::post('/branches', [BranchController::class, 'store']);
         Route::put('/branches/{id}', [BranchController::class, 'update']);
         Route::delete('/branches/{id}', [BranchController::class, 'destroy']);
 
-        // จัดการตำแหน่ง (เพิ่ม/ลบ/แก้ไข)
+        // จัดการตำแหน่ง (Full CRUD)
         Route::post('/positions', [PositionController::class, 'store']);
         Route::put('/positions/{id}', [PositionController::class, 'update']);
         Route::delete('/positions/{id}', [PositionController::class, 'destroy']);
 
-        // นำส่วนจัดการประเภทคำร้องมาไว้ตรงนี้ (และแก้เป็น RequestTypeController)
-        Route::get('/request-types/all', [RequestTypeController::class, 'indexAll']); // ดึงทั้งหมด
-        Route::post('/request-types', [RequestTypeController::class, 'store']); // เพิ่มใหม่
-        Route::put('/request-types/{id}', [RequestTypeController::class, 'update']); // แก้ไข
-        Route::patch('/request-types/{id}/toggle', [RequestTypeController::class, 'toggleStatus']); // เปิด/ปิด
+        // จัดการประเภทคำร้อง (Full CRUD)
+        Route::get('/request-types/all', [RequestTypeController::class, 'indexAll']);
+        Route::post('/request-types', [RequestTypeController::class, 'store']);
+        Route::put('/request-types/{id}', [RequestTypeController::class, 'update']);
+        Route::patch('/request-types/{id}/toggle', [RequestTypeController::class, 'toggleStatus']);
 
+        // ข้อมูลสรุป Master Data ทั้งหมด
+        Route::get('/master-data', [MasterDataController::class, 'index']);
     });
-
-    // จัดการประเภทคำร้อง
-    Route::get('/request-types/all', [RequestController::class, 'getAllTypesForAdmin']); // ดึงทั้งหมด (รวมที่ปิดอยู่)
-    Route::post('/request-types', [RequestController::class, 'storeType']); // เพิ่มใหม่
-    Route::put('/request-types/{id}', [RequestController::class, 'updateType']); // แก้ไข
-    Route::patch('/request-types/{id}/toggle', [RequestController::class, 'toggleType']); // เปิด/ปิด
-
-
-
 });

@@ -1,6 +1,6 @@
 <template>
     <div class="p-8 bg-[#F3F4F6] min-h-screen font-sans text-slate-700">
-        <div class="bg-white p-6 rounded-t-2xl border-b border-slate-200">
+        <div class="bg-white p-6 rounded-t-2xl border-b border-slate-200 shadow-sm">
             <div class="flex items-center gap-2 mb-6">
                 <div class="bg-slate-100 p-2 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-500" fill="none"
@@ -36,7 +36,7 @@
         <div class="bg-white rounded-b-2xl shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-50 flex justify-between items-center">
                 <h3 class="text-[#2B54A3] font-bold">ตำแหน่งทั้งหมด {{ filteredPositions.length }} รายการ</h3>
-                <div v-if="isLoading" class="text-sm text-slate-400">กำลังโหลด...</div>
+                <div v-if="isLoading" class="text-sm text-slate-400 font-bold animate-pulse">กำลังโหลด...</div>
             </div>
 
             <div class="overflow-x-auto">
@@ -63,10 +63,14 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <span v-if="pos.is_active"
-                                    class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold border border-green-100">ใช้งาน</span>
+                                <span v-if="pos.is_active == 1 || pos.is_active === true"
+                                    class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold border border-green-100">
+                                    ใช้งาน
+                                </span>
                                 <span v-else
-                                    class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200">ปิดใช้งาน</span>
+                                    class="px-3 py-1 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200">
+                                    ปิดใช้งาน
+                                </span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-center gap-4">
@@ -128,8 +132,9 @@
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none bg-white">
                             <option value="" disabled>-- เลือกระดับ --</option>
                             <option value="CEO">CEO (ผู้บริหารระดับสูง)</option>
-                            <option value="M">Manager (ผู้จัดการ)</option>
-                            <option value="O1">Officer (เจ้าหน้าที่)</option>
+                            <option value="MGR">Manager (ผู้จัดการ)</option>
+                            <option value="SUP">Supervisor (หัวหน้างาน)</option>
+                            <option value="STF">Staff (พนักงาน)</option>
                         </select>
                     </div>
 
@@ -137,10 +142,9 @@
                         <label class="text-sm font-bold text-slate-700">ประเภทการจ้าง</label>
                         <select v-model="form.employment_type_id"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none bg-white">
-                            <option :value="null" disabled>-- เลือกประเภท --</option>
-                            <option v-for="type in masterData.employment_types" :key="type.id" :value="type.id">
-                                {{ type.name }}
-                            </option>
+                            <option :value="null">-- เลือกประเภท --</option>
+                            <option v-for="type in masterData.employment_types" :key="type.id" :value="type.id">{{
+                                type.name }}</option>
                         </select>
                     </div>
 
@@ -148,10 +152,9 @@
                         <label class="text-sm font-bold text-slate-700">ประเภทพนักงาน</label>
                         <select v-model="form.employee_category_id"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none bg-white">
-                            <option :value="null" disabled>-- เลือกประเภท --</option>
-                            <option v-for="cat in masterData.employee_categories" :key="cat.id" :value="cat.id">
-                                {{ cat.name }}
-                            </option>
+                            <option :value="null">-- เลือกประเภท --</option>
+                            <option v-for="cat in masterData.employee_categories" :key="cat.id" :value="cat.id">{{
+                                cat.name }}</option>
                         </select>
                     </div>
 
@@ -159,44 +162,21 @@
                         <p class="text-sm font-bold text-[#2B54A3] mb-4 flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
                                 fill="currentColor">
-                                <path
-                                    d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                                <path fill-rule="evenodd"
-                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
-                                    clip-rule="evenodd" />
+                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM11 9H9V7h2v2zM11 13H9v-2h2v2z" />
                             </svg>
                             โครงสร้างเงินเดือน (Salary Base)
                         </p>
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">ต่ำสุด
-                                    (Min)</label>
-                                <div class="relative">
-                                    <input type="number" v-model="form.min_salary" placeholder="0.00"
-                                        class="w-full pl-4 pr-12 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 outline-none font-mono" />
-                                    <span
-                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs">THB</span>
-                                </div>
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">สูงสุด
-                                    (Max)</label>
-                                <div class="relative">
-                                    <input type="number" v-model="form.max_salary" placeholder="0.00"
-                                        class="w-full pl-4 pr-12 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 outline-none font-mono" />
-                                    <span
-                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs">THB</span>
-                                </div>
-                            </div>
+                            <input type="number" v-model="form.min_salary" placeholder="Min"
+                                class="px-4 py-2 border rounded-xl" />
+                            <input type="number" v-model="form.max_salary" placeholder="Max"
+                                class="px-4 py-2 border rounded-xl" />
                         </div>
                     </div>
 
                     <div
                         class="col-span-1 md:col-span-2 flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                        <div class="flex flex-col">
-                            <span class="text-sm font-bold text-slate-700">สถานะการใช้งาน</span>
-                            <span class="text-xs text-slate-500">เปิด/ปิด การใช้งานตำแหน่งนี้ในระบบ</span>
-                        </div>
+                        <span class="text-sm font-bold text-slate-700">สถานะการใช้งาน</span>
                         <div @click="form.is_active = !form.is_active"
                             :class="form.is_active ? 'bg-green-500' : 'bg-slate-300'"
                             class="w-12 h-7 rounded-full relative cursor-pointer transition-colors shadow-inner">
@@ -209,9 +189,9 @@
 
                 <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                     <button @click="closeModal"
-                        class="px-6 py-2.5 border border-slate-300 text-slate-600 rounded-full text-sm font-bold hover:bg-white hover:border-slate-400 transition-all">ยกเลิก</button>
+                        class="px-6 py-2.5 border rounded-full text-sm font-bold">ยกเลิก</button>
                     <button @click="savePosition"
-                        class="px-8 py-2.5 bg-[#2B54A3] text-white rounded-full text-sm font-bold hover:bg-[#1E3A8A] shadow-lg shadow-blue-200 hover:shadow-xl transition-all transform active:scale-95">
+                        class="px-8 py-2.5 bg-[#2B54A3] text-white rounded-full text-sm font-bold shadow-lg shadow-blue-200">
                         {{ isEditMode ? 'บันทึกการแก้ไข' : 'ยืนยันสร้าง' }}
                     </button>
                 </div>
@@ -236,14 +216,13 @@ const masterData = ref({
     employee_categories: []
 });
 
-// ✅ แก้ไข: ชื่อตัวแปรต้องตรงกับ DB (_id) และ Default ต้องเป็น null
 const form = ref({
     position_id: null,
     position_name: '',
     position_name_en: '',
     level_code: '',
-    employment_type_id: null,   // ✅ แก้จาก employment_type
-    employee_category_id: null, // ✅ แก้จาก employee_category
+    employment_type_id: null,
+    employee_category_id: null,
     min_salary: '',
     max_salary: '',
     is_active: true
@@ -253,22 +232,20 @@ const fetchMasterData = async () => {
     try {
         const res = await axios.get('/api/master-data');
         masterData.value = res.data;
-    } catch (e) {
-        console.error("Master Data Error:", e);
-    }
+    } catch (e) { console.error("Master Data Error:", e); }
 };
 
 const fetchPositions = async () => {
     isLoading.value = true;
     try {
         const res = await axios.get('/api/positions');
+        // ✅ บังคับให้เป็น Boolean เพื่อให้ UI แสดงผลแม่นยำ
         positions.value = res.data.map(p => ({
             ...p,
-            is_active: Boolean(p.is_active)
+            is_active: Number(p.is_active) === 1
         }));
     } catch (e) {
         console.error("Fetch Error:", e);
-        if (positions.value.length === 0) positions.value = [];
     } finally {
         isLoading.value = false;
     }
@@ -278,28 +255,25 @@ const filteredPositions = computed(() => {
     if (!searchQuery.value) return positions.value;
     const query = searchQuery.value.toLowerCase();
     return positions.value.filter(p =>
-        p.position_name.includes(query) ||
-        (p.position_name_en && p.position_name_en.toLowerCase().includes(query))
+        (p.position_name || '').toLowerCase().includes(query) ||
+        (p.position_name_en || '').toLowerCase().includes(query)
     );
 });
 
 const openModal = (pos = null) => {
     if (pos) {
         isEditMode.value = true;
-        form.value = { ...pos };
+        form.value = {
+            ...pos,
+            // ✅ แปลงค่าจาก Database ให้เป็น Boolean ก่อนเข้า Form
+            is_active: Number(pos.is_active) === 1
+        };
     } else {
         isEditMode.value = false;
-        // ✅ แก้ไข: Reset ให้ชื่อตัวแปรถูกต้องและเป็น null
         form.value = {
-            position_id: null,
-            position_name: '',
-            position_name_en: '',
-            level_code: '',
-            employment_type_id: null,   // ✅ ต้องเป็น _id และ null
-            employee_category_id: null, // ✅ ต้องเป็น _id และ null
-            min_salary: '',
-            max_salary: '',
-            is_active: true
+            position_id: null, position_name: '', position_name_en: '', level_code: '',
+            employment_type_id: null, employee_category_id: null,
+            min_salary: '', max_salary: '', is_active: true // Default เป็นเปิด
         };
     }
     showModal.value = true;
@@ -333,7 +307,6 @@ const deletePosition = (id) => {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#f43f5e',
-        cancelButtonColor: '#cbd5e1',
         confirmButtonText: 'ลบข้อมูล',
         cancelButtonText: 'ยกเลิก'
     }).then(async (result) => {
@@ -342,9 +315,7 @@ const deletePosition = (id) => {
                 await axios.delete(`/api/positions/${id}`);
                 Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1000 });
                 fetchPositions();
-            } catch (e) {
-                Swal.fire('Error', 'ไม่สามารถลบได้', 'error');
-            }
+            } catch (e) { Swal.fire('Error', 'ไม่สามารถลบได้', 'error'); }
         }
     });
 };
@@ -354,3 +325,23 @@ onMounted(() => {
     fetchMasterData();
 });
 </script>
+
+<style scoped>
+@reference "../../css/app.css";
+
+.animate-in {
+    animation: zoomIn 0.2s ease-out;
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+</style>

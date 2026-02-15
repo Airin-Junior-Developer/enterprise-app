@@ -29,6 +29,8 @@ class User extends Authenticatable
         'branch_id',
         'position_id',
         'status',
+        'employment_type_id',
+        'employee_category_id',
     ];
 
     protected $hidden = [
@@ -55,13 +57,34 @@ class User extends Authenticatable
     // เพิ่มฟังก์ชันเช็คสิทธิ์
     public function isAdminOrHr()
     {
-        // โหลดข้อมูลตำแหน่ง (ถ้ายังไม่มี)
+        // โหลดความสัมพันธ์ถ้ายังไม่มี
         if (!$this->relationLoaded('position')) {
             $this->load('position');
         }
 
-        // เช็คว่าชื่อตำแหน่งตรงกับที่เราต้องการไหม
-        $posName = $this->position->position_name ?? '';
-        return in_array($posName, ['System Admin', 'HR Manager', 'Super Admin']);
+        // ป้องกัน Error กรณี position เป็น NULL
+        if (!$this->position) {
+            return false;
+        }
+
+        $posName = $this->position->position_name;
+
+        // ตรวจสอบชื่อตำแหน่งให้ตรงกับที่มีใน Database จริงๆ
+        return in_array($posName, ['Super Admin', 'HR Manager', 'System Admin']);
+    }
+    public function roles()
+    {
+        // เชื่อมไปยังตาราง user_roles ที่เราสร้างไว้เพื่อจับคู่ User กับ Role
+        return $this->belongsToMany(\App\Models\Role::class, 'user_roles', 'user_id', 'role_id');
+    }
+
+    public function employmentType()
+    {
+        return $this->belongsTo(\App\Models\Hr\EmploymentType::class, 'employment_type_id');
+    }
+
+    public function employeeCategory()
+    {
+        return $this->belongsTo(\App\Models\Hr\EmployeeCategory::class, 'employee_category_id');
     }
 }

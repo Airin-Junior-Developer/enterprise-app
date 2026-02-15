@@ -27,7 +27,7 @@
                         :class="currentStatusFilter === 'pending' ? 'text-amber-700' : 'text-slate-500'">รออนุมัติ</p>
                     <h3 class="text-3xl font-bold"
                         :class="currentStatusFilter === 'pending' ? 'text-amber-900' : 'text-amber-500'">{{
-                        stats.pending }}</h3>
+                            stats.pending }}</h3>
                 </div>
                 <div class="h-12 w-12 rounded-full flex items-center justify-center transition-colors relative z-10"
                     :class="currentStatusFilter === 'pending' ? 'bg-amber-200 text-amber-700' : 'bg-amber-50 text-amber-500 group-hover:bg-amber-100'">
@@ -68,7 +68,7 @@
                     </p>
                     <h3 class="text-3xl font-bold"
                         :class="currentStatusFilter === 'approved' ? 'text-emerald-900' : 'text-emerald-600'">{{
-                        stats.approved }}</h3>
+                            stats.approved }}</h3>
                 </div>
                 <div class="h-12 w-12 rounded-full flex items-center justify-center transition-colors"
                     :class="currentStatusFilter === 'approved' ? 'bg-emerald-200 text-emerald-700' : 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100'">
@@ -88,7 +88,7 @@
                         :class="currentStatusFilter === 'rejected' ? 'text-rose-700' : 'text-slate-500'">ไม่อนุมัติ</p>
                     <h3 class="text-3xl font-bold"
                         :class="currentStatusFilter === 'rejected' ? 'text-rose-900' : 'text-rose-500'">{{
-                        stats.rejected }}</h3>
+                            stats.rejected }}</h3>
                 </div>
                 <div class="h-12 w-12 rounded-full flex items-center justify-center transition-colors"
                     :class="currentStatusFilter === 'rejected' ? 'bg-rose-200 text-rose-700' : 'bg-rose-50 text-rose-500 group-hover:bg-rose-100'">
@@ -153,13 +153,13 @@
                                         <div class="font-bold text-slate-700">{{ req.requester_first_name }} {{
                                             req.requester_last_name }}</div>
                                         <div class="text-[11px] text-slate-400">{{ req.requester_position || 'พนักงาน'
-                                            }}</div>
+                                        }}</div>
                                     </div>
                                 </div>
                             </td>
 
                             <td class="px-6 py-4">
-                                <div class="font-medium text-slate-700">{{ req.request_type }}</div>
+                                <div class="font-medium text-slate-700">{{ req.request_type_name }}</div>
                                 <div class="text-xs text-slate-500 truncate max-w-[200px]" :title="req.reason">{{
                                     req.reason || '-' }}</div>
                             </td>
@@ -185,7 +185,7 @@
                             </td>
 
                             <td class="px-6 py-4 text-center">
-                                <div v-if="req.status === 'pending'" class="flex items-center justify-center gap-2">
+                                <div v-if="req.status === 'Pending'" class="flex items-center justify-center gap-2">
                                     <button @click="updateStatus(req.request_id, 'approved')"
                                         class="h-8 px-3 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 text-xs font-bold transition-colors flex items-center gap-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20"
@@ -232,7 +232,7 @@
                     <button @click="currentPage--" :disabled="currentPage === 1"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600 transition-colors">ก่อนหน้า</button>
                     <span class="px-3 py-1 border bg-blue-600 text-white rounded text-xs font-bold">{{ currentPage
-                        }}</span>
+                    }}</span>
                     <button @click="currentPage++" :disabled="currentPage >= totalPages"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600 transition-colors">ถัดไป</button>
                 </div>
@@ -249,17 +249,19 @@ import { ref, onMounted, computed, watch } from 'vue';
 
 const requests = ref([]);
 const searchQuery = ref('');
-const currentStatusFilter = ref('pending'); // ✅ ตั้งค่าเริ่มต้นเป็น Pending สำหรับคนอนุมัติ
+// ✅ แก้ไข: Default filter เป็น lowercase ให้ตรงกับ UI ที่ส่งมา
+const currentStatusFilter = ref('pending');
 const filterYear = ref('');
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
 // Stats Calculation
+// ✅ แก้ไข: เช็คสถานะแบบ Case-Insensitive (ครอบคลุมทั้ง 'pending' และ 'Pending' จาก DB)
 const stats = computed(() => {
     const total = requests.value.length;
-    const pending = requests.value.filter(r => r.status === 'pending').length;
-    const approved = requests.value.filter(r => r.status === 'approved').length;
-    const rejected = requests.value.filter(r => r.status === 'rejected').length;
+    const pending = requests.value.filter(r => r.status.toLowerCase() === 'pending').length;
+    const approved = requests.value.filter(r => r.status.toLowerCase() === 'approved').length;
+    const rejected = requests.value.filter(r => r.status.toLowerCase() === 'rejected').length;
     return { total, pending, approved, rejected };
 });
 
@@ -269,7 +271,8 @@ const filteredRequests = computed(() => {
 
     // 1. Status Filter
     if (currentStatusFilter.value) {
-        result = result.filter(req => req.status === currentStatusFilter.value);
+        // ✅ แก้ไข: เปรียบเทียบแบบ lowercase ทั้งคู่
+        result = result.filter(req => req.status.toLowerCase() === currentStatusFilter.value.toLowerCase());
     }
 
     // 2. Search Filter
@@ -278,7 +281,7 @@ const filteredRequests = computed(() => {
         result = result.filter(req =>
             (req.requester_first_name && req.requester_first_name.toLowerCase().includes(q)) ||
             (req.requester_last_name && req.requester_last_name.toLowerCase().includes(q)) ||
-            req.request_type.toLowerCase().includes(q)
+            (req.request_type_name && req.request_type_name.toLowerCase().includes(q)) // ✅ แก้ชื่อฟิลด์ให้ตรงกับ API (request_type_name)
         );
     }
 
@@ -311,7 +314,10 @@ const fetchData = async () => {
 
 // Approve / Reject Function
 const updateStatus = (id, status) => {
+    // ✅ Logic: UI ส่ง 'approved' (ตัวเล็ก) -> แปลงเป็น 'Approved' (ตัวใหญ่) ส่งให้ DB
     const isApprove = status === 'approved';
+    const dbStatus = isApprove ? 'Approved' : 'Rejected'; // แปลงค่าให้ตรงกับ ENUM ในฐานข้อมูล
+
     const actionText = isApprove ? 'อนุมัติ' : 'ไม่อนุมัติ';
     const confirmColor = isApprove ? '#10b981' : '#f43f5e';
 
@@ -326,11 +332,12 @@ const updateStatus = (id, status) => {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                await axios.put(`/api/requests/${id}`, { status: status });
+                // ✅ ส่งค่า status ที่แปลงแล้วไปหลังบ้าน
+                await axios.put(`/api/requests/${id}/status`, { status: dbStatus });
                 Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1000 });
                 fetchData();
             } catch (e) {
-                Swal.fire('Error', 'เกิดข้อผิดพลาดในการบันทึก', 'error');
+                Swal.fire('Error', e.response?.data?.message || 'เกิดข้อผิดพลาดในการบันทึก', 'error');
             }
         }
     });
@@ -338,14 +345,15 @@ const updateStatus = (id, status) => {
 
 // UI Helpers
 const statusBadgeClass = (status) => {
-    switch (status) {
+    // ✅ รองรับทั้งตัวเล็กตัวใหญ่
+    switch (status.toLowerCase()) {
         case 'approved': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
         case 'rejected': return 'bg-rose-50 text-rose-600 border-rose-100';
         default: return 'bg-amber-50 text-amber-600 border-amber-100';
     }
 };
 const getStatusText = (status) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
         case 'approved': return 'อนุมัติแล้ว';
         case 'rejected': return 'ไม่อนุมัติ';
         default: return 'รออนุมัติ';

@@ -25,7 +25,8 @@ class Role extends Model
     // 4. แปลงข้อมูล JSON ใน Database ให้เป็น Array ใน PHP อัตโนมัติ
     // เวลาเรียก $role->permissions จะได้ Array ทันที ไม่ต้อง json_decode เอง
     protected $casts = [
-        'permissions' => 'array',
+        "employee_management": ["create", "read", "update"],
+  "payroll": ["read"]
     ];
 
     // ความสัมพันธ์กับ User (Many-to-Many)

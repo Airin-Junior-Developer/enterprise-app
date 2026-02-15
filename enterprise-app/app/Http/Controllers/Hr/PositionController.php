@@ -5,62 +5,54 @@ namespace App\Http\Controllers\Hr;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Hr\Position;
+use Illuminate\Support\Facades\Schema; // ✅ ตรวจสอบโครงสร้างตารางจริง
 
 class PositionController extends Controller
 {
     public function index()
     {
-        // ✅ เพิ่ม with(...) เพื่อดึงชื่อประเภทการจ้าง/พนักงาน มาแสดงในตาราง
-        return Position::with(['employmentType', 'employeeCategory'])
-            ->orderBy('level', 'asc')
-            ->get();
+        try {
+            // ดึงข้อมูลพร้อม Relation (ถ้ามี)
+            return Position::with(['employmentType', 'employeeCategory'])
+                ->orderBy('position_id', 'asc')
+                ->get();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'position_name' => 'required|string|max:255',
-            'position_name_en' => 'nullable|string|max:255',
             'level_code' => 'required|string',
-            'employment_type_id' => 'nullable|integer',   // ✅ รับเป็น ID
-            'employee_category_id' => 'nullable|integer', // ✅ รับเป็น ID
-            'min_salary' => 'nullable|numeric',
-            'max_salary' => 'nullable|numeric',
-            'is_active' => 'boolean'
         ]);
 
-        $priorityMap = ['CEO' => 1, 'M' => 5, 'O1' => 10];
-        $validated['level'] = $priorityMap[$validated['level_code']] ?? 99;
+        try {
+            // ✅ บันทึกเฉพาะฟิลด์ที่มีคอลัมน์อยู่ใน DB จริงๆ (ป้องกัน Error 1054)
+            $columns = Schema::getColumnListing('positions');
+            $dataToSave = array_intersect_key($request->all(), array_flip($columns));
 
-        $position = Position::create($validated);
-        return response()->json(['message' => 'สร้างสำเร็จ', 'data' => $position], 201);
+            $position = Position::create($dataToSave);
+            return response()->json(['message' => 'สร้างสำเร็จ', 'data' => $position], 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Save Failed: ' . $e->getMessage()], 500);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $position = Position::findOrFail($id);
+        try {
+            $position = Position::findOrFail($id);
 
-        $validated = $request->validate([
-            'position_name' => 'required|string|max:255',
-            'position_name_en' => 'nullable|string|max:255',
-            'level_code' => 'required|string',
-            'employment_type_id' => 'nullable|integer',   // ✅ รับเป็น ID
-            'employee_category_id' => 'nullable|integer', // ✅ รับเป็น ID
-            'min_salary' => 'nullable|numeric',
-            'max_salary' => 'nullable|numeric',
-            'is_active' => 'boolean'
-        ]);
+            // ✅ กรองฟิลด์ก่อนอัปเดต เพื่อให้สถานะและข้อมูลอื่นๆ บันทึกผ่าน
+            $columns = Schema::getColumnListing('positions');
+            $dataToUpdate = array_intersect_key($request->all(), array_flip($columns));
 
-        $priorityMap = ['CEO' => 1, 'M' => 5, 'O1' => 10];
-        $validated['level'] = $priorityMap[$validated['level_code']] ?? 99;
-
-        $position->update($validated);
-        return response()->json(['message' => 'แก้ไขสำเร็จ', 'data' => $position]);
-    }
-
-    public function destroy($id)
-    {
-        Position::destroy($id);
-        return response()->json(['message' => 'ลบสำเร็จ']);
+            $position->update($dataToUpdate);
+            return response()->json(['message' => 'แก้ไขสำเร็จ', 'data' => $position]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Update Failed: ' . $e->getMessage()], 500);
+        }
     }
 }

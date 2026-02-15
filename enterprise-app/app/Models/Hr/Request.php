@@ -12,27 +12,36 @@ class Request extends Model
 
     protected $table = 'requests';
 
-    // ระบุ Primary Key ให้ตรงกับ Migration
     protected $primaryKey = 'request_id';
 
-    // แก้ไข $fillable ให้ตรงกับชื่อคอลัมน์ในฐานข้อมูลจริง
     protected $fillable = [
         'user_id',
-        'request_type', // แก้จาก type เป็น request_type
+        'request_type_id', // เปลี่ยนจาก request_type เป็น ID ตาม DB จริง
+        'subject',         // ต้องมี เพราะใน DB ห้ามเป็น NULL
         'reason',
         'status',
-        'start_date',   // เพิ่มฟิลด์วันที่
+        'start_date',
         'end_date',
-        'amount'        // เพิ่มฟิลด์จำนวนเงิน
+        'amount',
+        'approver_id',     // เพิ่มกลับเข้ามาเพื่อใช้บันทึกคนอนุมัติ
+        'comment'          // เพิ่มเพื่อใช้บันทึกเหตุผลการอนุมัติ/ปฏิเสธ
     ];
 
-    // ความสัมพันธ์: คำร้องนี้เป็นของ User คนไหน
+    // ความสัมพันธ์: คำร้องนี้เป็นของพนักงานคนไหน
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
-    // หมายเหตุ: ตัด relation branch และ approver ออกก่อน 
-    // เพราะใน Migration ล่าสุดเรายังไม่ได้สร้างคอลัมน์ branch_id และ approver_id ในตาราง requests
-    // (เราดู branch ได้จาก $request->user->branch แทนครับ)
+    // ความสัมพันธ์: ประเภทของคำร้อง (ลา, เบิก ฯลฯ)
+    public function requestType()
+    {
+        return $this->belongsTo(RequestType::class, 'request_type_id', 'id');
+    }
+
+    // เพิ่มความสัมพันธ์ผู้อนุมัติกลับเข้ามา (เพราะในตารางมีรองรับแล้ว)
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approver_id', 'user_id');
+    }
 }

@@ -11,15 +11,18 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. นับจำนวนต่างๆ
         $stats = [
-            'employees' => User::count(),
+            // 1. นับเฉพาะพนักงานที่ยังทำงานอยู่จริง (ใช้ Active ตัวพิมพ์ใหญ่ตาม Enum ใน DB)
+            'employees' => User::where('status', 'Active')->count(),
+
             'requests_total' => ViewRequest::count(),
-            'requests_pending' => ViewRequest::where('status', 'pending')->count(),
-            'requests_approved' => ViewRequest::where('status', 'approved')->count(),
+
+            // 2. แก้ไข 'pending' -> 'Pending' และ 'approved' -> 'Approved'
+            'requests_pending' => ViewRequest::where('status', 'Pending')->count(),
+            'requests_approved' => ViewRequest::where('status', 'Approved')->count(),
         ];
 
-        // 2. ดึงคำร้องล่าสุด 5 รายการ (Recent Activities)
+        // 3. ตรวจสอบให้แน่ใจว่าใน SQL View ได้เพิ่ม SELECT `r`.`subject` เข้าไปด้วยแล้ว
         $recent_requests = ViewRequest::orderBy('created_at', 'desc')->take(5)->get();
 
         return response()->json([

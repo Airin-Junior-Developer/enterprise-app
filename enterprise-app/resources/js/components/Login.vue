@@ -100,36 +100,53 @@
 
 <script setup>
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-// 3. เพิ่มตัวแปร showPassword
 const showPassword = ref(false);
-
 const form = ref({ email: '', password: '' });
 const errorMessage = ref('');
 const isLoading = ref(false);
+
+// ตรวจสอบว่าถ้า Login อยู่แล้วให้เด้งไปหน้า Dashboard เลย
+onMounted(() => {
+    if (localStorage.getItem('token')) {
+        router.push('/');
+    }
+});
 
 const handleLogin = async () => {
     errorMessage.value = '';
     isLoading.value = true;
 
     try {
+        // 1. เรียก API Login
         const res = await axios.post('/api/login', form.value);
 
         if (res.data.token) {
+            // 2. เก็บข้อมูลลง Storage
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
+
+            // 3. ตั้งค่า Header สำหรับ Request ต่อๆ ไป
             axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-            router.push('/');
+
+            // 4. ไปหน้าแรก
+            router.push('/').then(() => {
+                // อัปเดตหน้าจอหนึ่งครั้งเพื่อให้ Component อื่นๆ รับรู้ค่า User ใหม่
+                window.location.reload();
+            });
         }
     } catch (error) {
-        if (error.response && error.response.data && error.response.data.message) {
-            errorMessage.value = error.response.data.message;
+        console.error('Login Failed:', error);
+        if (error.response) {
+            // กรณีรหัสผิด หรือ Validation ไม่ผ่าน
+            errorMessage.value = error.response.data.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
         } else {
-            errorMessage.value = 'เกิดข้อผิดพลาดในการเชื่อมต่อระบบ';
+            // กรณี Server ล่ม หรือเชื่อมต่อไม่ได้
+            errorMessage.value = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้';
         }
     } finally {
         isLoading.value = false;

@@ -10,56 +10,68 @@ use App\Models\ViewEmployee;
 
 class EmployeeController extends Controller
 {
-    // ดึงข้อมูลทั้งหมด (สำหรับตาราง)
     public function index()
     {
-        $employees = ViewEmployee::all();
-        return response()->json($employees);
+        try {
+            // ดึงข้อมูลจาก View เพื่อโชว์ในตาราง
+            return response()->json(ViewEmployee::all());
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Database Error: ' . $e->getMessage()], 500);
+        }
     }
 
-    // เพิ่มฟังก์ชัน show: ดึงข้อมูลรายคนจาก View (สำหรับ Modal แก้ไข)
     public function show($id)
     {
-        // ใช้ ViewEmployee แทน User::find() เพื่อลดการ JOIN หน้าบ้าน
-        // ข้อมูลที่ได้จะมีทั้ง branch_name, position_name มาให้เลย
-        $employee = ViewEmployee::where('user_id', $id)->firstOrFail();
-
-        return response()->json($employee);
+        try {
+            $employee = ViewEmployee::where('user_id', $id)->firstOrFail();
+            return response()->json($employee);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
     }
 
     public function store(Request $request)
     {
-        // 1. ตรวจสอบข้อมูล (Validation)
+        // ✅ 1. ปรับ Validation ให้ยืดหยุ่นขึ้นเพื่อ Debug 
+        // หากติด error 'id not exists' แสดงว่า ID ที่ส่งมาไม่มีอยู่ในตารางนั้นจริงๆ
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'branch_id' => 'required|exists:branches,branch_id',
-            'position_id' => 'required|exists:positions,position_id',
+            'branch_id' => 'required',
+            'position_id' => 'required',
+            'employment_type_id' => 'required',
+            'employee_category_id' => 'required',
             'password' => 'required|string|min:6|confirmed',
             'id_card_number' => 'nullable|string',
             'phone_number' => 'nullable|string',
         ]);
 
-        // 2. เข้ารหัสรหัสผ่าน
-        $validated['password'] = Hash::make($request->password);
+        try {
+            // 2. เข้ารหัสรหัสผ่าน
+            $validated['password'] = Hash::make($request->password);
 
-        // 3. สร้าง User
-        User::create($validated);
+            // 3. สร้าง User
+            User::create($validated);
 
-        return response()->json(['message' => 'เพิ่มพนักงานสำเร็จ']);
+            return response()->json(['message' => 'เพิ่มพนักงานสำเร็จ']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Save Error: ' . $e->getMessage()], 500);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        $user = User::where('user_id', $id)->firstOrFail();
 
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id . ',user_id',
-            'branch_id' => 'required|exists:branches,branch_id',
-            'position_id' => 'required|exists:positions,position_id',
+            'branch_id' => 'required',
+            'position_id' => 'required',
+            'employment_type_id' => 'required',
+            'employee_category_id' => 'required',
             'password' => 'nullable|min:6|confirmed',
             'id_card_number' => 'nullable|string',
             'phone_number' => 'nullable|string',
@@ -71,14 +83,22 @@ class EmployeeController extends Controller
             unset($validated['password']);
         }
 
-        $user->update($validated);
-
-        return response()->json(['message' => 'อัปเดตข้อมูลสำเร็จ']);
+        try {
+            $user->update($validated);
+            return response()->json(['message' => 'อัปเดตข้อมูลสำเร็จ']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Update Error: ' . $e->getMessage()], 500);
+        }
     }
 
     public function destroy($id)
     {
-        User::destroy($id);
-        return response()->json(['message' => 'ลบข้อมูลสำเร็จ']);
+        try {
+            $user = User::where('user_id', $id)->firstOrFail();
+            $user->delete();
+            return response()->json(['message' => 'ลบข้อมูลสำเร็จ']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Delete Error: ' . $e->getMessage()], 500);
+        }
     }
 }

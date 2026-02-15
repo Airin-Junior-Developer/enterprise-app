@@ -1,6 +1,5 @@
 <template>
     <div class="p-6 bg-[#F8FAFC] min-h-screen font-sans text-slate-800">
-
         <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">จัดการประเภทคำร้อง</h2>
@@ -36,7 +35,7 @@
                             <button @click="toggleStatus(type)"
                                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
                                 :class="type.is_active ? 'bg-emerald-500' : 'bg-slate-200'">
-                                <span class="sr-only">Enable notifications</span>
+                                <span class="sr-only">Enable status</span>
                                 <span
                                     class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ease-in-out shadow-sm"
                                     :class="type.is_active ? 'translate-x-6' : 'translate-x-1'" />
@@ -66,28 +65,28 @@
         </div>
 
         <div v-if="showModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-clear-sm p-4">
+            class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-clear-sm p-4 transition-all">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-fade-in-up">
                 <div class="bg-white px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                     <h3 class="font-bold text-lg text-slate-800">{{ isEditMode ? 'แก้ไขประเภท' : 'เพิ่มประเภทใหม่' }}
                     </h3>
-                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600">✕</button>
+                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
                 </div>
                 <div class="p-6">
-                    <label class="block text-sm font-bold text-slate-700 mb-2">ชื่อประเภทคำร้อง</label>
+                    <label class="block text-sm font-bold text-slate-700 mb-2">ชื่อประเภทคำร้อง <span
+                            class="text-rose-500">*</span></label>
                     <input type="text" v-model="form.Name_Type"
-                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none"
-                        placeholder="ระบุชื่อ..." />
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                        placeholder="เช่น ลาพักร้อน, เบิกค่าเดินทาง..." />
                 </div>
                 <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
                     <button @click="closeModal"
-                        class="flex-1 px-4 py-2.5 border border-slate-200 bg-white rounded-xl font-bold text-slate-600 hover:bg-slate-50">ยกเลิก</button>
+                        class="flex-1 px-4 py-2.5 border border-slate-200 bg-white rounded-xl font-bold text-slate-600">ยกเลิก</button>
                     <button @click="saveType"
-                        class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200">บันทึก</button>
+                        class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg transition-all">บันทึก</button>
                 </div>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -96,71 +95,75 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { ref, onMounted } from 'vue';
 
+// --- States ---
 const types = ref([]);
 const showModal = ref(false);
 const isEditMode = ref(false);
-const form = ref({ id: null, Name_Type: '' });
+const form = ref({ id: null, Name_Type: '', is_active: true });
 
-// โหลดข้อมูล
+// ดึงข้อมูลประเภทคำร้องทั้งหมด
 const fetchTypes = async () => {
     try {
-        // ใช้ Route ใหม่ที่สร้างสำหรับ Admin (ดึงทั้งหมด)
+        // ดึงจาก API Master Data ที่รองรับทั้งเปิดและปิดการใช้งาน
         const res = await axios.get('/api/request-types/all');
-        types.value = res.data;
+        // ✅ ตรวจสอบว่าเป็น Boolean เพื่อให้ปุ่ม Toggle ทำงานถูกต้อง
+        types.value = res.data.map(t => ({ ...t, is_active: Boolean(t.is_active) }));
     } catch (e) {
-        console.error(e);
+        console.error("Fetch Error:", e);
     }
 };
 
-// เปิด/ปิด การใช้งาน
+// ฟังก์ชันเปิด/ปิดการใช้งาน (Toggle)
 const toggleStatus = async (type) => {
     try {
-        // เปลี่ยนค่าใน Frontend ก่อนเพื่อให้ดูลื่นไหล (Optimistic UI)
+        // Optimistic UI update: เปลี่ยนที่หน้าจอทันทีเพื่อความรวดเร็ว
+        const originalStatus = type.is_active;
         type.is_active = !type.is_active;
 
-        await axios.patch(`/api/request-types/${type.id}/toggle`);
+        await axios.patch(`/api/request-types/${type.id}/toggle`, {
+            is_active: type.is_active
+        });
 
-        // แจ้งเตือนเล็กๆ มุมขวา
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
-        Toast.fire({ icon: 'success', title: 'อัปเดตสถานะเรียบร้อย' });
-
+        Toast.fire({ icon: 'success', title: 'อัปเดตสถานะสำเร็จ' });
     } catch (e) {
-        // ถ้า Error ให้เปลี่ยนค่ากลับคืน
+        // ถ้า API Error ให้เปลี่ยนสถานะกลับคืน
         type.is_active = !type.is_active;
-        Swal.fire('Error', 'ไม่สามารถเปลี่ยนสถานะได้', 'error');
+        Swal.fire('Error', 'ไม่สามารถอัปเดตสถานะได้', 'error');
     }
 };
 
+// จัดการ Modal
 const openModal = (type = null) => {
     if (type) {
         isEditMode.value = true;
         form.value = { ...type };
     } else {
         isEditMode.value = false;
-        form.value = { id: null, Name_Type: '' };
+        form.value = { id: null, Name_Type: '', is_active: true };
     }
     showModal.value = true;
 };
 
-const closeModal = () => showModal.value = false;
+const closeModal = () => { showModal.value = false; };
 
+// บันทึกข้อมูล (Create/Update)
 const saveType = async () => {
-    if (!form.value.Name_Type) return Swal.fire('เตือน', 'กรุณาระบุชื่อประเภท', 'warning');
+    if (!form.value.Name_Type) return Swal.fire('แจ้งเตือน', 'กรุณาระบุชื่อประเภทคำร้อง', 'warning');
 
     try {
         if (isEditMode.value) {
             await axios.put(`/api/request-types/${form.value.id}`, form.value);
+            Swal.fire({ icon: 'success', title: 'แก้ไขข้อมูลสำเร็จ', showConfirmButton: false, timer: 1500 });
         } else {
             await axios.post('/api/request-types', form.value);
+            Swal.fire({ icon: 'success', title: 'เพิ่มประเภทใหม่เรียบร้อย', showConfirmButton: false, timer: 1500 });
         }
-        Swal.fire({ icon: 'success', title: 'สำเร็จ', showConfirmButton: false, timer: 1000 });
         closeModal();
         fetchTypes();
     } catch (e) {
-        // ให้มันโชว์ข้อความ Error จากหลังบ้านออกมาเลย
-        let errorMsg = e.response?.data?.message || 'เกิดข้อผิดพลาด';
+        const errorMsg = e.response?.data?.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์';
         Swal.fire('Error', errorMsg, 'error');
-        console.error("รายละเอียด Error:", e.response?.data);
     }
 };
 

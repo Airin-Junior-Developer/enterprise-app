@@ -6,28 +6,31 @@ use Illuminate\Database\Eloquent\Model;
 
 class Position extends Model
 {
-    protected $primaryKey = 'position_id'; // ✅ ต้องมีบรรทัดนี้ เพราะ PK เราไม่ใช่ 'id'
+    protected $table = 'positions';
+    protected $primaryKey = 'position_id';
 
+    // ✅ เพิ่มคอลัมน์ใหม่ลงใน fillable
     protected $fillable = [
         'position_name',
         'position_name_en',
-        'level',
         'level_code',
+        'description',
         'employment_type_id',
         'employee_category_id',
         'min_salary',
         'max_salary',
-        'is_active',
+        'is_active'
     ];
 
-    // ✅ ต้องมี 2 ฟังก์ชันนี้ เพื่อแก้ Error 500 (0 รายการ)
+    // ✅ เชื่อมความสัมพันธ์กับประเภทการจ้าง
     public function employmentType()
     {
-        return $this->belongsTo(EmploymentType::class, 'employment_type_id');
+        return $this->belongsTo(EmploymentType::class, 'employment_type_id', 'id');
     }
 
+    // ✅ เชื่อมความสัมพันธ์กับหมวดหมู่พนักงาน
     public function employeeCategory()
     {
-        return $this->belongsTo(EmployeeCategory::class, 'employee_category_id');
+        return $this->belongsTo(EmployeeCategory::class, 'employee_category_id', 'id');
     }
 }
