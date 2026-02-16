@@ -3,31 +3,36 @@
 namespace App\Http\Controllers\Hr;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\ViewRequest; // ใช้ View ที่เราทำไว้
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Hr\Branch;
+use App\Models\Hr\Position;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $stats = [
-            // 1. นับเฉพาะพนักงานที่ยังทำงานอยู่จริง (ใช้ Active ตัวพิมพ์ใหญ่ตาม Enum ใน DB)
-            'employees' => User::where('status', 'Active')->count(),
-
-            'requests_total' => ViewRequest::count(),
-
-            // 2. แก้ไข 'pending' -> 'Pending' และ 'approved' -> 'Approved'
-            'requests_pending' => ViewRequest::where('status', 'Pending')->count(),
-            'requests_approved' => ViewRequest::where('status', 'Approved')->count(),
-        ];
-
-        // 3. ตรวจสอบให้แน่ใจว่าใน SQL View ได้เพิ่ม SELECT `r`.`subject` เข้าไปด้วยแล้ว
-        $recent_requests = ViewRequest::orderBy('created_at', 'desc')->take(5)->get();
-
         return response()->json([
-            'stats' => $stats,
-            'recent_requests' => $recent_requests
+            // 1. นับจำนวนพนักงานทั้งหมดในระบบ (จากตาราง users)
+            'employees_count' => User::count(),
+
+            // 2. นับจำนวนสาขาทั้งหมด (จากตาราง branches)
+            'branches_count' => Branch::count(),
+
+            // 3. นับจำนวนตำแหน่งงาน (จากตาราง positions)
+            'positions_count' => Position::count(),
+
+            // 4. สถานะระบบ (Hardcode ไว้ก่อนว่า Online)
+            'system_status' => 'Online',
+
+            // 5. ดึงรายชื่อพนักงาน 5 คนที่เพิ่งสมัครเข้ามาล่าสุด
+            // - with(...): สั่งให้ไปหยิบชื่อสาขา (branch) และชื่อตำแหน่ง (position) มาด้วยเลย จะได้ไม่ต้อง Query หลายรอบ
+            // - orderBy('created_at', 'desc'): เรียงจากใหม่ไปเก่า
+            // - take(5): เอาแค่ 5 คนพอ
+            'recent_employees' => User::with(['branch', 'position'])
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get()
         ]);
     }
 }

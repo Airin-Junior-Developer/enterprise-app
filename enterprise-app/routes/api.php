@@ -10,6 +10,8 @@ use App\Http\Controllers\Hr\PositionController;
 use App\Http\Controllers\Hr\RequestController;
 use App\Http\Controllers\Hr\RequestTypeController;
 use App\Http\Controllers\Hr\MasterDataController;
+use App\Http\Controllers\Hr\ApprovalController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -27,48 +29,50 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
-    // ระบบ Dashboard (รองรับการดึง Stats และ Recent Requests)
+    // ระบบ Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    // ข้อมูลพื้นฐานสำหรับ Dropdown ทั่วไป
+    // --- Master Data (ดึงข้อมูลสำหรับ Dropdown) ---
+    // (ให้สิทธิ์ทุกคนเห็นได้ เพื่อใช้ในฟอร์มต่างๆ)
     Route::get('/branches', [BranchController::class, 'index']);
     Route::get('/positions', [PositionController::class, 'index']);
-    Route::get('/request-types', [RequestController::class, 'getTypes']); // ดึงเฉพาะที่ Is_Active = 1
-
-    // Master Data ใหม่ (สำหรับหน้า Employee Manager)
+    Route::get('/request-types', [RequestController::class, 'getTypes']);
     Route::get('/employment-types', [MasterDataController::class, 'employmentTypes']);
     Route::get('/employee-categories', [MasterDataController::class, 'employeeCategories']);
 
-    // รายชื่อพนักงาน (ดูได้อย่างเดียวสำหรับคนทั่วไป)
+    // --- Employee List (Read Only) ---
     Route::get('/employees', [EmployeeController::class, 'index']);
     Route::get('/employees/{id}', [EmployeeController::class, 'show']);
 
-    // การจัดการคำร้องส่วนตัว (Employee Zone)
+    // --- ระบบคำร้องส่วนตัว (My Requests) ---
+    // User ทั่วไป: ดู/สร้าง/ลบ คำร้องของตัวเอง
     Route::get('/requests', [RequestController::class, 'index']);
     Route::post('/requests', [RequestController::class, 'store']);
     Route::delete('/requests/{id}', [RequestController::class, 'destroy']);
 
+    // --- ระบบพิจารณาอนุมัติ (Approvals) ---
+    // หัวหน้า/HR: ดูรายการที่ต้องอนุมัติ และกดเปลี่ยนสถานะ
+    // *เปลี่ยน path เป็น /approvals เพื่อไม่ให้ชนกับ /requests ด้านบน*
+    Route::get('/approvals', [ApprovalController::class, 'index']);
+    Route::put('/approvals/{id}/status', [ApprovalController::class, 'updateStatus']);
+
+
     // ---------------------------------------------------------
-    // 3. โซนหวงห้าม (Admin & HR) - จัดการผ่าน Custom Middleware
+    // 3. โซนหวงห้าม (Admin & HR Only) - แก้ไขข้อมูลหลัก
     // ---------------------------------------------------------
     Route::middleware('admin_hr')->group(function () {
 
-        Route::put('/requests/{id}/status', [RequestController::class, 'updateStatus']);
-
-        // อนุมัติ/ปฏิเสธ คำร้อง (Approve/Reject)
-        Route::put('/requests/{id}', [RequestController::class, 'update']);
-
-        // จัดการพนักงาน (Full CRUD)
+        // จัดการพนักงาน (Create / Update / Delete)
         Route::post('/employees', [EmployeeController::class, 'store']);
         Route::put('/employees/{id}', [EmployeeController::class, 'update']);
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
 
-        // จัดการสาขา (Full CRUD)
+        // จัดการสาขา (Create / Update / Delete)
         Route::post('/branches', [BranchController::class, 'store']);
         Route::put('/branches/{id}', [BranchController::class, 'update']);
         Route::delete('/branches/{id}', [BranchController::class, 'destroy']);
 
-        // จัดการตำแหน่ง (Full CRUD)
+        // จัดการตำแหน่ง (Create / Update / Delete)
         Route::post('/positions', [PositionController::class, 'store']);
         Route::put('/positions/{id}', [PositionController::class, 'update']);
         Route::delete('/positions/{id}', [PositionController::class, 'destroy']);

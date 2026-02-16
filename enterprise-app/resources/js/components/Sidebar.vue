@@ -36,7 +36,7 @@
             </div>
             <div v-else-if="canManage" class="h-4 mt-4 mb-2"></div>
 
-            <router-link v-if="isSuperAdmin" to="/employees"
+            <router-link v-if="canManage" to="/employees"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all group overflow-hidden whitespace-nowrap mb-1"
                 active-class="bg-blue-50 text-blue-600 shadow-sm shadow-blue-100"
                 :class="{ 'text-slate-600 hover:bg-slate-50 hover:text-slate-900': $route.path !== '/employees' }">
@@ -119,18 +119,8 @@
                 enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-150 ease-in"
                 leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-2">
                 <div v-if="isMenuOpen"
-                    class="absolute bottom-20 bg-white border border-slate-200 rounded-2xl shadow-xl z-[60] py-2 w-48"
+                    class="absolute bottom-20 bg-white border border-slate-200 rounded-2xl shadow-xl z-60 py-2 w-48"
                     :class="isOpen ? 'left-4 right-4 w-auto' : 'left-4'">
-                    <router-link to="/profile"
-                        class="w-full flex items-center px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 font-medium transition-colors group">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 shrink-0 transition-transform group-hover:-translate-x-1 mr-3" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        ข้อมูลส่วนตัว
-                    </router-link>
                     <button @click="handleLogout"
                         class="w-full flex items-center px-4 py-3 text-sm text-rose-600 hover:bg-rose-50 font-medium transition-colors group">
                         <svg xmlns="http://www.w3.org/2000/svg"
@@ -147,7 +137,7 @@
             <button @click="toggleMenu" class="flex items-center rounded-xl hover:bg-slate-50 transition-colors w-full"
                 :class="isOpen ? 'p-2' : 'justify-center p-1'">
                 <div
-                    class="h-10 w-10 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md shrink-0">
+                    class="h-10 w-10 bg-linear-to-tr from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md shrink-0">
                     {{ currentUser?.first_name?.charAt(0) || 'U' }}
                 </div>
                 <div v-if="isOpen" class="ml-3 text-left overflow-hidden whitespace-nowrap">

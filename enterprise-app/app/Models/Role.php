@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,8 +26,7 @@ class Role extends Model
     // 4. แปลงข้อมูล JSON ใน Database ให้เป็น Array ใน PHP อัตโนมัติ
     // เวลาเรียก $role->permissions จะได้ Array ทันที ไม่ต้อง json_decode เอง
     protected $casts = [
-        "employee_management": ["create", "read", "update"],
-  "payroll": ["read"]
+        'permissions' => 'array',
     ];
 
     // ความสัมพันธ์กับ User (Many-to-Many)

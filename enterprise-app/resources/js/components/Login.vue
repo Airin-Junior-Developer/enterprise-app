@@ -10,7 +10,7 @@
 
             <div class="md:w-1/2 p-8 flex items-center justify-center">
                 <div
-                    class="w-full h-full bg-[#1E293B] rounded-[2rem] flex flex-col items-center justify-center text-center p-10 relative shadow-2xl border border-slate-700">
+                    class="w-full h-full bg-[#1E293B] rounded-4xl flex flex-col items-center justify-center text-center p-10 relative shadow-2xl border border-slate-700">
                     <div class="absolute left-6 top-1/4 w-1.5 h-20 bg-yellow-500 rounded-full"></div>
 
                     <div class="mb-6 text-blue-400/80">

@@ -7,6 +7,7 @@ import PositionManager from './components/PositionManager.vue';
 import RequestManager from './components/RequestManager.vue';
 import ApprovalManager from './components/ApprovalManager.vue';
 import RequestTypeManager from './components/RequestTypeManager.vue';
+import ManagePositions from './components/ManagePositions.vue';
 
 const routes = [
     { path: '/login', component: Login, meta: { guest: true } },
@@ -21,6 +22,7 @@ const routes = [
     { path: '/requests', component: RequestManager, meta: { requiresAuth: true } },
     { path: '/approvals', component: ApprovalManager, meta: { requiresAuth: true } },
     { path: '/request-types', component: RequestTypeManager, meta: { requiresAuth: true } },
+    { path: '/manage-positions', component: ManagePositions, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

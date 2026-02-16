@@ -5,54 +5,67 @@ namespace App\Http\Controllers\Hr;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Hr\Position;
-use Illuminate\Support\Facades\Schema; // ✅ ตรวจสอบโครงสร้างตารางจริง
 
 class PositionController extends Controller
 {
+    // 1. ดึงข้อมูลทั้งหมด
     public function index()
     {
-        try {
-            // ดึงข้อมูลพร้อม Relation (ถ้ามี)
-            return Position::with(['employmentType', 'employeeCategory'])
-                ->orderBy('position_id', 'asc')
-                ->get();
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
-        }
+        return response()->json(Position::orderBy('position_id', 'desc')->get());
     }
 
+    // 2. สร้างตำแหน่งใหม่
     public function store(Request $request)
     {
         $validated = $request->validate([
             'position_name' => 'required|string|max:255',
+            'position_name_en' => 'nullable|string|max:255',
             'level_code' => 'required|string',
+            'employment_type_id' => 'nullable|numeric',
+            'employee_category_id' => 'nullable|numeric',
+            'min_salary' => 'nullable|numeric',
+            'max_salary' => 'nullable|numeric',
+            'is_active' => 'boolean' // รับค่า true/false
         ]);
 
-        try {
-            // ✅ บันทึกเฉพาะฟิลด์ที่มีคอลัมน์อยู่ใน DB จริงๆ (ป้องกัน Error 1054)
-            $columns = Schema::getColumnListing('positions');
-            $dataToSave = array_intersect_key($request->all(), array_flip($columns));
+        Position::create($validated);
 
-            $position = Position::create($dataToSave);
-            return response()->json(['message' => 'สร้างสำเร็จ', 'data' => $position], 201);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Save Failed: ' . $e->getMessage()], 500);
-        }
+        return response()->json(['message' => 'สร้างตำแหน่งสำเร็จ']);
     }
 
+    // 3. อัปเดตข้อมูล
     public function update(Request $request, $id)
     {
-        try {
-            $position = Position::findOrFail($id);
+        $position = Position::findOrFail($id);
 
-            // ✅ กรองฟิลด์ก่อนอัปเดต เพื่อให้สถานะและข้อมูลอื่นๆ บันทึกผ่าน
-            $columns = Schema::getColumnListing('positions');
-            $dataToUpdate = array_intersect_key($request->all(), array_flip($columns));
+        $validated = $request->validate([
+            'position_name' => 'required|string|max:255',
+            'position_name_en' => 'nullable|string|max:255',
+            'level_code' => 'required|string',
+            'employment_type_id' => 'nullable|numeric',
+            'employee_category_id' => 'nullable|numeric',
+            'min_salary' => 'nullable|numeric',
+            'max_salary' => 'nullable|numeric',
+            'is_active' => 'boolean'
+        ]);
 
-            $position->update($dataToUpdate);
-            return response()->json(['message' => 'แก้ไขสำเร็จ', 'data' => $position]);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Update Failed: ' . $e->getMessage()], 500);
+        $position->update($validated);
+
+        return response()->json(['message' => 'แก้ไขข้อมูลสำเร็จ']);
+    }
+
+    // 4. ลบข้อมูล (เช็คก่อนว่ามีคนใช้ตำแหน่งนี้ไหม)
+    public function destroy($id)
+    {
+        $position = Position::findOrFail($id);
+
+        // ถ้ามีพนักงานใช้ตำแหน่งนี้อยู่ ห้ามลบ
+        if ($position->users()->count() > 0) {
+            return response()->json(['message' => 'ไม่สามารถลบได้ เนื่องจากมีพนักงานในตำแหน่งนี้'], 400);
         }
+
+        $position->delete();
+
+        return response()->json(['message' => 'ลบข้อมูลสำเร็จ']);
     }
 }

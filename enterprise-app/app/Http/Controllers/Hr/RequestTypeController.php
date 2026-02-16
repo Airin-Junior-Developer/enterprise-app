@@ -8,45 +8,49 @@ use App\Models\Hr\RequestType;
 
 class RequestTypeController extends Controller
 {
-    // ดึงข้อมูลทั้งหมด
+    // 1. ดึงข้อมูลทั้งหมด (รวมที่ปิดใช้งานด้วย) สำหรับหน้าจัดการ
     public function indexAll()
     {
-        return RequestType::orderBy('id', 'asc')->get();
+        // เรียงตาม ID ล่าสุด
+        $types = RequestType::orderBy('id', 'desc')->get();
+        return response()->json($types);
     }
 
-    // สร้างประเภทใหม่
+    // 2. เพิ่มประเภทใหม่
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'Name_Type' => 'required|string|max:255'
+            'Name_Type' => 'required|string|max:255',
+            'is_active' => 'boolean'
         ]);
 
-        $validated['is_active'] = 1; // 1 = เปิดใช้งาน (ถ้า DB เป็น boolean/tinyint)
-        $type = RequestType::create($validated);
+        RequestType::create($validated);
 
-        return response()->json($type, 201);
+        return response()->json(['message' => 'เพิ่มประเภทคำร้องสำเร็จ']);
     }
 
-    // แก้ไขชื่อประเภท
+    // 3. แก้ไขชื่อประเภท
     public function update(Request $request, $id)
     {
+        $type = RequestType::findOrFail($id);
+
         $validated = $request->validate([
-            'Name_Type' => 'required|string|max:255'
+            'Name_Type' => 'required|string|max:255',
+            'is_active' => 'boolean'
         ]);
 
-        $type = RequestType::findOrFail($id);
         $type->update($validated);
 
-        return response()->json($type);
+        return response()->json(['message' => 'แก้ไขข้อมูลสำเร็จ']);
     }
 
-    // สลับสถานะ (เปิด/ปิด)
-    public function toggleStatus($id)
+    // 4. เปลี่ยนสถานะ เปิด/ปิด (Toggle Status)
+    public function toggleStatus(Request $request, $id)
     {
         $type = RequestType::findOrFail($id);
 
-        // สลับค่า (ถ้าเป็น 1 ให้เป็น 0, ถ้าเป็น 0 ให้เป็น 1)
-        $type->is_active = $type->is_active ? 0 : 1;
+        // รับค่า is_active ที่ส่งมาจาก Vue
+        $type->is_active = $request->input('is_active');
         $type->save();
 
         return response()->json([

@@ -44,7 +44,7 @@
                         :class="currentStatusFilter === 'Pending' ? 'text-amber-700' : 'text-slate-500'">รออนุมัติ</p>
                     <h3 class="text-3xl font-bold"
                         :class="currentStatusFilter === 'Pending' ? 'text-amber-900' : 'text-amber-500'">{{
-                        stats.pending }}</h3>
+                            stats.pending }}</h3>
                 </div>
                 <div class="h-12 w-12 rounded-full flex items-center justify-center transition-colors"
                     :class="currentStatusFilter === 'Pending' ? 'bg-amber-200 text-amber-700' : 'bg-amber-50 text-amber-500 group-hover:bg-amber-100'">
@@ -64,7 +64,7 @@
                     </p>
                     <h3 class="text-3xl font-bold"
                         :class="currentStatusFilter === 'Approved' ? 'text-emerald-900' : 'text-emerald-600'">{{
-                        stats.approved }}</h3>
+                            stats.approved }}</h3>
                 </div>
                 <div class="h-12 w-12 rounded-full flex items-center justify-center transition-colors"
                     :class="currentStatusFilter === 'Approved' ? 'bg-emerald-200 text-emerald-700' : 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100'">
@@ -83,7 +83,7 @@
                         :class="currentStatusFilter === 'Rejected' ? 'text-rose-700' : 'text-slate-500'">ไม่อนุมัติ</p>
                     <h3 class="text-3xl font-bold"
                         :class="currentStatusFilter === 'Rejected' ? 'text-rose-900' : 'text-rose-500'">{{
-                        stats.rejected }}</h3>
+                            stats.rejected }}</h3>
                 </div>
                 <div class="h-12 w-12 rounded-full flex items-center justify-center transition-colors"
                     :class="currentStatusFilter === 'Rejected' ? 'bg-rose-200 text-rose-700' : 'bg-rose-50 text-rose-500 group-hover:bg-rose-100'">
@@ -98,7 +98,7 @@
 
         <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm mb-6">
             <div class="flex flex-col md:flex-row gap-3">
-                <div class="relative flex-grow">
+                <div class="relative grow">
                     <input type="text" v-model="searchQuery"
                         class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all"
                         placeholder="ค้นหาชื่อ, รหัสเอกสาร หรือประเภทคำร้อง..." />
@@ -192,7 +192,7 @@
                     <button @click="currentPage--" :disabled="currentPage === 1"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600">ก่อนหน้า</button>
                     <span class="px-3 py-1 border bg-blue-600 text-white rounded text-xs font-bold">{{ currentPage
-                        }}</span>
+                    }}</span>
                     <button @click="currentPage++" :disabled="currentPage >= totalPages"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600">ถัดไป</button>
                 </div>
@@ -238,7 +238,7 @@
                                 class="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none bg-white focus:ring-2 focus:ring-blue-500">
                                 <option value="" disabled>-- กรุณาเลือกประเภท --</option>
                                 <option v-for="type in requestTypes" :key="type.id" :value="type.id">{{ type.Name_Type
-                                    }}</option>
+                                }}</option>
                             </select>
                         </div>
 
@@ -370,7 +370,7 @@ const fetchData = async () => {
 const fetchRequestTypes = async () => {
     try {
         // ดึงเฉพาะประเภทที่เปิดใช้งานอยู่มาแสดงใน Dropdown
-        const res = await axios.get('/api/request-types/all');
+        const res = await axios.get('/api/request-types');
         requestTypes.value = res.data.filter(t => t.is_active);
     } catch (e) { console.error(e); }
 };

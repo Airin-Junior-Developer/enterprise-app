@@ -9,10 +9,16 @@ class Branch extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'branch_id'; // ระบุ Primary Key ถูกต้องแล้ว
+    protected $primaryKey = 'branch_id'; // ระบุ Primary Key
 
     protected $fillable = [
-        'branch_name',
-        'address' // ✅ แก้จาก description เป็น address ให้ตรงกับ Database Schema
+        'branch_name', // แก้เป็น branch_name
+        'description'
     ];
+
+    // ความสัมพันธ์กับ User
+    public function users()
+    {
+        return $this->hasMany(\App\Models\User::class, 'branch_id', 'branch_id');
+    }
 }

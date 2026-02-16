@@ -8,20 +8,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckAdminOrHr
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-        // 1. เช็คว่าล็อกอินหรือยัง?
-        if (!$request->user()) {
-            return response()->json(['message' => 'Unauthenticated.'], 401);
+        $user = $request->user();
+
+        if (!$user || !$user->position) {
+            return response()->json(['message' => 'Access Denied: ไม่พบข้อมูลตำแหน่ง'], 403);
         }
 
-        // เช็คว่าเป็น Admin หรือ HR ไหม? (เรียกใช้ฟังก์ชันที่เราเพิ่งเขียนใน Model)
-        if (!$request->user()->isAdminOrHr()) {
-            // ถ้าไม่ใช่ ให้ตอบกลับว่า "ห้ามเข้า" (Forbidden)
-            return response()->json(['message' => 'Access Denied: คุณไม่มีสิทธิ์เข้าถึงส่วนนี้'], 403);
+        // แปลงเป็นตัวเล็กทั้งหมด เพื่อกันปัญหาพิมพ์เล็ก/ใหญ่
+        $posName = strtolower(trim($user->position->position_name));
+
+        // ✅ ตรวจสอบว่ามี 'super admin' ในนี้หรือยัง
+        $allowedRoles = ['super admin', 'system admin', 'hr manager'];
+
+        if (in_array($posName, $allowedRoles)) {
+            return $next($request);
         }
 
-        // ถ้าผ่านเงื่อนไข ให้ไปต่อได้
-        return $next($request);
+        return response()->json(['message' => 'Access Denied: คุณไม่มีสิทธิ์เข้าถึงส่วนนี้'], 403);
     }
 }

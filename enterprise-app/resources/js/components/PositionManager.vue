@@ -327,8 +327,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-@reference "../../css/app.css";
-
 .animate-in {
     animation: zoomIn 0.2s ease-out;
 }

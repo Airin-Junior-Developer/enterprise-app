@@ -22,15 +22,15 @@ class User extends Authenticatable
         'prefix',
         'first_name',
         'last_name',
-        'id_card_number',
-        'phone_number',
         'email',
         'password',
+        'phone_number',
+        'id_card_number',
         'branch_id',
         'position_id',
+        'employment_type_id',   // ✅ ต้องมีบรรทัดนี้
+        'employee_category_id', // ✅ ต้องมีบรรทัดนี้
         'status',
-        'employment_type_id',
-        'employee_category_id',
     ];
 
     protected $hidden = [
@@ -49,8 +49,11 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class, 'branch_id', 'branch_id');
     }
 
+    // ในไฟล์ App\Models\User.php
+
     public function position()
     {
+        // เชื่อมไปยัง Model Position โดยใช้ position_id
         return $this->belongsTo(Position::class, 'position_id', 'position_id');
     }
 

@@ -6,31 +6,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class Position extends Model
 {
+    // ระบุชื่อตาราง (เผื่อไว้)
     protected $table = 'positions';
+
+    // ✅ ระบุ Primary Key (สำคัญมาก เพราะไม่ได้ใช้ 'id')
     protected $primaryKey = 'position_id';
 
-    // ✅ เพิ่มคอลัมน์ใหม่ลงใน fillable
+    // ✅ เพิ่มรายชื่อฟิลด์ทั้งหมดลงใน fillable
     protected $fillable = [
         'position_name',
         'position_name_en',
         'level_code',
-        'description',
         'employment_type_id',
         'employee_category_id',
+        'description',
         'min_salary',
         'max_salary',
         'is_active'
     ];
 
-    // ✅ เชื่อมความสัมพันธ์กับประเภทการจ้าง
-    public function employmentType()
+    // ความสัมพันธ์กับ User (เพื่อเช็คก่อนลบ)
+    public function users()
     {
-        return $this->belongsTo(EmploymentType::class, 'employment_type_id', 'id');
-    }
-
-    // ✅ เชื่อมความสัมพันธ์กับหมวดหมู่พนักงาน
-    public function employeeCategory()
-    {
-        return $this->belongsTo(EmployeeCategory::class, 'employee_category_id', 'id');
+        return $this->hasMany(\App\Models\User::class, 'position_id', 'position_id');
     }
 }
