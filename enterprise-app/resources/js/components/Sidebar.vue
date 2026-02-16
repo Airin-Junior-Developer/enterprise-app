@@ -143,7 +143,8 @@
                 <div v-if="isOpen" class="ml-3 text-left overflow-hidden whitespace-nowrap">
                     <p class="text-sm font-bold text-slate-800 truncate">{{ currentUser?.first_name || 'Admin User' }}
                     </p>
-                    <p class="text-[11px] text-slate-500 truncate">{{ currentUser?.position_name || 'ผู้ดูแลระบบ' }}</p>
+                    <p class="text-[11px] text-slate-500 truncate">{{ currentUser?.position?.position_name }}
+                    </p>
                 </div>
             </button>
         </div>
@@ -191,16 +192,26 @@ const handleClickOutside = (event) => {
     }
 };
 
+// Sidebar.vue
+
 const canManage = computed(() => {
-    if (!currentUser.value || !currentUser.value.position_name) return false;
-    const posName = currentUser.value.position_name.trim().toLowerCase();
+    if (!currentUser.value || !currentUser.value.position) return false;
+
+    // ดึงชื่อตำแหน่งออกมาล้างช่องว่างและทำเป็นตัวเล็กทั้งหมด
+    const posName = currentUser.value.position.position_name.trim().toLowerCase();
+
+    // ✅ ตรวจสอบชื่อให้ตรงกับคำว่า "super admin" (ตามใน DB ของคุณ)
     const allowedRoles = ['super admin', 'hr manager', 'system admin'];
+
     return allowedRoles.includes(posName);
 });
 
 const isSuperAdmin = computed(() => {
-    if (!currentUser.value || !currentUser.value.position_name) return false;
-    const posName = currentUser.value.position_name.trim().toLowerCase();
+    if (!currentUser.value || !currentUser.value.position) return false;
+
+    const posName = currentUser.value.position.position_name.trim().toLowerCase();
+
+    // ✅ เช็คคำว่า "super admin"
     return posName === 'super admin' || posName === 'system admin';
 });
 
