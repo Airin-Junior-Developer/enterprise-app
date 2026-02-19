@@ -131,87 +131,121 @@
                         <tr>
                             <th class="px-6 py-4 w-16 text-center">ลำดับ</th>
                             <th class="px-6 py-4">พนักงาน (Requester)</th>
-                            <th class="px-6 py-4">รายละเอียด</th>
-                            <th class="px-6 py-4">วัน-เวลา / ยอดเงิน</th>
-                            <th class="px-6 py-4 text-center">สถานะ</th>
-                            <th class="px-6 py-4 text-center w-40">จัดการ</th>
+                            <th class="px-6 py-4">ตำแหน่ง</th>
+                            <th class="px-6 py-4 text-center">จำนวนรายการ</th>
+                            <th class="px-6 py-4 text-center w-24">ดูข้อมูล</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
-                        <tr v-for="(req, index) in paginatedRequests" :key="req.request_id"
-                            class="hover:bg-slate-50/50 transition-colors">
-                            <td class="px-6 py-4 text-center text-slate-400">{{ (currentPage - 1) * itemsPerPage + index
-                                + 1 }}</td>
-
-                            <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                    <div
-                                        class="h-9 w-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs mr-3 border-2 border-white shadow-sm">
-                                        {{ req.requester_first_name ? req.requester_first_name.charAt(0) : '?' }}
+                        <template v-for="(group, index) in paginatedGroups" :key="group.key">
+                            <tr @click="toggleGroup(group.key)"
+                                class="hover:bg-slate-50/50 transition-colors cursor-pointer bg-white">
+                                <td class="px-6 py-4 text-center text-slate-400">{{ (currentPage - 1) * itemsPerPage +
+                                    index + 1 }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div
+                                            class="h-9 w-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs mr-3 border-2 border-white shadow-sm">
+                                            {{ group.first_name ? group.first_name.charAt(0) : '?' }}
+                                        </div>
+                                        <div class="font-bold text-slate-700">{{ group.first_name }} {{ group.last_name
+                                            }}</div>
                                     </div>
-                                    <div>
-                                        <div class="font-bold text-slate-700">{{ req.requester_first_name }} {{
-                                            req.requester_last_name }}</div>
-                                        <div class="text-[11px] text-slate-400">{{ req.requester_position || 'พนักงาน'
-                                        }}</div>
+                                </td>
+                                <td class="px-6 py-4 text-slate-600">{{ group.position || 'พนักงาน' }}</td>
+                                <td class="px-6 py-4 text-center font-bold text-blue-600">{{ group.requests.length }}
+                                    รายการ</td>
+                                <td class="px-6 py-4 text-center">
+                                    <svg :class="expandedGroups.includes(group.key) ? 'rotate-180 text-blue-600' : 'text-slate-400'"
+                                        class="w-5 h-5 mx-auto transition-transform duration-200" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </td>
+                            </tr>
+
+                            <tr v-if="expandedGroups.includes(group.key)" class="bg-slate-50/50">
+                                <td colspan="5" class="p-0 border-b border-slate-200">
+                                    <div class="px-8 py-4 bg-slate-50/80 shadow-inner">
+                                        <table class="w-full text-sm text-left">
+                                            <thead class="text-slate-500 font-semibold border-b border-slate-200">
+                                                <tr>
+                                                    <th class="pb-3 px-4 w-16 text-center">ลำดับ</th>
+                                                    <th class="pb-3 px-4">ประเภท/รายละเอียด</th>
+                                                    <th class="pb-3 px-4">วัน-เวลา / ยอดเงิน</th>
+                                                    <th class="pb-3 px-4 text-center">สถานะ</th>
+                                                    <th class="pb-3 px-4 text-center w-40">จัดการ</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100">
+                                                <tr v-for="(req, rIndex) in group.requests" :key="req.request_id"
+                                                    class="hover:bg-white transition-colors">
+                                                    <td class="py-3 px-4 text-center text-slate-400">{{ rIndex + 1 }}
+                                                    </td>
+                                                    <td class="py-3 px-4">
+                                                        <div class="font-medium text-slate-700">{{ req.request_type_name
+                                                            }}</div>
+                                                        <div class="text-xs text-slate-500 truncate max-w-[200px]"
+                                                            :title="req.reason">{{ req.reason || req.subject || '-' }}
+                                                        </div>
+                                                    </td>
+                                                    <td class="py-3 px-4 text-slate-600">
+                                                        <div v-if="req.start_date">
+                                                            <div
+                                                                class="text-[11px] bg-white px-2 py-0.5 rounded inline-block text-slate-500 mb-1 border">
+                                                                เริ่ม: {{ formatDate(req.start_date) }}</div>
+                                                            <div class="text-[11px] text-slate-400">ถึง: {{
+                                                                formatDate(req.end_date) }}</div>
+                                                        </div>
+                                                        <div v-else-if="req.amount"
+                                                            class="text-blue-600 font-bold font-mono">{{
+                                                                Number(req.amount).toLocaleString() }} THB</div>
+                                                        <div v-else class="text-slate-300">-</div>
+                                                    </td>
+                                                    <td class="py-3 px-4 text-center">
+                                                        <span :class="statusBadgeClass(req.status)"
+                                                            class="px-3 py-1 rounded-full text-[10px] font-bold border">
+                                                            {{ getStatusText(req.status) }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="py-3 px-4 text-center">
+                                                        <div v-if="req.status === 'Pending'"
+                                                            class="flex items-center justify-center gap-2">
+                                                            <button
+                                                                @click.stop="updateStatus(req.request_id, 'approved')"
+                                                                class="h-7 px-2 rounded-md bg-emerald-100 text-emerald-700 hover:bg-emerald-200 text-[11px] font-bold transition-colors flex items-center gap-1">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
+                                                                    viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fill-rule="evenodd"
+                                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                                        clip-rule="evenodd" />
+                                                                </svg> อนุมัติ
+                                                            </button>
+                                                            <button
+                                                                @click.stop="updateStatus(req.request_id, 'rejected')"
+                                                                class="h-7 px-2 rounded-md bg-rose-100 text-rose-700 hover:bg-rose-200 text-[11px] font-bold transition-colors flex items-center gap-1">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
+                                                                    viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fill-rule="evenodd"
+                                                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                                        clip-rule="evenodd" />
+                                                                </svg> ปัดตก
+                                                            </button>
+                                                        </div>
+                                                        <div v-else class="text-[11px] text-slate-400 italic">
+                                                            ดำเนินการแล้ว</div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                </div>
-                            </td>
+                                </td>
+                            </tr>
+                        </template>
 
-                            <td class="px-6 py-4">
-                                <div class="font-medium text-slate-700">{{ req.request_type_name }}</div>
-                                <div class="text-xs text-slate-500 truncate max-w-[200px]" :title="req.reason">{{
-                                    req.reason || '-' }}</div>
-                            </td>
-
-                            <td class="px-6 py-4 text-slate-600">
-                                <div v-if="req.start_date">
-                                    <div
-                                        class="text-[11px] bg-slate-100 px-2 py-0.5 rounded inline-block text-slate-500 mb-1">
-                                        เริ่ม: {{ formatDate(req.start_date) }}</div>
-                                    <div class="text-[11px] text-slate-400">ถึง: {{ formatDate(req.end_date) }}</div>
-                                </div>
-                                <div v-else-if="req.amount" class="text-blue-600 font-bold font-mono">
-                                    {{ Number(req.amount).toLocaleString() }} THB
-                                </div>
-                                <div v-else class="text-slate-300">-</div>
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-                                <span :class="statusBadgeClass(req.status)"
-                                    class="px-3 py-1 rounded-full text-xs font-bold border">
-                                    {{ getStatusText(req.status) }}
-                                </span>
-                            </td>
-
-                            <td class="px-6 py-4 text-center">
-                                <div v-if="req.status === 'Pending'" class="flex items-center justify-center gap-2">
-                                    <button @click="updateStatus(req.request_id, 'approved')"
-                                        class="h-8 px-3 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 text-xs font-bold transition-colors flex items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20"
-                                            fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        อนุมัติ
-                                    </button>
-                                    <button @click="updateStatus(req.request_id, 'rejected')"
-                                        class="h-8 px-3 rounded-lg bg-rose-100 text-rose-700 hover:bg-rose-200 text-xs font-bold transition-colors flex items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20"
-                                            fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        ไม่
-                                    </button>
-                                </div>
-                                <div v-else class="text-xs text-slate-400 italic">ดำเนินการแล้ว</div>
-                            </td>
-                        </tr>
-                        <tr v-if="paginatedRequests.length === 0">
-                            <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                        <tr v-if="paginatedGroups.length === 0">
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-400">
                                 <div class="flex flex-col items-center justify-center">
                                     <span class="text-3xl mb-2">📄</span>
                                     <span>ไม่พบรายการคำร้องตามเงื่อนไขที่เลือก</span>
@@ -224,15 +258,15 @@
 
             <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div class="text-xs text-slate-500">
-                    แสดง {{ paginatedRequests.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}
-                    ถึง {{ Math.min(currentPage * itemsPerPage, filteredRequests.length) }}
-                    จาก {{ filteredRequests.length }} รายการ
+                    แสดงกลุ่มพนักงาน {{ paginatedGroups.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}
+                    ถึง {{ Math.min(currentPage * itemsPerPage, groupedRequests.length) }}
+                    จากทั้งหมด {{ groupedRequests.length }} กลุ่ม
                 </div>
                 <div class="flex gap-1">
                     <button @click="currentPage--" :disabled="currentPage === 1"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600 transition-colors">ก่อนหน้า</button>
                     <span class="px-3 py-1 border bg-blue-600 text-white rounded text-xs font-bold">{{ currentPage
-                    }}</span>
+                        }}</span>
                     <button @click="currentPage++" :disabled="currentPage >= totalPages"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600 transition-colors">ถัดไป</button>
                 </div>
@@ -249,14 +283,15 @@ import { ref, onMounted, computed, watch } from 'vue';
 
 const requests = ref([]);
 const searchQuery = ref('');
-// ✅ แก้ไข: Default filter เป็น lowercase ให้ตรงกับ UI ที่ส่งมา
 const currentStatusFilter = ref('pending');
 const filterYear = ref('');
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
+// ตัวแปรใหม่สำหรับเก็บรายชื่อกลุ่มที่ถูกกางออก (Expand)
+const expandedGroups = ref([]);
+
 // Stats Calculation
-// ✅ แก้ไข: เช็คสถานะแบบ Case-Insensitive (ครอบคลุมทั้ง 'pending' และ 'Pending' จาก DB)
 const stats = computed(() => {
     const total = requests.value.length;
     const pending = requests.value.filter(r => r.status.toLowerCase() === 'pending').length;
@@ -269,23 +304,19 @@ const stats = computed(() => {
 const filteredRequests = computed(() => {
     let result = requests.value;
 
-    // 1. Status Filter
     if (currentStatusFilter.value) {
-        // ✅ แก้ไข: เปรียบเทียบแบบ lowercase ทั้งคู่
         result = result.filter(req => req.status.toLowerCase() === currentStatusFilter.value.toLowerCase());
     }
 
-    // 2. Search Filter
     if (searchQuery.value) {
         const q = searchQuery.value.toLowerCase();
         result = result.filter(req =>
             (req.requester_first_name && req.requester_first_name.toLowerCase().includes(q)) ||
             (req.requester_last_name && req.requester_last_name.toLowerCase().includes(q)) ||
-            (req.request_type_name && req.request_type_name.toLowerCase().includes(q)) // ✅ แก้ชื่อฟิลด์ให้ตรงกับ API (request_type_name)
+            (req.request_type_name && req.request_type_name.toLowerCase().includes(q))
         );
     }
 
-    // 3. Year Filter
     if (filterYear.value) {
         result = result.filter(req => req.created_at && req.created_at.includes(filterYear.value));
     }
@@ -293,30 +324,69 @@ const filteredRequests = computed(() => {
     return result;
 });
 
-const totalPages = computed(() => Math.ceil(filteredRequests.value.length / itemsPerPage.value));
-const paginatedRequests = computed(() => {
+// ✅ จัดกลุ่มข้อมูลที่กรองแล้วตามชื่อพนักงาน (Grouping Logic)
+const groupedRequests = computed(() => {
+    const groups = {};
+    filteredRequests.value.forEach(req => {
+        // ใช้ชื่อและนามสกุลเป็น Key
+        const key = `${req.requester_first_name}_${req.requester_last_name}`;
+
+        if (!groups[key]) {
+            groups[key] = {
+                key: key,
+                first_name: req.requester_first_name,
+                last_name: req.requester_last_name,
+                // ✅ แก้ไขตรงนี้: ดักจับชื่อตัวแปรตำแหน่งให้ครอบคลุมสิ่งที่ API น่าจะส่งมา
+                position: req.position_name || req.requester_position_name || req.requester_position,
+                requests: []
+            };
+        }
+        groups[key].requests.push(req);
+    });
+    // แปลง Object เป็น Array 
+    return Object.values(groups);
+});
+
+// แบ่งหน้าจาก "กลุ่มพนักงาน" แทนรายการย่อย
+const totalPages = computed(() => Math.ceil(groupedRequests.value.length / itemsPerPage.value));
+const paginatedGroups = computed(() => {
     const start = (currentPage.value - 1) * itemsPerPage.value;
     const end = start + itemsPerPage.value;
-    return filteredRequests.value.slice(start, end);
+    return groupedRequests.value.slice(start, end);
 });
+
+// ฟังก์ชันเปิด/ปิดตารางย่อย
+const toggleGroup = (key) => {
+    if (expandedGroups.value.includes(key)) {
+        expandedGroups.value = expandedGroups.value.filter(k => k !== key);
+    } else {
+        expandedGroups.value.push(key);
+    }
+};
 
 // Actions
 const setFilter = (status) => { currentStatusFilter.value = status; currentPage.value = 1; };
 const resetFilters = () => { searchQuery.value = ''; filterYear.value = ''; currentStatusFilter.value = null; currentPage.value = 1; };
-watch([searchQuery, currentStatusFilter, filterYear], () => { currentPage.value = 1; });
+
+// เมื่อมีการ Filter ใหม่ ให้หุบตารางทั้งหมด และกลับไปหน้าแรก
+watch([searchQuery, currentStatusFilter, filterYear], () => {
+    currentPage.value = 1;
+    expandedGroups.value = [];
+});
 
 const fetchData = async () => {
     try {
-        const res = await axios.get('/api/requests');
+        const res = await axios.get('/api/requests', {
+            params: { mode: 'approval' }
+        });
         requests.value = res.data;
     } catch (e) { console.error(e); }
 };
 
 // Approve / Reject Function
 const updateStatus = (id, status) => {
-    // ✅ Logic: UI ส่ง 'approved' (ตัวเล็ก) -> แปลงเป็น 'Approved' (ตัวใหญ่) ส่งให้ DB
     const isApprove = status === 'approved';
-    const dbStatus = isApprove ? 'Approved' : 'Rejected'; // แปลงค่าให้ตรงกับ ENUM ในฐานข้อมูล
+    const dbStatus = isApprove ? 'Approved' : 'Rejected';
 
     const actionText = isApprove ? 'อนุมัติ' : 'ไม่อนุมัติ';
     const confirmColor = isApprove ? '#10b981' : '#f43f5e';
@@ -332,7 +402,6 @@ const updateStatus = (id, status) => {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                // ✅ ส่งค่า status ที่แปลงแล้วไปหลังบ้าน
                 await axios.put(`/api/requests/${id}/status`, { status: dbStatus });
                 Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1000 });
                 fetchData();
@@ -345,7 +414,6 @@ const updateStatus = (id, status) => {
 
 // UI Helpers
 const statusBadgeClass = (status) => {
-    // ✅ รองรับทั้งตัวเล็กตัวใหญ่
     switch (status.toLowerCase()) {
         case 'approved': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
         case 'rejected': return 'bg-rose-50 text-rose-600 border-rose-100';
