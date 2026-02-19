@@ -58,23 +58,31 @@ class User extends Authenticatable
     }
 
     // เพิ่มฟังก์ชันเช็คสิทธิ์
+    // เพิ่มฟังก์ชันเช็คสิทธิ์ (ฉบับปรับปรุง: ตัดช่องว่าง + ไม่สนตัวพิมพ์เล็กใหญ่)
     public function isAdminOrHr()
     {
-        // โหลดความสัมพันธ์ถ้ายังไม่มี
-        if (!$this->relationLoaded('position')) {
-            $this->load('position');
-        }
-
-        // ป้องกัน Error กรณี position เป็น NULL
+        // ถ้าไม่มีตำแหน่ง ให้ดีดออกทันที
         if (!$this->position) {
             return false;
         }
 
-        $posName = $this->position->position_name;
+        // 1. แปลงชื่อตำแหน่งใน DB ให้เป็นตัวพิมพ์เล็กทั้งหมด และตัดช่องว่างหน้าหลัง
+        // เช่น " Super Admin " -> "super admin"
+        $posName = strtolower(trim($this->position->position_name));
 
-        // ตรวจสอบชื่อตำแหน่งให้ตรงกับที่มีใน Database จริงๆ
-        return in_array($posName, ['Super Admin', 'HR Manager', 'System Admin']);
+        // 2. รายชื่อตำแหน่งที่อนุญาต (เขียนตัวพิมพ์เล็กให้หมด)
+        $allowedRoles = [
+            'super admin',
+            'hr manager',
+            'system admin',
+            'manager',  // เผื่อตำแหน่ง Manager ทั่วไป
+            'admin'     // เผื่อตำแหน่ง Admin ทั่วไป
+        ];
+
+        // 3. ตรวจสอบว่ามีอยู่ในลิสต์ไหม
+        return in_array($posName, $allowedRoles);
     }
+
     public function roles()
     {
         // เชื่อมไปยังตาราง user_roles ที่เราสร้างไว้เพื่อจับคู่ User กับ Role
