@@ -273,7 +273,10 @@ const fetchBranches = async () => {
     isLoading.value = true;
     try {
         const res = await axios.get('/api/branches');
-        branches.value = res.data;
+
+        // นำข้อมูลมาเรียงลำดับตาม branch_id จากน้อยไปมาก
+        branches.value = res.data.sort((a, b) => a.branch_id - b.branch_id);
+
     } catch (e) {
         console.error('Fetch Error:', e);
         branches.value = [];
