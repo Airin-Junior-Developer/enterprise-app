@@ -283,13 +283,25 @@ const fetchBranches = async () => {
 };
 
 // Filter & Pagination Logic
+// Filter & Pagination Logic
 const filteredBranches = computed(() => {
     if (!searchQuery.value) return branches.value;
     const lowerQuery = searchQuery.value.toLowerCase();
-    return branches.value.filter(b =>
-        (b.branch_name && b.branch_name.toLowerCase().includes(lowerQuery)) ||
-        (b.address && b.address.toLowerCase().includes(lowerQuery))
-    );
+
+    return branches.value.filter(b => {
+        // 1. ค้นหาจากชื่อสาขาและที่อยู่
+        const matchBranch = (b.branch_name && b.branch_name.toLowerCase().includes(lowerQuery)) ||
+            (b.address && b.address.toLowerCase().includes(lowerQuery));
+
+        // 2. ค้นหาจากชื่อ-นามสกุล ของ HR ในสาขานั้น
+        const matchHR = b.responsible_users && b.responsible_users.some(user => {
+            const fullName = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
+            return fullName.includes(lowerQuery);
+        });
+
+        // ถ้าตรงกับเงื่อนไขใดเงื่อนไขหนึ่ง (สาขา หรือ ชื่อคน) ให้แสดงข้อมูล
+        return matchBranch || matchHR;
+    });
 });
 
 const totalPages = computed(() => Math.ceil(filteredBranches.value.length / itemsPerPage.value));

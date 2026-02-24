@@ -139,6 +139,12 @@
                     </div>
 
                     <div class="space-y-1">
+                        <label class="text-sm font-bold text-slate-700">ลำดับความสำคัญ (1=สูงสุด)</label>
+                        <input type="number" v-model="form.priority_level" min="1" max="99"
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none" />
+                    </div>
+
+                    <div class="space-y-1">
                         <label class="text-sm font-bold text-slate-700">ประเภทการจ้าง</label>
                         <select v-model="form.employment_type_id"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none bg-white">

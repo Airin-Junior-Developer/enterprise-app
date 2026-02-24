@@ -17,6 +17,7 @@ class Position extends Model
         'position_name',
         'position_name_en',
         'level_code',
+        'priority_level',
         'employment_type_id',
         'employee_category_id',
         'description',
