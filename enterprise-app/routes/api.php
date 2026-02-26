@@ -47,7 +47,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/requests', [RequestController::class, 'index']);
     Route::post('/requests', [RequestController::class, 'store']);
     Route::delete('/requests/{id}', [RequestController::class, 'destroy']);
+    
+    // ดึงข้อมูลสำหรับหน้าจัดการตำแหน่งงานจาก View
+    Route::get('/manage-positions-list', [PositionController::class, 'getManagePositions']);
 
+    // API สำหรับปิดสวิตช์แจ้งเตือนหมดเวลารักษาการ
+    Route::post('/clear-expired-alert', function (Illuminate\Http\Request $request) {
+        $user = $request->user();
+        $user->is_notify_expired = 0; // ปิดสวิตช์
+        $user->save();
+        return response()->json(['message' => 'Cleared']);
+    });
+    
     // ---------------------------------------------------------
     // 3. โซนหวงห้าม (Admin & HR) - จัดการผ่าน Custom Middleware
     // ---------------------------------------------------------
@@ -62,7 +73,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/employees', [EmployeeController::class, 'store']);
         Route::put('/employees/{id}', [EmployeeController::class, 'update']);
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
-
+        Route::patch('/employees/{id}/position', [EmployeeController::class, 'updatePosition']);
+        
         // จัดการสาขา (Full CRUD)
         Route::post('/branches', [BranchController::class, 'store']);
         Route::put('/branches/{id}', [BranchController::class, 'update']);

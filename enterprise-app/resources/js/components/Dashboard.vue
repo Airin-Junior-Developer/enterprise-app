@@ -118,6 +118,7 @@
 </template>
 
 <script setup>
+import Swal from 'sweetalert2';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
 
@@ -134,6 +135,22 @@ const fetchData = async () => {
         const res = await axios.get('/api/dashboard');
         stats.value = res.data.stats;
         recentRequests.value = res.data.recent_requests;
+        // ✅ เพิ่มระบบเด้งแจ้งเตือน (เช็คจากตัวแปรที่ส่งมาจาก Controller)
+        if (res.data.is_notify_expired == 1) {
+            Swal.fire({
+                title: 'แจ้งเตือนระบบ',
+                text: 'ระยะเวลาการรักษาการของคุณสิ้นสุดลงแล้ว ระบบได้ปรับเข้าสู่ตำแหน่งปกติ',
+                icon: 'info',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#2563eb',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // ถ้ายอมรับแล้ว ให้ยิง API ไปปิดสวิตช์ในฐานข้อมูลเป็น 0
+                    axios.post('/api/clear-expired-alert').catch(err => console.error(err));
+                }
+            });
+        }
     } catch (e) {
         console.error('Dashboard Error:', e);
     }

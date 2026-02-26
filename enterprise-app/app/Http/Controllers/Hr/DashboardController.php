@@ -27,7 +27,8 @@ class DashboardController extends Controller
 
         return response()->json([
             'stats' => $stats,
-            'recent_requests' => $recent_requests
+            'recent_requests' => $recent_requests,
+            'is_notify_expired' => auth()->user() ? auth()->user()->is_notify_expired : 0
         ]);
     }
 }

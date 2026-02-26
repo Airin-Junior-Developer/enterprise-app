@@ -7,6 +7,7 @@ import PositionManager from './components/PositionManager.vue';
 import RequestManager from './components/RequestManager.vue';
 import ApprovalManager from './components/ApprovalManager.vue';
 import RequestTypeManager from './components/RequestTypeManager.vue';
+import ManagePositions from './components/ManagePositions.vue';
 
 const routes = [
     { path: '/login', component: Login, meta: { guest: true } },
@@ -18,6 +19,11 @@ const routes = [
         component: PositionManager, 
         meta: { requiresAuth: true, requiresSuperAdmin: true } 
     }, 
+    {
+        path: '/manage-positions',
+        component:ManagePositions,
+        meta: { requiresAuth: true, requiresManager: true }
+    },
     { path: '/requests', component: RequestManager, meta: { requiresAuth: true } },
     { path: '/approvals', component: ApprovalManager, meta: { requiresAuth: true } },
     { path: '/request-types', component: RequestTypeManager, meta: { requiresAuth: true } },
@@ -66,9 +72,36 @@ router.beforeEach((to, from, next) => {
         } catch (e) {
             localStorage.clear();
             next('/login');
+        }    
+    }
+    
+    // 4. ตรวจสอบสิทธิ์ 👔 Manager (อนุญาต 3 ตำแหน่ง รวมถึง HR)
+    else if (to.meta.requiresManager) {
+        if (!userStr) {
+            next('/login');
+            return;
         }
-    } else {
-        // 4. หน้าทั่วไป ปล่อยผ่าน
+
+        try {
+            const currentUser = JSON.parse(userStr);
+            const posName = currentUser?.position_name?.trim().toLowerCase();
+            
+            // ✅ เพิ่ม hr manager เข้าไปในกลุ่มนี้
+            const allowedRoles = ['super admin', 'system admin', 'hr manager'];
+
+            if (allowedRoles.includes(posName)) {
+                next(); // ✅ ผ่าน
+            } else {
+                alert('ไม่อนุญาตให้เข้าถึง: ส่วนนี้เฉพาะผู้จัดการและผู้ดูแลระบบเท่านั้น');
+                next('/'); // ❌ กลับหน้าแรก
+            }
+        } catch (e) {
+            localStorage.clear();
+            next('/login');
+        }
+    }
+    else {
+    // 5. หน้าทั่วไป ปล่อยผ่าน
         next();
     }
 });
