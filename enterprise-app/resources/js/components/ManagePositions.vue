@@ -362,4 +362,5 @@ const confirmDelete = (item) => {
     transform: scale(1);
   }
 }
+
 </style>
