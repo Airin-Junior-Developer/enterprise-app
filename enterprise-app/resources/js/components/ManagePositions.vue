@@ -182,20 +182,19 @@ const swalConfig = {
 };
 
 // --- States ---
-const positions = ref([]);         // ข้อมูลพนักงานและตำแหน่ง (จาก View)
-const masterPositions = ref([]);   // ข้อมูลรายชื่อตำแหน่งทั้งหมด (สำหรับ Dropdown)
+const positions = ref([]);
+const masterPositions = ref([]);
 const isLoading = ref(true);
 const isSaving = ref(false);
 const showModal = ref(false);
 const searchQuery = ref('');
 
-// ตัวแปรเก็บข้อมูลฟอร์ม
 const form = reactive({
   id: null,
   employee_name: '',
   position_id: '',
-  is_temporary: false, // ✅ เพิ่มบรรทัดนี้
-  end_date: ''         // ✅ เพิ่มบรรทัดนี้
+  is_temporary: false,
+  end_date: ''
 });
 
 // --- ดึงข้อมูลจาก Backend ---
@@ -211,7 +210,6 @@ const fetchPositions = async () => {
   }
 };
 
-// ดึง Master Data ตำแหน่งทั้งหมดเพื่อทำ Dropdown
 const fetchMasterPositions = async () => {
   try {
     const response = await axios.get('/api/positions');
@@ -225,25 +223,32 @@ onMounted(() => {
   const userStr = localStorage.getItem('user');
   if (userStr) {
     currentUser.value = JSON.parse(userStr);
-    const roleName = currentUser.value?.position_name?.toLowerCase() || '';
+
+    // ✅ แก้ไข: ดึงค่าให้ถูกต้องเผื่อถูกซ้อนอยู่ใน .position
+    const roleName = currentUser.value?.position?.position_name?.trim().toLowerCase()
+      || currentUser.value?.position_name?.trim().toLowerCase()
+      || '';
+
     const allowedRoles = ['super admin', 'system admin', 'hr manager'];
 
     if (!allowedRoles.includes(roleName)) {
-      Swal.fire({ icon: 'error', title: 'ปฏิเสธการเข้าถึง', text: 'คุณไม่มีสิทธิ์เข้าใช้งานหน้านี้', confirmButtonColor: '#3085d6' })
-        .then(() => router.push('/'));
+      Swal.fire({
+        icon: 'error',
+        title: 'ปฏิเสธการเข้าถึง',
+        text: 'คุณไม่มีสิทธิ์เข้าใช้งานหน้านี้',
+        confirmButtonColor: '#3085d6'
+      }).then(() => router.push('/'));
       return;
     }
 
     fetchPositions();
-    fetchMasterPositions(); // โหลด List ตำแหน่งสำหรับ Dropdown
+    fetchMasterPositions();
   } else {
     router.push('/login');
   }
 });
 
 // --- Filter ---
-
-// 1. กรองข้อมูลในตาราง
 const filteredPositions = computed(() => {
   if (!searchQuery.value) return positions.value;
   const search = searchQuery.value.toLowerCase();
@@ -254,22 +259,21 @@ const filteredPositions = computed(() => {
   );
 });
 
-// ✅ 2. (เพิ่มใหม่) กรองตำแหน่งใน Dropdown ตามสิทธิ์คนล็อกอิน
+// ✅ แก้ไข: ดึงค่าให้ถูกต้องเหมือนกับ onMounted
 const allowedPositions = computed(() => {
   if (!currentUser.value) return [];
 
-  const myRole = currentUser.value?.position_name?.toLowerCase() || '';
+  const myRole = currentUser.value?.position?.position_name?.trim().toLowerCase()
+    || currentUser.value?.position_name?.trim().toLowerCase()
+    || '';
 
-  // ถ้าเป็น Super Admin หรือ System Admin ให้เห็นตำแหน่งทั้งหมด
   if (myRole === 'super admin' || myRole === 'system admin') {
     return masterPositions.value;
   }
 
-  // ถ้าเป็น HR Manager ให้ซ่อนตำแหน่ง Super Admin และ System Admin ออกจากตัวเลือก
   if (myRole === 'hr manager') {
     return masterPositions.value.filter(pos => {
       const posName = pos.position_name.toLowerCase();
-      // ซ่อนตำแหน่งที่มีชื่อเหล่านี้ (คุณสามารถเพิ่มตำแหน่งอื่นที่ห้ามตั้งได้ที่นี่)
       return posName !== 'super admin' && posName !== 'system admin';
     });
   }
@@ -277,7 +281,6 @@ const allowedPositions = computed(() => {
   return masterPositions.value;
 });
 
-// 3. สร้างตัวแปรคำนวณวันที่ปัจจุบัน (Format: YYYY-MM-DD)
 const todayDate = computed(() => {
   const today = new Date();
   const yyyy = today.getFullYear();
@@ -287,23 +290,21 @@ const todayDate = computed(() => {
 });
 
 // --- Actions ---
-
-// เปิดหน้าต่างแก้ไข
 const openEditModal = (item) => {
   const matchedPos = masterPositions.value.find(p => p.position_name === item.name);
   Object.assign(form, {
     id: item.id,
     employee_name: item.employee_name,
     position_id: matchedPos ? matchedPos.position_id : '',
-    is_temporary: false, //  รีเซ็ตค่า
-    end_date: ''         //  รีเซ็ตค่า
+    is_temporary: false,
+    end_date: ''
   });
   showModal.value = true;
 };
 
-// กดปุ่มบันทึก
 const handleSave = () => {
   if (!form.position_id) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกตำแหน่งใหม่', 'warning');
+  if (form.is_temporary && !form.end_date) return Swal.fire('แจ้งเตือน', 'กรุณาระบุวันที่สิ้นสุดการรักษาการ', 'warning');
 
   Swal.fire({
     ...swalConfig,
@@ -318,7 +319,6 @@ const handleSave = () => {
     if (result.isConfirmed) {
       isSaving.value = true;
       try {
-        // ยิง API ไปอัปเดตข้อมูลพนักงาน (ตาราง users)
         await axios.patch(`/api/employees/${form.id}/position`, {
           position_id: form.position_id,
           is_temporary: form.is_temporary,
@@ -327,8 +327,6 @@ const handleSave = () => {
 
         showModal.value = false;
         Swal.fire({ ...swalConfig, icon: 'success', title: 'บันทึกสำเร็จ', text: 'อัปเดตตำแหน่งเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
-
-        // โหลดข้อมูลในตารางใหม่
         fetchPositions();
       } catch (error) {
         Swal.fire({ ...swalConfig, icon: 'error', title: 'เกิดข้อผิดพลาด', text: error.response?.data?.message || 'ไม่สามารถบันทึกข้อมูลได้' });
@@ -339,7 +337,6 @@ const handleSave = () => {
   });
 };
 
-// กดปุ่มลบพนักงาน
 const confirmDelete = (item) => {
   Swal.fire({
     ...swalConfig,
@@ -363,7 +360,6 @@ const confirmDelete = (item) => {
   });
 };
 
-// ✅ ฟังก์ชันแปลงวันที่สำหรับแสดงผลในตาราง
 const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
@@ -374,62 +370,3 @@ const formatDate = (dateString) => {
   });
 };
 </script>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-.font-jakarta {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-.font-ibm {
-  font-family: 'IBM Plex Sans Thai', sans-serif;
-}
-
-.recruit-swal-popup {
-  border-radius: 2.5rem !important;
-  padding: 2.5rem !important;
-  font-family: 'IBM Plex Sans Thai', sans-serif !important;
-}
-
-.recruit-swal-title {
-  font-size: 1.5rem !important;
-  font-weight: 700 !important;
-  color: #1e293b !important;
-}
-
-.recruit-swal-confirm {
-  background-color: #2563eb !important;
-  color: white !important;
-  border-radius: 1.25rem !important;
-  padding: 0.8rem 2.5rem !important;
-  font-weight: 700 !important;
-  margin: 0.5rem !important;
-  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2) !important;
-}
-
-.recruit-swal-cancel {
-  background-color: #f1f5f9 !important;
-  color: #64748b !important;
-  border-radius: 1.25rem !important;
-  padding: 0.8rem 2.5rem !important;
-  font-weight: 700 !important;
-  margin: 0.5rem !important;
-}
-
-.animate-in {
-  animation: zoomIn 0.2s ease-out;
-}
-
-@keyframes zoomIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-</style>

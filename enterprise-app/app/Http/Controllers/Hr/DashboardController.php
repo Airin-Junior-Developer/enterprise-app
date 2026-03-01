@@ -43,8 +43,7 @@ class DashboardController extends Controller
         // ส่งกลับเป็น JSON ตามโครงสร้างที่ Vue รอรับเป๊ะๆ
         return response()->json([
             'stats' => $stats,
-            'recent_requests' => $recentRequests,
-            'is_notify_expired' => auth()->user() ? auth()->user()->is_notify_expired : 0
+            'recent_requests' => $recentRequests
         ]);
     }
 }

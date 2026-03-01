@@ -63,27 +63,6 @@
                 <span v-if="isOpen" class="font-semibold text-sm">ตำแหน่งงาน</span>
             </router-link>
 
-            <router-link v-if="isSuperAdmin" to="/manage-positions"
-                class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-300 group overflow-hidden whitespace-nowrap mb-1 relative"
-                active-class="bg-blue-50 text-blue-600 shadow-sm shadow-blue-100 after:absolute after:left-0 after:w-1 after:h-6 after:bg-blue-600 after:rounded-r-full"
-                :class="{ 'text-slate-500 hover:bg-slate-50 hover:text-blue-600': $route.path !== '/manage-positions' }">
-
-                <span
-                    class="text-xl shrink-0 transition-all duration-300 group-hover:scale-110 flex items-center justify-center"
-                    :class="isOpen ? 'mr-3' : 'mx-auto w-10'">
-                    <i class="fa-solid fa-sitemap text-[1.1rem]">🛠️</i>
-                </span>
-
-                <span v-if="isOpen" class="font-bold text-sm tracking-tight transition-opacity duration-300">
-                    จัดการตำแหน่งงาน
-                </span>
-
-                <div v-if="!isOpen"
-                    class="absolute left-14 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
-                    จัดการตำแหน่งงาน
-                </div>
-            </router-link>
-
             <router-link v-if="canManage" to="/manage-positions"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all group overflow-hidden whitespace-nowrap mb-1"
                 active-class="bg-blue-50 text-blue-600 shadow-sm shadow-blue-100"

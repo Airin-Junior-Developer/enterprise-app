@@ -90,17 +90,25 @@ class PositionController extends Controller
 
     public function getManagePositions(Request $request)
     {
-        $user = auth()->user();
+        $user = $request->user();
         $user->load('position');
 
-        // 1. เรียกฐานข้อมูลจาก View
+        // 1. เรียกฐานข้อมูลจาก View เป็นค่าเริ่มต้น (ดึงทั้งหมด)
         $query = DB::table('view_manage_positions');
 
-        // 2. เช็คสิทธิ์: ถ้าเป็น HR Manager ให้เอา id ไปเทียบกับตาราง users เพื่อกรองเอาแค่สาขาของตัวเอง
-        if ($user->position->level_code === 'MGR' || $user->position->position_name === 'HR Manager') {
-            $query->join('users', 'view_manage_positions.id', '=', 'users.user_id')
-                ->where('users.branch_id', $user->branch_id)
-                ->select('view_manage_positions.*'); // ดึงมาแค่ข้อมูลของ View เท่านั้น ไม่เอาข้อมูลขยะจาก users มาปน
+        if ($user->position) {
+            $posName = strtolower(trim($user->position->position_name));
+
+            // 2. ถ้าเป็น Super Admin หรือ System Admin ไม่ต้องทำอะไรเพิ่ม (ปล่อยให้ดึงทั้งหมด)
+            if (in_array($posName, ['Super Admin', 'System Admin'])) {
+                // ข้ามการกรอง ปล่อยให้ $query->get() ทำงานดึงทุกสาขา
+            }
+            // 3. ถ้าเป็น HR Manager หรือผู้จัดการทั่วไป ให้กรองเฉพาะสาขาของตัวเอง
+            else if ($posName === 'hr manager' || $user->position->level_code === 'MGR') {
+                $query->join('users', 'view_manage_positions.id', '=', 'users.user_id')
+                    ->where('users.branch_id', $user->branch_id)
+                    ->select('view_manage_positions.*');
+            }
         }
 
         return response()->json($query->get());

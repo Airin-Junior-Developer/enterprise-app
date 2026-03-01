@@ -159,17 +159,6 @@ const recentRequests = ref([]);
 const fetchData = async () => {
     try {
         const res = await axios.get('/api/dashboard');
-<<<<<<< HEAD
-
-        // ✅ 2. เช็คว่ามีข้อมูล stats ส่งมาจริงไหม ก่อนกำหนดค่า (ป้องกัน undefined)
-        if (res.data && res.data.stats) {
-            stats.value = res.data.stats;
-        }
-
-        // เช็คข้อมูล recent_requests
-        if (res.data && res.data.recent_requests) {
-            recentRequests.value = res.data.recent_requests;
-=======
         stats.value = res.data.stats;
         recentRequests.value = res.data.recent_requests;
         // ✅ เพิ่มระบบเด้งแจ้งเตือน (เช็คจากตัวแปรที่ส่งมาจาก Controller)
@@ -187,7 +176,6 @@ const fetchData = async () => {
                     axios.post('/api/clear-expired-alert').catch(err => console.error(err));
                 }
             });
->>>>>>> origin/sea
         }
     } catch (e) {
         console.error('Dashboard Error:', e);
