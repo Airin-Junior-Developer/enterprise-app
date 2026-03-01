@@ -4,6 +4,8 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,3 +53,21 @@ Artisan::command('hr:check', function () {
         $this->error('Database Connection: FAILED');
     }
 })->purpose('Check system health status');
+
+// รันคำสั่งนี้ทุกๆ เที่ยงคืน (00:00 น.) ของทุกวัน
+Schedule::call(function () {
+    
+    // ค้นหาพนักงานที่ตำแหน่งชั่วคราวหมดอายุแล้ว (วันที่สิ้นสุด น้อยกว่า วันนี้)
+    DB::table('users')
+        ->whereNotNull('temp_position_end_date')
+        ->whereDate('temp_position_end_date', '<', now())
+        ->update([
+            // เอา position_id เดิมที่จำไว้ กลับมาใส่ทับตำแหน่งปัจจุบัน
+            'position_id' => DB::raw('original_position_id'),
+            // ล้างค่าชั่วคราวทิ้ง
+            'original_position_id' => null,
+            'temp_position_end_date' => null,
+            'is_notify_expired' => 1 // ✅ เปิดสวิตช์ให้เด้งแจ้งเตือนตอนล็อกอิน
+            ]);
+
+})->daily();

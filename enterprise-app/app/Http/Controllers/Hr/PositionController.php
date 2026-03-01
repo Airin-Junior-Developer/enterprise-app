@@ -5,6 +5,11 @@ namespace App\Http\Controllers\Hr;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Hr\Position;
+<<<<<<< HEAD
+=======
+use Illuminate\Support\Facades\Schema; // ✅ ตรวจสอบโครงสร้างตารางจริง
+use Illuminate\Support\Facades\DB;
+>>>>>>> origin/sea
 
 class PositionController extends Controller
 {
@@ -84,5 +89,23 @@ class PositionController extends Controller
         $position->delete();
 
         return response()->json(['message' => 'ลบข้อมูลสำเร็จ']);
+    }
+
+    public function getManagePositions(Request $request)
+    {
+        $user = auth()->user();
+        $user->load('position');
+
+        // 1. เรียกฐานข้อมูลจาก View
+        $query = DB::table('view_manage_positions'); 
+
+        // 2. เช็คสิทธิ์: ถ้าเป็น HR Manager ให้เอา id ไปเทียบกับตาราง users เพื่อกรองเอาแค่สาขาของตัวเอง
+        if ($user->position->level_code === 'MGR' || $user->position->position_name === 'HR Manager') {
+            $query->join('users', 'view_manage_positions.id', '=', 'users.user_id')
+                  ->where('users.branch_id', $user->branch_id)
+                  ->select('view_manage_positions.*'); // ดึงมาแค่ข้อมูลของ View เท่านั้น ไม่เอาข้อมูลขยะจาก users มาปน
+        }
+
+        return response()->json($query->get());
     }
 }

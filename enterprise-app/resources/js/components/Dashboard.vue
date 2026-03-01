@@ -143,6 +143,7 @@
 </template>
 
 <script setup>
+import Swal from 'sweetalert2';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
 
@@ -158,6 +159,7 @@ const recentRequests = ref([]);
 const fetchData = async () => {
     try {
         const res = await axios.get('/api/dashboard');
+<<<<<<< HEAD
 
         // ✅ 2. เช็คว่ามีข้อมูล stats ส่งมาจริงไหม ก่อนกำหนดค่า (ป้องกัน undefined)
         if (res.data && res.data.stats) {
@@ -167,6 +169,25 @@ const fetchData = async () => {
         // เช็คข้อมูล recent_requests
         if (res.data && res.data.recent_requests) {
             recentRequests.value = res.data.recent_requests;
+=======
+        stats.value = res.data.stats;
+        recentRequests.value = res.data.recent_requests;
+        // ✅ เพิ่มระบบเด้งแจ้งเตือน (เช็คจากตัวแปรที่ส่งมาจาก Controller)
+        if (res.data.is_notify_expired == 1) {
+            Swal.fire({
+                title: 'แจ้งเตือนระบบ',
+                text: 'ระยะเวลาการรักษาการของคุณสิ้นสุดลงแล้ว ระบบได้ปรับเข้าสู่ตำแหน่งปกติ',
+                icon: 'info',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#2563eb',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // ถ้ายอมรับแล้ว ให้ยิง API ไปปิดสวิตช์ในฐานข้อมูลเป็น 0
+                    axios.post('/api/clear-expired-alert').catch(err => console.error(err));
+                }
+            });
+>>>>>>> origin/sea
         }
     } catch (e) {
         console.error('Dashboard Error:', e);
