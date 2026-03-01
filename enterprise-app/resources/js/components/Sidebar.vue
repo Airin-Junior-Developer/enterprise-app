@@ -63,7 +63,6 @@
                 <span v-if="isOpen" class="font-semibold text-sm">ตำแหน่งงาน</span>
             </router-link>
 
-<<<<<<< HEAD
             <router-link v-if="isSuperAdmin" to="/manage-positions"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all duration-300 group overflow-hidden whitespace-nowrap mb-1 relative"
                 active-class="bg-blue-50 text-blue-600 shadow-sm shadow-blue-100 after:absolute after:left-0 after:w-1 after:h-6 after:bg-blue-600 after:rounded-r-full"
@@ -83,7 +82,8 @@
                     class="absolute left-14 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
                     จัดการตำแหน่งงาน
                 </div>
-=======
+            </router-link>
+
             <router-link v-if="canManage" to="/manage-positions"
                 class="flex items-center px-3 py-2.5 rounded-xl transition-all group overflow-hidden whitespace-nowrap mb-1"
                 active-class="bg-blue-50 text-blue-600 shadow-sm shadow-blue-100"
@@ -91,7 +91,6 @@
                 <span class="text-xl shrink-0 transition-transform group-hover:scale-110"
                     :class="isOpen ? 'mr-3' : 'mx-auto'">🛠️</span>
                 <span v-if="isOpen" class="font-semibold text-sm">จัดการตำแหน่งงาน</span>
->>>>>>> origin/sea
             </router-link>
 
             <div v-if="isOpen" class="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">

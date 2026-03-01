@@ -49,11 +49,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/requests', [RequestController::class, 'index']);
     Route::post('/requests', [RequestController::class, 'store']);
     Route::delete('/requests/{id}', [RequestController::class, 'destroy']);
-    
+
     // ดึงข้อมูลสำหรับหน้าจัดการตำแหน่งงานจาก View
     Route::get('/manage-positions-list', [PositionController::class, 'getManagePositions']);
 
-<<<<<<< HEAD
     // --- ระบบพิจารณาอนุมัติ (Approvals) ---
     // หัวหน้า/HR: ดูรายการที่ต้องอนุมัติ และกดเปลี่ยนสถานะ
     // *เปลี่ยน path เป็น /approvals เพื่อไม่ให้ชนกับ /requests ด้านบน*
@@ -61,7 +60,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/approvals/{id}/status', [ApprovalController::class, 'updateStatus']);
 
 
-=======
     // API สำหรับปิดสวิตช์แจ้งเตือนหมดเวลารักษาการ
     Route::post('/clear-expired-alert', function (Illuminate\Http\Request $request) {
         $user = $request->user();
@@ -69,8 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
         $user->save();
         return response()->json(['message' => 'Cleared']);
     });
-    
->>>>>>> origin/sea
+
     // ---------------------------------------------------------
     // 3. โซนหวงห้าม (Admin & HR Only) - แก้ไขข้อมูลหลัก
     // ---------------------------------------------------------
@@ -80,14 +77,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/employees', [EmployeeController::class, 'store']);
         Route::put('/employees/{id}', [EmployeeController::class, 'update']);
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
-<<<<<<< HEAD
-
-        // จัดการสาขา (Create / Update / Delete)
-=======
         Route::patch('/employees/{id}/position', [EmployeeController::class, 'updatePosition']);
-        
+
         // จัดการสาขา (Full CRUD)
->>>>>>> origin/sea
         Route::post('/branches', [BranchController::class, 'store']);
         Route::put('/branches/{id}', [BranchController::class, 'update']);
         Route::delete('/branches/{id}', [BranchController::class, 'destroy']);
