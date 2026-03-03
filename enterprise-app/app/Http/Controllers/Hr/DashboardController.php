@@ -11,6 +11,18 @@ class DashboardController extends Controller
 {
     public function index()
     {
+    //  แอบสลับตำแหน่งคืนให้คนหมดเวลา (ก่อนโหลดข้อมูลหน้า Dashboard)
+        \Illuminate\Support\Facades\DB::table('users')
+            ->whereNotNull('temp_position_end_date')
+            ->whereDate('temp_position_end_date', '<', now())
+            ->update([
+                'position_id' => \Illuminate\Support\Facades\DB::raw('original_position_id'),
+                'original_position_id' => null,
+                'temp_position_end_date' => null,
+                'is_notify_expired' => 1
+            ]);
+
+    // 1. ดึงข้อมูลตัวเลขสถิติ (Stats) ให้ตรงกับชื่อตัวแปรใน Vue
         $stats = [
             // 1. นับเฉพาะพนักงานที่ยังทำงานอยู่จริง (ใช้ Active ตัวพิมพ์ใหญ่ตาม Enum ใน DB)
             'employees' => User::where('status', 'Active')->count(),
@@ -27,8 +39,9 @@ class DashboardController extends Controller
 
         return response()->json([
             'stats' => $stats,
-            'recent_requests' => $recent_requests,
-            'is_notify_expired' => auth()->user() ? auth()->user()->is_notify_expired : 0
+            'recent_requests' => $recentRequests,
+            // (ใช้ ->fresh() เพื่อดึงค่าที่เพิ่งอัปเดตใหม่สดๆ)
+            'is_notify_expired' => auth()->user() ? auth()->user()->fresh()->is_notify_expired : 0
         ]);
     }
 }
