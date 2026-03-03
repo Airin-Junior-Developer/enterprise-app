@@ -39,7 +39,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'stats' => $stats,
-            'recent_requests' => $recentRequests,
+            'recent_requests' => $recent_requests,
             // (ใช้ ->fresh() เพื่อดึงค่าที่เพิ่งอัปเดตใหม่สดๆ)
             'is_notify_expired' => auth()->user() ? auth()->user()->fresh()->is_notify_expired : 0
         ]);
