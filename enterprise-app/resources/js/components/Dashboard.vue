@@ -161,7 +161,7 @@ const fetchData = async () => {
         const res = await axios.get('/api/dashboard');
         stats.value = res.data.stats;
         recentRequests.value = res.data.recent_requests;
-        // ✅ เพิ่มระบบเด้งแจ้งเตือน (เช็คจากตัวแปรที่ส่งมาจาก Controller)
+        // เพิ่มระบบเด้งแจ้งเตือน (เช็คจากตัวแปรที่ส่งมาจาก Controller)
         if (res.data.is_notify_expired == 1) {
             Swal.fire({
                 title: 'แจ้งเตือนระบบ',

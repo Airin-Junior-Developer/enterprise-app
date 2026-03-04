@@ -52,13 +52,16 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div
-                                    class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg mr-3">
+                                    class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg mr-3 shrink-0">
                                     {{ emp.first_name ? emp.first_name.charAt(0) : '?' }}
                                 </div>
                                 <div>
-                                    <div class="text-sm font-bold text-slate-800">{{ emp.first_name }} {{ emp.last_name
-                                        }}</div>
-                                    <div class="text-xs text-slate-500">ID: {{ emp.id_card_number || '-' }}</div>
+                                    <div class="text-sm font-bold text-slate-800">
+                                        {{ emp.prefix ? emp.prefix : '' }}{{ emp.first_name }} {{ emp.last_name }}
+                                    </div>
+                                    <div class="text-xs text-slate-500 mt-0.5">
+                                        ID: <span class="font-mono">{{ emp.id_card_number || 'ไม่ได้ระบุ' }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -73,8 +76,9 @@
                                 emp.employee_category_name || '-' }}</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-slate-600">
-                            <div>📧 {{ emp.email }}</div>
-                            <div class="mt-1">📞 {{ emp.phone_number }}</div>
+                            <div class="flex items-center gap-2"><span>📧</span> {{ emp.email }}</div>
+                            <div class="flex items-center gap-2 mt-1"><span>📞</span> {{ emp.phone_number ||
+                                'ไม่ได้ระบุ' }}</div>
                         </td>
                         <td class="px-6 py-4 text-right space-x-2">
                             <button @click="editEmployee(emp)"
@@ -94,6 +98,11 @@
                                 </svg></button>
                         </td>
                     </tr>
+                    <tr v-if="filteredEmployees.length === 0">
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-400">
+                            ไม่พบข้อมูลพนักงาน
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -102,10 +111,11 @@
             <div class="fixed inset-0 bg-slate-900/75 transition-opacity" @click="closeModal"></div>
             <div
                 class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl z-10 overflow-hidden flex flex-col max-h-[90vh] animate-fade-in">
-                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div
+                    class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
                     <h3 class="text-lg font-bold text-slate-800">{{ isEditing ? 'แก้ไขข้อมูลพนักงาน' :
                         'เพิ่มพนักงานใหม่' }}</h3>
-                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600 font-bold text-xl">✕</button>
                 </div>
 
                 <div class="p-6 overflow-y-auto custom-scrollbar">
@@ -113,30 +123,43 @@
                         <div>
                             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">ข้อมูลส่วนตัว
                             </h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                <div class="col-span-12 md:col-span-3">
+                                    <label class="block text-sm font-bold text-slate-700 mb-1">คำนำหน้า <span
+                                            class="text-rose-500">*</span></label>
+                                    <select v-model="form.prefix" required
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="" disabled>เลือก</option>
+                                        <option value="นาย">นาย</option>
+                                        <option value="นาง">นาง</option>
+                                        <option value="นางสาว">นางสาว</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-12 md:col-span-4">
                                     <label class="block text-sm font-bold text-slate-700 mb-1">ชื่อจริง <span
                                             class="text-rose-500">*</span></label>
                                     <input v-model="form.first_name" type="text" required
                                         class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="สมชาย">
                                 </div>
-                                <div>
+                                <div class="col-span-12 md:col-span-5">
                                     <label class="block text-sm font-bold text-slate-700 mb-1">นามสกุล <span
                                             class="text-rose-500">*</span></label>
                                     <input v-model="form.last_name" type="text" required
                                         class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
                                         placeholder="ใจดี">
                                 </div>
-                                <div>
+                                <div class="col-span-12 md:col-span-6">
                                     <label class="block text-sm font-bold text-slate-700 mb-1">เลขบัตรประชาชน</label>
                                     <input v-model="form.id_card_number" type="text" maxlength="13"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500">
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="1234567890123">
                                 </div>
-                                <div>
+                                <div class="col-span-12 md:col-span-6">
                                     <label class="block text-sm font-bold text-slate-700 mb-1">เบอร์โทรศัพท์</label>
-                                    <input v-model="form.phone_number" type="tel"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500">
+                                    <input v-model="form.phone_number" type="tel" maxlength="10"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="0891234567">
                                 </div>
                             </div>
                         </div>
@@ -229,7 +252,7 @@
                             </div>
                         </div>
 
-                        <div class="pt-4 flex justify-end gap-3 border-t border-slate-100">
+                        <div class="pt-4 flex justify-end gap-3 border-t border-slate-100 shrink-0">
                             <button type="button" @click="closeModal"
                                 class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold">ยกเลิก</button>
                             <button type="submit"
@@ -253,8 +276,8 @@ import { ref, onMounted, computed } from 'vue';
 const employees = ref([]);
 const branches = ref([]);
 const positions = ref([]);
-const employmentTypes = ref([]); // ✅ Master Data ใหม่
-const employeeCategories = ref([]); // ✅ Master Data ใหม่
+const employmentTypes = ref([]);
+const employeeCategories = ref([]);
 
 const searchQuery = ref('');
 const isModalOpen = ref(false);
@@ -263,10 +286,11 @@ const editingId = ref(null);
 const isLoading = ref(false);
 const enablePasswordEdit = ref(false);
 
+// ✅ เพิ่ม prefix เข้าไปในตัวแปร form
 const form = ref({
-    first_name: '', last_name: '', id_card_number: '', phone_number: '',
+    prefix: '', first_name: '', last_name: '', id_card_number: '', phone_number: '',
     email: '', branch_id: '', position_id: '',
-    employment_type_id: '', employee_category_id: '', // ✅ ฟิลด์ใหม่
+    employment_type_id: '', employee_category_id: '',
     password: '', password_confirmation: ''
 });
 
@@ -287,12 +311,11 @@ const passwordMismatch = computed(() => {
 
 const fetchData = async () => {
     try {
-        // ✅ ดึงข้อมูล Master Data ทั้งหมดมาเก็บไว้ใช้ใน Dropdown
         const [empRes, branchRes, posRes, masterRes] = await Promise.all([
             axios.get('/api/employees'),
             axios.get('/api/branches'),
             axios.get('/api/positions'),
-            axios.get('/api/master-data') // ✅ เรียก API ตัวเดียวได้ครบทั้ง 2 ตาราง
+            axios.get('/api/master-data')
         ]);
         employees.value = empRes.data;
         branches.value = branchRes.data;
@@ -307,6 +330,7 @@ const openModal = () => {
     editingId.value = null;
     enablePasswordEdit.value = true;
     form.value = {
+        prefix: '', // ✅ Reset คำนำหน้าเมื่อเปิด Modal
         first_name: '', last_name: '', id_card_number: '', phone_number: '',
         email: '', branch_id: '', position_id: '',
         employment_type_id: '', employee_category_id: '',
@@ -353,13 +377,13 @@ const saveEmployee = async () => {
 };
 
 const deleteEmployee = (id) => {
-    Swal.fire({ title: 'ยืนยันการลบ?', text: "ข้อมูลจะถูกลบถาวร", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ' })
+    Swal.fire({ title: 'ยืนยันการลบ?', text: "ข้อมูลจะถูกลบถาวร", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ', confirmButtonColor: '#f43f5e' })
         .then(async (result) => {
             if (result.isConfirmed) {
                 try {
                     await axios.delete(`/api/employees/${id}`);
                     fetchData();
-                    Swal.fire('ลบสำเร็จ!', '', 'success');
+                    Swal.fire({ icon: 'success', title: 'ลบสำเร็จ!', showConfirmButton: false, timer: 1500 });
                 } catch (e) { Swal.fire('Error', 'ลบไม่สำเร็จ', 'error'); }
             }
         });
