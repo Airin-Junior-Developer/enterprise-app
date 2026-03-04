@@ -11,6 +11,17 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        //  แอบสลับตำแหน่งคืนให้คนหมดเวลา (ก่อนโหลดข้อมูลหน้า Dashboard)
+        DB::table('users')
+            ->whereNotNull('temp_position_end_date')
+            ->whereDate('temp_position_end_date', '<', now())
+            ->update([
+                'position_id' => DB::raw('original_position_id'),
+                'original_position_id' => null,
+                'temp_position_end_date' => null,
+                'is_notify_expired' => 1
+            ]);
+
         // 1. ดึงข้อมูลตัวเลขสถิติ (Stats) ให้ตรงกับชื่อตัวแปรใน Vue
         $stats = [
             'employees' => User::count(), // นับพนักงาน
@@ -43,7 +54,9 @@ class DashboardController extends Controller
         // ส่งกลับเป็น JSON ตามโครงสร้างที่ Vue รอรับเป๊ะๆ
         return response()->json([
             'stats' => $stats,
-            'recent_requests' => $recentRequests
+            'recent_requests' => $recentRequests,
+            // (ใช้ ->fresh() เพื่อดึงค่าที่เพิ่งอัปเดตใหม่สดๆ)
+            'is_notify_expired' => auth()->user() ? auth()->user()->fresh()->is_notify_expired : 0
         ]);
     }
 }

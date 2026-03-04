@@ -173,12 +173,13 @@ const currentUser = ref(null);
 // --- Configuration สำหรับ SweetAlert2 ---
 const swalConfig = {
   customClass: {
-    popup: 'recruit-swal-popup',
+   popup: 'rounded-3xl',
+    actions: 'gap-4',
     title: 'recruit-swal-title',
     confirmButton: 'recruit-swal-confirm',
     cancelButton: 'recruit-swal-cancel'
   },
-  buttonsStyling: false
+
 };
 
 // --- States ---
