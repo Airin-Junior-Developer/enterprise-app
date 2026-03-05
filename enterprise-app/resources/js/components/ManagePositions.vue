@@ -173,7 +173,7 @@ const currentUser = ref(null);
 // --- Configuration สำหรับ SweetAlert2 ---
 const swalConfig = {
   customClass: {
-   popup: 'rounded-3xl',
+    popup: 'rounded-3xl',
     actions: 'gap-4',
     title: 'recruit-swal-title',
     confirmButton: 'recruit-swal-confirm',
