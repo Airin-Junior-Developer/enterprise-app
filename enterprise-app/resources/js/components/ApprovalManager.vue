@@ -149,7 +149,7 @@
                                             {{ group.first_name ? group.first_name.charAt(0) : '?' }}
                                         </div>
                                         <div class="font-bold text-slate-700">{{ group.first_name }} {{ group.last_name
-                                            }}</div>
+                                        }}</div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-slate-600">{{ group.position || 'พนักงาน' }}</td>
@@ -185,7 +185,7 @@
                                                     </td>
                                                     <td class="py-3 px-4">
                                                         <div class="font-medium text-slate-700">{{ req.request_type_name
-                                                            }}</div>
+                                                        }}</div>
                                                         <div class="text-xs text-slate-500 truncate max-w-[200px]"
                                                             :title="req.reason">{{ req.reason || req.subject || '-' }}
                                                         </div>
@@ -266,7 +266,7 @@
                     <button @click="currentPage--" :disabled="currentPage === 1"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600 transition-colors">ก่อนหน้า</button>
                     <span class="px-3 py-1 border bg-blue-600 text-white rounded text-xs font-bold">{{ currentPage
-                        }}</span>
+                    }}</span>
                     <button @click="currentPage++" :disabled="currentPage >= totalPages"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600 transition-colors">ถัดไป</button>
                 </div>
@@ -402,7 +402,7 @@ const updateStatus = (id, status) => {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                await axios.put(`/api/requests/${id}/status`, { status: dbStatus });
+                await axios.put(`/api/approvals/${id}/status`, { status: dbStatus });
                 Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', showConfirmButton: false, timer: 1000 });
                 fetchData();
             } catch (e) {
