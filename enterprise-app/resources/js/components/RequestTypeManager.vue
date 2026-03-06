@@ -20,15 +20,16 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
-                        <th class="p-5 font-bold w-20 text-center">ID</th>
+                        <th class="p-5 font-bold w-20 text-center">ลำดับ</th>
                         <th class="p-5 font-bold">ชื่อประเภทคำร้อง</th>
                         <th class="p-5 font-bold text-center w-40">สถานะ</th>
                         <th class="p-5 font-bold text-center w-32">จัดการ</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                    <tr v-for="type in types" :key="type.id" class="hover:bg-slate-50/50 transition-colors group">
-                        <td class="p-5 text-center text-slate-400 font-mono text-sm">{{ type.id }}</td>
+                    <tr v-for="(type, index) in types" :key="type.id"
+                        class="hover:bg-slate-50/50 transition-colors group">
+                        <td class="p-5 text-center text-slate-400 font-mono text-sm">{{ index + 1 }}</td>
                         <td class="p-5 font-bold text-slate-700">{{ type.Name_Type }}</td>
 
                         <td class="p-5 text-center">
@@ -104,10 +105,14 @@ const form = ref({ id: null, Name_Type: '', is_active: true });
 // ดึงข้อมูลประเภทคำร้องทั้งหมด
 const fetchTypes = async () => {
     try {
-        // ดึงจาก API Master Data ที่รองรับทั้งเปิดและปิดการใช้งาน
         const res = await axios.get('/api/request-types/all');
-        // ✅ ตรวจสอบว่าเป็น Boolean เพื่อให้ปุ่ม Toggle ทำงานถูกต้อง
-        types.value = res.data.map(t => ({ ...t, is_active: Boolean(t.is_active) }));
+
+        // ✅ นำข้อมูลมาเรียงลำดับตาม id จากน้อยไปมาก (รายการใหม่จะอยู่ล่างสุด)
+        const sortedData = res.data.sort((a, b) => a.id - b.id);
+
+        // ✅ แปลงค่า boolean ให้ปุ่ม Toggle ทำงานได้ปกติ
+        types.value = sortedData.map(t => ({ ...t, is_active: Boolean(t.is_active) }));
+
     } catch (e) {
         console.error("Fetch Error:", e);
     }

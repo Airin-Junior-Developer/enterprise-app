@@ -13,7 +13,7 @@
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">พนักงานทั้งหมด</span>
                         <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats?.employees || 0
-                        }}</span>
+                            }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -174,6 +174,7 @@ const fetchData = async () => {
                 if (result.isConfirmed) {
                     // ถ้ายอมรับแล้ว ให้ยิง API ไปปิดสวิตช์ในฐานข้อมูลเป็น 0
                     axios.post('/api/clear-expired-alert').catch(err => console.error(err));
+                    router.push('/login');
                 }
             });
         }

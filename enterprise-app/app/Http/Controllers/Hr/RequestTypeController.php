@@ -11,9 +11,8 @@ class RequestTypeController extends Controller
     // 1. ดึงข้อมูลทั้งหมด (รวมที่ปิดใช้งานด้วย) สำหรับหน้าจัดการ
     public function indexAll()
     {
-        // เรียงตาม ID ล่าสุด
-        $types = RequestType::orderBy('id', 'desc')->get();
-        return response()->json($types);
+        // เรียงจากเก่าไปใหม่ (รายการใหม่จะอยู่ล่างสุด)
+        return response()->json(RequestType::orderBy('id', 'asc')->get());
     }
 
     // 2. เพิ่มประเภทใหม่
