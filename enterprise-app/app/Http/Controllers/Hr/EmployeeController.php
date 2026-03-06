@@ -135,6 +135,10 @@ class EmployeeController extends Controller
             }
 
             $user->position_id = $request->position_id;
+
+            // ให้ is_notify_expired มีค่าเป็น 1 เสมอเมื่อบันทึกการเปลี่ยนตำแหน่ง
+            $user->is_notify_expired = 1;
+
             $user->save();
 
             return response()->json(['message' => 'อัปเดตตำแหน่งสำเร็จ']);

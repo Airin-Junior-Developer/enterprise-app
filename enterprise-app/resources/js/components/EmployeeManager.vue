@@ -17,7 +17,7 @@
             <button @click="activeTab = 'positions'"
                 class="pb-4 font-bold text-sm transition-all relative outline-none whitespace-nowrap"
                 :class="activeTab === 'positions' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'">
-                จัดการรายชื่อและตำแหน่งงาน
+                จัดการตำแหน่งงาน
                 <div v-if="activeTab === 'positions'"
                     class="absolute bottom-0 left-0 w-full h-1 bg-blue-600 rounded-t-md"></div>
             </button>
@@ -498,7 +498,8 @@ const formPos = reactive({
     employee_name: '',
     position_id: '',
     is_temporary: false,
-    end_date: ''
+    end_date: '',
+    is_notify_expired: false
 });
 
 // =====================================
@@ -670,7 +671,8 @@ const openPosModal = (item) => {
         employee_name: item.employee_name,
         position_id: matchedPos ? matchedPos.position_id : '',
         is_temporary: false,
-        end_date: ''
+        end_date: '',
+        is_notify_expired: false
     });
     isPosModalOpen.value = true;
 };
@@ -696,7 +698,8 @@ const saveManagePos = () => {
                 await axios.patch(`/api/employees/${formPos.id}/position`, {
                     position_id: formPos.position_id,
                     is_temporary: formPos.is_temporary,
-                    end_date: formPos.end_date
+                    end_date: formPos.end_date,
+                    is_notify_expired: 1
                 });
 
                 closePosModal();

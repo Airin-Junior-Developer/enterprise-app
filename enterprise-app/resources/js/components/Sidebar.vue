@@ -63,15 +63,6 @@
                 <span v-if="isOpen" class="font-semibold text-sm">ตำแหน่งงาน</span>
             </router-link>
 
-            <router-link v-if="canManage" to="/manage-positions"
-                class="flex items-center px-3 py-2.5 rounded-xl transition-all group overflow-hidden whitespace-nowrap mb-1"
-                active-class="bg-blue-50 text-blue-600 shadow-sm shadow-blue-100"
-                :class="{ 'text-slate-600 hover:bg-slate-50 hover:text-slate-900': $route.path !== '/manage-positions' }">
-                <span class="text-xl shrink-0 transition-transform group-hover:scale-110"
-                    :class="isOpen ? 'mr-3' : 'mx-auto'">🛠️</span>
-                <span v-if="isOpen" class="font-semibold text-sm">จัดการตำแหน่งงาน</span>
-            </router-link>
-
             <div v-if="isOpen" class="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 คำร้อง & อนุมัติ</div>
             <div v-else class="h-4 border-t border-slate-100 mt-4 mb-2 mx-2"></div>
