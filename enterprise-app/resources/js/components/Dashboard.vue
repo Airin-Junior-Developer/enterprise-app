@@ -1,10 +1,10 @@
 <template>
-    <div class="px-8 py-10 bg-[#F4F6F8] min-h-screen font-sans">
+    <div class="px-8 py-10 bg-slate-50 min-h-screen font-sans">
         <!-- Header -->
         <div class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
-                <h1 class="text-[32px] font-bold text-slate-800 tracking-tight leading-tight">ภาพรวมระบบ</h1>
-                <p class="text-[15px] font-medium text-slate-500 mt-1">สรุปข้อมูลพนักงานและสถานะคำร้องล่าสุดภายในองค์กร
+                <h1 class="text-3xl font-bold text-slate-800 tracking-tight leading-tight">ภาพรวมระบบ</h1>
+                <p class="text-base font-medium text-slate-500 mt-1">สรุปข้อมูลพนักงานและสถานะคำร้องล่าสุดภายในองค์กร
                 </p>
             </div>
 
@@ -42,7 +42,7 @@
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">คำร้องทั้งหมด</span>
                         <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats.requests_total
-                            }}</span>
+                        }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-colors duration-300">
@@ -62,7 +62,7 @@
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">รออนุมัติ</span>
                         <span class="text-4xl font-extrabold text-amber-500 tracking-tight">{{ stats.requests_pending
-                            }}</span>
+                        }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white group-hover:border-amber-500 transition-colors duration-300">
@@ -82,7 +82,7 @@
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">อนุมัติแล้ว</span>
                         <span class="text-4xl font-extrabold text-emerald-600 tracking-tight">{{ stats.requests_approved
-                            }}</span>
+                        }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-500 transition-colors duration-300">
@@ -102,10 +102,10 @@
             <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-white">
                 <div class="flex items-center gap-3">
                     <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
-                    <h3 class="text-[17px] font-bold text-slate-800">คำร้องล่าสุด (Recent Activities)</h3>
+                    <h3 class="text-lg font-bold text-slate-800">คำร้องล่าสุด (Recent Activities)</h3>
                 </div>
                 <router-link to="/requests"
-                    class="text-[13px] font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
+                    class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
                     ดูรายการทั้งหมด
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd"
@@ -120,16 +120,16 @@
                     <thead>
                         <tr class="bg-slate-50/50">
                             <th
-                                class="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                class="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                                 พนักงาน</th>
                             <th
-                                class="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                class="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                                 ประเภทคำร้อง</th>
                             <th
-                                class="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                class="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                                 วันที่ยื่น</th>
                             <th
-                                class="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">
+                                class="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">
                                 สถานะ</th>
                         </tr>
                     </thead>
@@ -150,12 +150,12 @@
                                 <span class="font-medium text-slate-600">{{ req.request_type }}</span>
                             </td>
                             <td class="px-8 py-4">
-                                <span class="text-[13px] font-medium text-slate-500">{{ formatDate(req.created_at)
-                                    }}</span>
+                                <span class="text-sm font-medium text-slate-500">{{ formatDate(req.created_at)
+                                }}</span>
                             </td>
                             <td class="px-8 py-4 text-center">
                                 <span :class="statusBadgeClass(req.status)"
-                                    class="px-2.5 py-1 rounded-full text-[10px] font-bold border inline-flex items-center gap-1">
+                                    class="px-2.5 py-1 rounded-full text-xs font-bold border inline-flex items-center gap-1">
                                     <span class="w-1.5 h-1.5 rounded-full" :class="statusDotClass(req.status)"></span>
                                     {{ getStatusText(req.status) }}
                                 </span>
@@ -169,7 +169,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                     </svg>
-                                    <p class="font-medium text-[14px]">ยังไม่มีรายการคำร้องในระบบ</p>
+                                    <p class="font-medium text-sm">ยังไม่มีรายการคำร้องในระบบ</p>
                                 </div>
                             </td>
                         </tr>

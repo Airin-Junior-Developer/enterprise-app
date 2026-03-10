@@ -149,7 +149,7 @@
                                             {{ group.first_name ? group.first_name.charAt(0) : '?' }}
                                         </div>
                                         <div class="font-bold text-slate-700">{{ group.first_name }} {{ group.last_name
-                                        }}</div>
+                                            }}</div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-slate-600">{{ group.position || 'พนักงาน' }}</td>
@@ -185,7 +185,7 @@
                                                     </td>
                                                     <td class="py-3 px-4">
                                                         <div class="font-medium text-slate-700">{{ req.request_type_name
-                                                        }}</div>
+                                                            }}</div>
                                                         <div class="text-xs text-slate-500 truncate max-w-[200px]"
                                                             :title="req.reason">{{ req.reason || req.subject || '-' }}
                                                         </div>
@@ -193,9 +193,9 @@
                                                     <td class="py-3 px-4 text-slate-600">
                                                         <div v-if="req.start_date">
                                                             <div
-                                                                class="text-[11px] bg-white px-2 py-0.5 rounded inline-block text-slate-500 mb-1 border">
+                                                                class="text-xs bg-white px-2 py-0.5 rounded inline-block text-slate-500 mb-1 border">
                                                                 เริ่ม: {{ formatDate(req.start_date) }}</div>
-                                                            <div class="text-[11px] text-slate-400">ถึง: {{
+                                                            <div class="text-xs text-slate-400">ถึง: {{
                                                                 formatDate(req.end_date) }}</div>
                                                         </div>
                                                         <div v-else-if="req.amount"
@@ -205,7 +205,7 @@
                                                     </td>
                                                     <td class="py-3 px-4 text-center">
                                                         <span :class="statusBadgeClass(req.status)"
-                                                            class="px-3 py-1 rounded-full text-[10px] font-bold border">
+                                                            class="px-3 py-1 rounded-full text-xs font-bold border">
                                                             {{ getStatusText(req.status) }}
                                                         </span>
                                                     </td>
@@ -214,7 +214,7 @@
                                                             class="flex items-center justify-center gap-2">
                                                             <button
                                                                 @click.stop="updateStatus(req.request_id, 'approved')"
-                                                                class="h-7 px-2 rounded-md bg-emerald-100 text-emerald-700 hover:bg-emerald-200 text-[11px] font-bold transition-colors flex items-center gap-1">
+                                                                class="h-7 px-2 rounded-md bg-emerald-100 text-emerald-700 hover:bg-emerald-200 text-xs font-bold transition-colors flex items-center gap-1">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
                                                                     viewBox="0 0 20 20" fill="currentColor">
                                                                     <path fill-rule="evenodd"
@@ -224,7 +224,7 @@
                                                             </button>
                                                             <button
                                                                 @click.stop="updateStatus(req.request_id, 'rejected')"
-                                                                class="h-7 px-2 rounded-md bg-rose-100 text-rose-700 hover:bg-rose-200 text-[11px] font-bold transition-colors flex items-center gap-1">
+                                                                class="h-7 px-2 rounded-md bg-rose-100 text-rose-700 hover:bg-rose-200 text-xs font-bold transition-colors flex items-center gap-1">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3"
                                                                     viewBox="0 0 20 20" fill="currentColor">
                                                                     <path fill-rule="evenodd"
@@ -233,7 +233,7 @@
                                                                 </svg> ปัดตก
                                                             </button>
                                                         </div>
-                                                        <div v-else class="text-[11px] text-slate-400 italic">
+                                                        <div v-else class="text-xs text-slate-400 italic">
                                                             ดำเนินการแล้ว</div>
                                                     </td>
                                                 </tr>
@@ -266,7 +266,7 @@
                     <button @click="currentPage--" :disabled="currentPage === 1"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600 transition-colors">ก่อนหน้า</button>
                     <span class="px-3 py-1 border bg-blue-600 text-white rounded text-xs font-bold">{{ currentPage
-                    }}</span>
+                        }}</span>
                     <button @click="currentPage++" :disabled="currentPage >= totalPages"
                         class="px-3 py-1 border rounded hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs text-slate-600 transition-colors">ถัดไป</button>
                 </div>

@@ -3,7 +3,6 @@ import Login from './components/Login.vue';
 import Dashboard from './components/Dashboard.vue';
 import EmployeeManager from './components/EmployeeManager.vue';
 import BranchManager from './components/BranchManager.vue';
-import PositionManager from './components/PositionManager.vue';
 import RequestManager from './components/RequestManager.vue';
 import ApprovalManager from './components/ApprovalManager.vue';
 import RequestTypeManager from './components/RequestTypeManager.vue';
@@ -13,7 +12,6 @@ const routes = [
     { path: '/', component: Dashboard, meta: { requiresAuth: true } },
     { path: '/employees', component: EmployeeManager, meta: { requiresAuth: true } },
     { path: '/branches', component: BranchManager, meta: { requiresAuth: true } },
-    { path: '/positions', component: PositionManager, meta: { requiresAuth: true, requiresSuperAdmin: true } }, 
     { path: '/requests', component: RequestManager, meta: { requiresAuth: true } },
     { path: '/approvals', component: ApprovalManager, meta: { requiresAuth: true } },
     { path: '/request-types', component: RequestTypeManager, meta: { requiresAuth: true } },

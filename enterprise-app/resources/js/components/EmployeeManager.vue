@@ -1,5 +1,5 @@
 <template>
-    <div class="p-6 md:p-8 bg-[#F8FAFC] min-h-screen font-sans text-slate-800">
+    <div class="p-6 md:p-8 bg-slate-50 min-h-screen font-sans text-slate-800">
 
         <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
@@ -103,18 +103,18 @@
                                         class="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors">
                                         {{ emp.position_name || '-' }}</div>
                                     <div v-if="emp.temp_position_end_date"
-                                        class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded bg-amber-50 text-amber-600 text-[10px] font-bold border border-amber-200">
+                                        class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded bg-amber-50 text-amber-600 text-xs font-bold border border-amber-200">
                                         ⏱️ รักษาการถึง: {{ formatDate(emp.temp_position_end_date) }}
                                     </div>
                                     <div v-else
-                                        class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200">
+                                        class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-xs font-bold border border-slate-200">
                                         🏢 {{ emp.branch_name || '-' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm font-bold text-emerald-600">{{ emp.employment_type_name || '-'
-                                    }}</div>
-                                    <div class="text-[10px] text-slate-400 font-bold uppercase mt-0.5 tracking-wider">{{
+                                        }}</div>
+                                    <div class="text-xs text-slate-400 font-bold uppercase mt-0.5 tracking-wider">{{
                                         emp.employee_category_name || '-' }}</div>
                                 </td>
                                 <td class="px-6 py-4 text-xs text-slate-500 font-medium space-y-1">
@@ -206,14 +206,14 @@
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <span
-                                        class="px-3 py-1 bg-slate-100 rounded-md text-[11px] font-bold text-slate-600 border border-slate-200/60">{{
+                                        class="px-3 py-1 bg-slate-100 rounded-md text-xs font-bold text-slate-600 border border-slate-200/60">{{
                                             pos.level_code }}</span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <span v-if="pos.is_active == 1 || pos.is_active === true"
-                                        class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[11px] font-bold border border-emerald-200">เปิดใช้งาน</span>
+                                        class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-bold border border-emerald-200">เปิดใช้งาน</span>
                                     <span v-else
-                                        class="px-3 py-1 bg-slate-50 text-slate-500 rounded-full text-[11px] font-bold border border-slate-200">ปิดใช้งาน</span>
+                                        class="px-3 py-1 bg-slate-50 text-slate-500 rounded-full text-xs font-bold border border-slate-200">ปิดใช้งาน</span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
@@ -232,7 +232,7 @@
             </div>
         </div>
 
-        <div v-if="isEmpModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div v-if="isEmpModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-slate-900/40 backdrop-clear-sm transition-opacity" @click="closeEmpModal">
             </div>
             <div
@@ -395,7 +395,7 @@
             </div>
         </div>
 
-        <div v-if="isAssignModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div v-if="isAssignModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-slate-900/50 backdrop-clear-sm transition-opacity" @click="closeAssignModal">
             </div>
             <div
@@ -409,7 +409,7 @@
 
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                         <label
-                            class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">พนักงาน</label>
+                            class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">พนักงาน</label>
                         <div class="text-base font-bold text-slate-800">{{ formAssign.employee_name }}</div>
                     </div>
 
@@ -433,7 +433,7 @@
                         </label>
                         <div v-if="formAssign.is_temporary" class="mt-4 animate-fade-in">
                             <label
-                                class="block text-[11px] font-bold text-slate-400 uppercase mb-2">วันที่สิ้นสุดการรักษาการ
+                                class="block text-xs font-bold text-slate-400 uppercase mb-2">วันที่สิ้นสุดการรักษาการ
                                 <span class="text-rose-500">*</span></label>
                             <input type="date" v-model="formAssign.end_date" :min="todayDate"
                                 class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none text-slate-700 font-bold shadow-sm" />
@@ -452,7 +452,7 @@
             </div>
         </div>
 
-        <div v-if="isMasterPosModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div v-if="isMasterPosModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="fixed inset-0 bg-slate-900/50 backdrop-claer-sm transition-opacity"
                 @click="closeMasterPosModal">
             </div>
