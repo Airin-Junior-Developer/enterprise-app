@@ -155,7 +155,7 @@
 
             <div
                 class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm mb-6 flex flex-col md:flex-row gap-4">
-                <div class="relative flex-grow">
+                <div class="relative grow">
                     <input type="text" v-model="searchQueryPos"
                         class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-50 focus:border-blue-400 outline-none transition-all text-sm font-medium"
                         placeholder="ค้นหาชื่อพนักงาน/ตำแหน่ง (ไทย/อังกฤษ)..." />
@@ -229,8 +229,9 @@
             </div>
         </div>
 
-        <div v-if="isEmpModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeEmpModal"></div>
+        <div v-if="isEmpModalOpen" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+            <div class="fixed inset-0 bg-slate-900/60 backdrop-clear-sm transition-opacity" @click="closeEmpModal">
+            </div>
             <div
                 class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl z-10 overflow-hidden flex flex-col max-h-[90vh] animate-zoom-in">
                 <div
@@ -388,8 +389,9 @@
             </div>
         </div>
 
-        <div v-if="isPosModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closePosModal"></div>
+        <div v-if="isPosModalOpen" class="fixed inset-0 z-100 flex items-center justify-center p-4">
+            <div class="fixed inset-0 bg-slate-900/60 backdrop-clear-sm transition-opacity" @click="closePosModal">
+            </div>
             <div
                 class="bg-white w-full max-w-lg rounded-3xl shadow-2xl z-10 overflow-hidden flex flex-col max-h-[90vh] animate-zoom-in">
                 <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">

@@ -172,9 +172,14 @@ const fetchData = async () => {
                 allowOutsideClick: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // ถ้ายอมรับแล้ว ให้ยิง API ไปปิดสวิตช์ในฐานข้อมูลเป็น 0
+                    // 1. ถ้ายอมรับแล้ว ให้ยิง API ไปปิดสวิตช์ในฐานข้อมูลเป็น 0
                     axios.post('/api/clear-expired-alert').catch(err => console.error(err));
-                    router.push('/login');
+
+                    // 2. เคลียร์ข้อมูลการล็อกอินเดิมทิ้งก่อน (สำคัญมาก!)
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+
+                    router.replace('/login');
                 }
             });
         }

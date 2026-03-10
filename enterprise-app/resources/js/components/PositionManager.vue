@@ -27,8 +27,13 @@
                 </div>
 
                 <button @click="openModal()"
-                    class="bg-[#2B54A3] hover:bg-[#1E3A8A] text-white px-5 py-2 rounded-full flex items-center gap-2 text-sm font-medium transition-colors shadow-sm">
-                    <span class="text-lg">+</span> สร้างตำแหน่ง
+                    class="bg-linear-to-r from-[#2B54A3] to-[#3B82F6] hover:shadow-lg hover:shadow-blue-500/30 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    สร้างตำแหน่งงาน
                 </button>
             </div>
         </div>
