@@ -1,22 +1,31 @@
 <template>
-    <div class="p-6 bg-[#F8F9FD] min-h-screen font-sans text-slate-800">
+    <div class="px-8 py-10 bg-[#F4F6F8] min-h-screen font-sans">
+        <!-- Header -->
+        <div class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div>
+                <h1 class="text-[32px] font-bold text-slate-800 tracking-tight leading-tight">ภาพรวมระบบ</h1>
+                <p class="text-[15px] font-medium text-slate-500 mt-1">สรุปข้อมูลพนักงานและสถานะคำร้องล่าสุดภายในองค์กร
+                </p>
+            </div>
 
-        <div class="mb-8">
-            <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">ภาพรวมระบบ (Dashboard)</h1>
-            <p class="text-sm text-slate-500 mt-1">สรุปข้อมูลพนักงานและสถานะคำร้องล่าสุด</p>
+            <div v-if="stats?.last_updated"
+                class="flex items-center gap-2 text-xs font-semibold text-slate-400 bg-white px-3 py-1.5 rounded-full border border-slate-200/60 shadow-sm">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                อัปเดตล่าสุด: {{ formatDate(stats.last_updated) }}
+            </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+
             <div
-                class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                <div class="flex justify-between items-start relative z-10">
+                class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
+                <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">พนักงานทั้งหมด</span>
-                        <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats?.employees || 0
-                            }}</span>
+                        <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats.employees }}</span>
                     </div>
                     <div
-                        class="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-colors duration-300">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -24,19 +33,19 @@
                         </svg>
                     </div>
                 </div>
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-indigo-500"></div>
             </div>
 
+            <!-- Total Requests -->
             <div
-                class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                <div class="flex justify-between items-start relative z-10">
+                class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
+                <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">คำร้องทั้งหมด</span>
-                        <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats?.requests_total ||
-                            0 }}</span>
+                        <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats.requests_total
+                            }}</span>
                     </div>
                     <div
-                        class="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-colors duration-300">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -44,19 +53,19 @@
                         </svg>
                     </div>
                 </div>
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-blue-500"></div>
             </div>
 
+            <!-- Pending Requests -->
             <div
-                class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                <div class="flex justify-between items-start relative z-10">
+                class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
+                <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">รออนุมัติ</span>
-                        <span class="text-4xl font-extrabold text-amber-500 tracking-tight">{{ stats?.requests_pending
-                            || 0 }}</span>
+                        <span class="text-4xl font-extrabold text-amber-500 tracking-tight">{{ stats.requests_pending
+                            }}</span>
                     </div>
                     <div
-                        class="h-12 w-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white group-hover:border-amber-500 transition-colors duration-300">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -64,19 +73,19 @@
                         </svg>
                     </div>
                 </div>
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-amber-400"></div>
             </div>
 
+            <!-- Approved Requests -->
             <div
-                class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-                <div class="flex justify-between items-start relative z-10">
+                class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
+                <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">อนุมัติแล้ว</span>
-                        <span class="text-4xl font-extrabold text-emerald-600 tracking-tight">{{
-                            stats?.requests_approved || 0 }}</span>
+                        <span class="text-4xl font-extrabold text-emerald-600 tracking-tight">{{ stats.requests_approved
+                            }}</span>
                     </div>
                     <div
-                        class="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-500 transition-colors duration-300">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -84,56 +93,85 @@
                         </svg>
                     </div>
                 </div>
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-emerald-500"></div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-white">
-                <h3 class="text-lg font-bold text-slate-700">รายการล่าสุด (Recent Activities)</h3>
-                <router-link to="/requests" class="text-sm text-blue-600 hover:text-blue-800 font-medium">ดูทั้งหมด
-                    →</router-link>
+        <!-- Recent Activities Table -->
+        <div
+            class="bg-white rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
+                    <h3 class="text-[17px] font-bold text-slate-800">คำร้องล่าสุด (Recent Activities)</h3>
+                </div>
+                <router-link to="/requests"
+                    class="text-[13px] font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
+                    ดูรายการทั้งหมด
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </router-link>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
-                    <thead
-                        class="bg-slate-50/80 text-slate-500 font-bold border-b border-slate-100 uppercase text-xs tracking-wider">
-                        <tr>
-                            <th class="px-6 py-4">พนักงาน</th>
-                            <th class="px-6 py-4">ประเภท</th>
-                            <th class="px-6 py-4">วันที่ยื่น</th>
-                            <th class="px-6 py-4 text-center">สถานะ</th>
+                <table class="w-full text-left whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-slate-50/50">
+                            <th
+                                class="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                พนักงาน</th>
+                            <th
+                                class="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                ประเภทคำร้อง</th>
+                            <th
+                                class="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                วันที่ยื่น</th>
+                            <th
+                                class="px-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 text-center">
+                                สถานะ</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50">
+                    <tbody class="divide-y divide-slate-100">
                         <tr v-for="req in recentRequests" :key="req.request_id"
-                            class="group hover:bg-slate-50/50 transition-colors">
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
+                            class="hover:bg-slate-50/70 transition-colors group">
+                            <td class="px-8 py-4">
+                                <div class="flex items-center gap-4">
                                     <div
                                         class="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs border border-white shadow-sm">
-                                        {{ req.first_name ? req.first_name.charAt(0) : '?' }}
+                                        {{ req.requester_first_name ? req.requester_first_name.charAt(0) : '?' }}
                                     </div>
-                                    <div class="font-bold text-slate-700">{{ req.first_name }} {{ req.last_name }}</div>
+                                    <div class="font-bold text-slate-700">{{ req.requester_first_name }} {{
+                                        req.requester_last_name }}</div>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="font-medium text-slate-600">{{ req.request_type_name }}</span>
+                                <span class="font-medium text-slate-600">{{ req.request_type }}</span>
                             </td>
-                            <td class="px-6 py-4 text-slate-500 text-xs font-mono">
-                                {{ formatDate(req.created_at) }}
+                            <td class="px-8 py-4">
+                                <span class="text-[13px] font-medium text-slate-500">{{ formatDate(req.created_at)
+                                    }}</span>
                             </td>
-                            <td class="px-6 py-4 text-center">
+                            <td class="px-8 py-4 text-center">
                                 <span :class="statusBadgeClass(req.status)"
-                                    class="px-3 py-1 rounded-full text-[10px] font-bold border inline-flex items-center gap-1">
+                                    class="px-2.5 py-1 rounded-full text-[10px] font-bold border inline-flex items-center gap-1">
                                     <span class="w-1.5 h-1.5 rounded-full" :class="statusDotClass(req.status)"></span>
                                     {{ getStatusText(req.status) }}
                                 </span>
                             </td>
                         </tr>
                         <tr v-if="recentRequests.length === 0">
-                            <td colspan="4" class="px-6 py-10 text-center text-slate-400">ยังไม่มีรายการคำร้อง</td>
+                            <td colspan="4" class="px-8 py-16 text-center">
+                                <div class="flex flex-col items-center justify-center text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-4 text-slate-300"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                    </svg>
+                                    <p class="font-medium text-[14px]">ยังไม่มีรายการคำร้องในระบบ</p>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
