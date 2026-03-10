@@ -113,7 +113,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm font-bold text-emerald-600">{{ emp.employment_type_name || '-'
-                                        }}</div>
+                                    }}</div>
                                     <div class="text-[10px] text-slate-400 font-bold uppercase mt-0.5 tracking-wider">{{
                                         emp.employee_category_name || '-' }}</div>
                                 </td>
@@ -233,7 +233,8 @@
         </div>
 
         <div v-if="isEmpModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="closeEmpModal"></div>
+            <div class="fixed inset-0 bg-slate-900/40 backdrop-clear-sm transition-opacity" @click="closeEmpModal">
+            </div>
             <div
                 class="bg-white rounded-4xl shadow-2xl w-full max-w-3xl z-10 overflow-hidden flex flex-col max-h-[90vh] animate-zoom-in">
                 <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-white shrink-0">
@@ -395,7 +396,7 @@
         </div>
 
         <div v-if="isAssignModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="closeAssignModal">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-clear-sm transition-opacity" @click="closeAssignModal">
             </div>
             <div
                 class="bg-white w-full max-w-lg rounded-3xl shadow-2xl z-10 overflow-hidden flex flex-col max-h-[90vh] animate-zoom-in">
@@ -452,7 +453,8 @@
         </div>
 
         <div v-if="isMasterPosModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="closeMasterPosModal">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-claer-sm transition-opacity"
+                @click="closeMasterPosModal">
             </div>
             <div
                 class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl z-10 overflow-hidden flex flex-col max-h-[90vh] animate-zoom-in">

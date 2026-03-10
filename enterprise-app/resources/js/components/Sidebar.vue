@@ -42,7 +42,7 @@
                 :class="{ 'text-slate-600 hover:bg-slate-50 hover:text-slate-900': $route.path !== '/employees' }">
                 <span class="text-xl shrink-0 transition-transform group-hover:scale-110"
                     :class="isOpen ? 'mr-3' : 'mx-auto'">👥</span>
-                <span v-if="isOpen" class="font-semibold text-sm">รายชื่อพนักงาน</span>
+                <span v-if="isOpen" class="font-semibold text-sm">บุคลากรและตำแหน่งงาน</span>
             </router-link>
 
             <router-link v-if="canManage" to="/branches"
