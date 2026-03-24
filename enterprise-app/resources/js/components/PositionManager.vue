@@ -43,18 +43,18 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50/50 text-slate-500 text-sm">
-                            <th class="px-6 py-4 font-semibold border-b w-16">ลำดับ</th>
+                            <th class="px-6 py-4 font-semibold border-b w-16 text-center">ลำดับ</th>
                             <th class="px-6 py-4 font-semibold border-b">ตำแหน่ง (ไทย)</th>
                             <th class="px-6 py-4 font-semibold border-b">ตำแหน่ง (อังกฤษ)</th>
                             <th class="px-6 py-4 font-semibold border-b text-center">Level</th>
                             <th class="px-6 py-4 font-semibold border-b text-center">สถานะ</th>
-                            <th class="px-6 py-4 font-semibold border-b text-center">จัดการ</th>
+                            <th class="px-6 py-4 font-semibold border-b text-center w-32">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         <tr v-for="(pos, index) in filteredPositions" :key="pos.position_id"
                             class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 text-sm text-slate-400">{{ index + 1 }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-400 text-center">{{ index + 1 }}</td>
                             <td class="px-6 py-4 text-sm font-bold text-slate-700">{{ pos.position_name }}</td>
                             <td class="px-6 py-4 text-sm text-slate-500">{{ pos.position_name_en || '-' }}</td>
                             <td class="px-6 py-4 text-sm text-center">
@@ -63,7 +63,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <span v-if="pos.is_active == 1 || pos.is_active === true"
+                                <span v-if="pos.is_active"
                                     class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold border border-green-100">
                                     ใช้งาน
                                 </span>
@@ -73,27 +73,18 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="flex items-center justify-center gap-4">
+                                <div class="flex items-center justify-center gap-2">
                                     <button @click="openModal(pos)"
-                                        class="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                        </svg>
-                                        แก้ไข
+                                        class="h-9 w-9 flex items-center justify-center rounded-xl bg-slate-100 text-lg hover:bg-blue-500 hover:text-white transition-all duration-200">
+                                        ✏️
                                     </button>
+
                                     <button @click="deletePosition(pos.position_id)"
-                                        class="flex items-center gap-1 text-slate-400 hover:text-rose-600 text-sm font-medium transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                        ลบ
+                                        class="h-9 w-9 flex items-center justify-center rounded-xl bg-slate-100 text-lg hover:bg-rose-500 hover:text-white transition-all duration-200">
+                                        🗑️
                                     </button>
                                 </div>
-                            </td>
+                            </td> 
                         </tr>
                     </tbody>
                 </table>
@@ -101,20 +92,18 @@
         </div>
 
         <div v-if="showModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-clear-sm p-4 transition-all">
+            class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all">
             <div
                 class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
                 <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h3 class="font-bold text-[#2B54A3] text-lg">{{ isEditMode ? 'แก้ไขตำแหน่ง' : 'สร้างตำแหน่งใหม่' }}
-                    </h3>
+                    <h3 class="font-bold text-[#2B54A3] text-lg">{{ isEditMode ? 'แก้ไขตำแหน่ง' : 'สร้างตำแหน่งใหม่' }}</h3>
                     <button @click="closeModal"
                         class="text-slate-400 hover:text-slate-600 text-2xl transition-colors">&times;</button>
                 </div>
 
                 <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-1">
-                        <label class="text-sm font-bold text-slate-700">ชื่อตำแหน่ง (ไทย) <span
-                                class="text-rose-500">*</span></label>
+                        <label class="text-sm font-bold text-slate-700">ชื่อตำแหน่ง (ไทย) <span class="text-rose-500">*</span></label>
                         <input type="text" v-model="form.position_name" placeholder="เช่น ผู้จัดการฝ่ายขาย"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all" />
                     </div>
@@ -126,8 +115,7 @@
                     </div>
 
                     <div class="space-y-1">
-                        <label class="text-sm font-bold text-slate-700">ระดับ (Level) <span
-                                class="text-rose-500">*</span></label>
+                        <label class="text-sm font-bold text-slate-700">ระดับ (Level) <span class="text-rose-500">*</span></label>
                         <select v-model="form.level_code"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none bg-white">
                             <option value="" disabled>-- เลือกระดับ --</option>
@@ -142,42 +130,6 @@
                         <label class="text-sm font-bold text-slate-700">ลำดับความสำคัญ (1=สูงสุด)</label>
                         <input type="number" v-model="form.priority_level" min="1" max="99"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none" />
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="text-sm font-bold text-slate-700">ประเภทการจ้าง</label>
-                        <select v-model="form.employment_type_id"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none bg-white">
-                            <option :value="null">-- เลือกประเภท --</option>
-                            <option v-for="type in masterData.employment_types" :key="type.id" :value="type.id">{{
-                                type.name }}</option>
-                        </select>
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="text-sm font-bold text-slate-700">ประเภทพนักงาน</label>
-                        <select v-model="form.employee_category_id"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none bg-white">
-                            <option :value="null">-- เลือกประเภท --</option>
-                            <option v-for="cat in masterData.employee_categories" :key="cat.id" :value="cat.id">{{
-                                cat.name }}</option>
-                        </select>
-                    </div>
-
-                    <div class="col-span-1 md:col-span-2 mt-2 pt-4 border-t border-slate-100">
-                        <p class="text-sm font-bold text-[#2B54A3] mb-4 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM11 9H9V7h2v2zM11 13H9v-2h2v2z" />
-                            </svg>
-                            โครงสร้างเงินเดือน (Salary Base)
-                        </p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="number" v-model="form.min_salary" placeholder="Min"
-                                class="px-4 py-2 border rounded-xl" />
-                            <input type="number" v-model="form.max_salary" placeholder="Max"
-                                class="px-4 py-2 border rounded-xl" />
-                        </div>
                     </div>
 
                     <div
@@ -217,35 +169,18 @@ const isEditMode = ref(false);
 const isLoading = ref(true);
 const searchQuery = ref('');
 
-const masterData = ref({
-    employment_types: [],
-    employee_categories: []
-});
-
 const form = ref({
     position_id: null,
     position_name: '',
     position_name_en: '',
     level_code: '',
-    employment_type_id: null,
-    employee_category_id: null,
-    min_salary: '',
-    max_salary: '',
     is_active: true
 });
-
-const fetchMasterData = async () => {
-    try {
-        const res = await axios.get('/api/master-data');
-        masterData.value = res.data;
-    } catch (e) { console.error("Master Data Error:", e); }
-};
 
 const fetchPositions = async () => {
     isLoading.value = true;
     try {
         const res = await axios.get('/api/positions');
-        // ✅ บังคับให้เป็น Boolean เพื่อให้ UI แสดงผลแม่นยำ
         positions.value = res.data.map(p => ({
             ...p,
             is_active: Number(p.is_active) === 1
@@ -269,18 +204,10 @@ const filteredPositions = computed(() => {
 const openModal = (pos = null) => {
     if (pos) {
         isEditMode.value = true;
-        form.value = {
-            ...pos,
-            // ✅ แปลงค่าจาก Database ให้เป็น Boolean ก่อนเข้า Form
-            is_active: Number(pos.is_active) === 1
-        };
+        form.value = { ...pos, is_active: !!pos.is_active };
     } else {
         isEditMode.value = false;
-        form.value = {
-            position_id: null, position_name: '', position_name_en: '', level_code: '',
-            employment_type_id: null, employee_category_id: null,
-            min_salary: '', max_salary: '', is_active: true // Default เป็นเปิด
-        };
+        form.value = { position_id: null, position_name: '', position_name_en: '', level_code: '', is_active: true };
     }
     showModal.value = true;
 };
@@ -288,64 +215,46 @@ const openModal = (pos = null) => {
 const closeModal = () => { showModal.value = false; };
 
 const savePosition = async () => {
-    if (!form.value.position_name) return Swal.fire('แจ้งเตือน', 'กรุณาระบุชื่อตำแหน่ง (ไทย)', 'warning');
-    if (!form.value.level_code) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกระดับ (Level)', 'warning');
-
+    if (!form.value.position_name || !form.value.level_code) return Swal.fire('แจ้งเตือน', 'กรุณาระบุข้อมูลให้ครบถ้วน', 'warning');
     try {
         if (isEditMode.value) {
             await axios.put(`/api/positions/${form.value.position_id}`, form.value);
-            Swal.fire({ icon: 'success', title: 'แก้ไขสำเร็จ', showConfirmButton: false, timer: 1000 });
         } else {
             await axios.post('/api/positions', form.value);
-            Swal.fire({ icon: 'success', title: 'สร้างสำเร็จ', showConfirmButton: false, timer: 1000 });
         }
+        Swal.fire({ icon: 'success', title: 'สำเร็จ', showConfirmButton: false, timer: 1000 });
         closeModal();
         fetchPositions();
     } catch (e) {
-        Swal.fire('Error', e.response?.data?.message || 'เกิดข้อผิดพลาดในการบันทึก', 'error');
+        Swal.fire('Error', 'ไม่สามารถบันทึกได้', 'error');
     }
 };
 
 const deletePosition = (id) => {
     Swal.fire({
         title: 'ยืนยันการลบ?',
-        text: "ข้อมูลนี้จะถูกลบถาวร",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#f43f5e',
-        confirmButtonText: 'ลบข้อมูล',
+        confirmButtonText: 'ลบ',
         cancelButtonText: 'ยกเลิก'
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
                 await axios.delete(`/api/positions/${id}`);
-                Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1000 });
                 fetchPositions();
             } catch (e) { Swal.fire('Error', 'ไม่สามารถลบได้', 'error'); }
         }
     });
 };
 
-onMounted(() => {
-    fetchPositions();
-    fetchMasterData();
-});
+onMounted(() => fetchPositions());
 </script>
 
 <style scoped>
-.animate-in {
-    animation: zoomIn 0.2s ease-out;
-}
-
+.animate-in { animation: zoomIn 0.2s ease-out; }
 @keyframes zoomIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
 </style>

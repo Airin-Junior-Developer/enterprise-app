@@ -1,257 +1,300 @@
 <template>
   <div class="p-8 bg-slate-50 min-h-screen font-ibm text-slate-600">
     
-    <div class="mb-8 flex justify-between items-end">
-      <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center gap-5">
-        <div class="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center text-[#2563eb]">
-          <i class="fa-solid fa-users text-2xl"></i>
+    <div class="mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
+      <div class="flex gap-4">
+        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center gap-5">
+          <div class="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center text-[#2563eb]">
+            <i class="fa-solid fa-users text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">พนักงานทั้งหมด</p>
+            <h2 class="text-2xl font-black text-slate-800 tracking-tight">
+              {{ positions.length }} <span class="text-sm font-medium text-slate-400">คน</span>
+            </h2>
+          </div>
         </div>
-        <div>
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">จำนวนพนักงานทั้งหมด</p>
-          <h2 class="text-2xl font-black text-slate-800 tracking-tight">{{ employees.length }} <span class="text-sm font-medium text-slate-400">คน</span></h2>
+
+        <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex items-center gap-4">
+          <div class="h-12 w-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl">⏱️</div>
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">รักษาการ (ชั่วคราว)</p>
+            <h3 class="text-2xl font-black text-slate-800">{{ temporaryCount }}</h3>
+          </div>
         </div>
       </div>
-      <div class="w-full max-w-md">
-        <input type="text" placeholder="ค้นหาชื่อ, เบอร์โทร หรือ Email..." class="w-full pl-6 pr-4 py-3.5 bg-white border border-slate-100 rounded-2xl shadow-sm outline-none focus:border-blue-500 text-sm">
+
+      <div class="w-full max-w-md relative">
+        <input type="text" v-model="searchQuery" placeholder="ค้นหาชื่อพนักงาน หรือ ตำแหน่ง..." 
+          class="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-100 rounded-2xl shadow-sm outline-none focus:border-blue-500 text-sm transition-all">
+        <span class="absolute left-4 top-4 text-slate-400">🔍</span>
       </div>
     </div>
 
-    <div class="bg-white rounded-[3rem] shadow-sm border border-slate-100 overflow-hidden">
-      <table class="min-w-full divide-y divide-slate-50">
-        <thead class="bg-slate-50/50">
-          <tr>
-            <th class="px-8 py-5 text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider">พนักงาน</th>
-            <th class="px-6 py-5 text-center text-[11px] font-bold text-slate-400 uppercase tracking-wider">ตำแหน่ง / ประเภท</th>
-            <th class="px-8 py-5 text-right text-[11px] font-bold text-slate-400 uppercase tracking-wider">จัดการ</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-50">
-          <tr v-for="emp in employees" :key="emp.id" class="hover:bg-slate-50/50 transition-colors group">
-            <td class="px-8 py-5">
-              <div class="text-sm font-bold text-[#2563eb]">{{ emp.name }}</div>
-              <div class="text-[10px] text-slate-400">เริ่มงาน: {{ emp.start_work_date }} | {{ emp.email }}</div>
-            </td>
-            <td class="px-6 py-5 text-center">
-              <div class="text-sm font-medium text-slate-600">{{ emp.position }}</div>
-              <div class="mt-1">
-                <span :class="emp.employment_type === 'ประจำ' ? 'bg-blue-50 text-blue-500 border-blue-100' : 'bg-amber-50 text-amber-600 border-amber-100'" 
-                      class="text-[10px] font-bold px-2 py-0.5 rounded border border-opacity-30 uppercase">
-                  พนักงาน{{ emp.employment_type }} 
-                  <span v-if="emp.employment_type === 'ชั่วคราว'">({{ calculateDays(emp.temp_start_date, emp.temp_end_date) }} วัน)</span>
-                </span>
-              </div>
-            </td>
-            <td class="px-8 py-5 text-right">
-              <div class="flex justify-end items-center gap-2">
-                
-                <button @click="openEditModal(emp)" 
-                        class="flex items-center gap-2 px-4 py-2 rounded-xl text-[#4c6ef5] font-bold text-sm hover:bg-blue-50 transition-all active:scale-95 group/edit">
-                  <i class="fa-solid fa-pen-to-square text-xs transition-transform group-hover/edit:scale-110"></i>
-                  ✏️
-                  <span>แก้ไขข้อมูล</span>
-                </button>
-
-                <button @click="confirmDelete(emp)" 
-                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-sm group/delete active:scale-90">
-                  <i class="fa-solid fa-trash-can text-sm group-hover/delete:animate-pulse"></i>
-                  🗑️
-                </button>
-
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm mb-6 flex gap-4">
+      <div class="md:w-64 relative">
+        <select v-model="selectedType"
+          class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-50 outline-none transition-all text-sm font-bold text-slate-600 appearance-none cursor-pointer">
+          <option value="all">ทุกประเภทการจ้าง</option>
+          <option value="permanent">พนักงานปกติ</option>
+          <option value="temporary">พนักงานรักษาการ (ชั่วคราว)</option>
+        </select>
+        <span class="absolute right-4 top-3.5 pointer-events-none text-slate-400">▼</span>
+      </div>
     </div>
 
-    <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showModal = false"></div>
-      <div class="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl z-10 overflow-hidden flex flex-col animate-modal-in">
-        
-        <div class="px-12 py-8 border-b border-slate-50">
-          <h2 class="text-2xl font-bold text-[#2563eb]">แก้ไขข้อมูลพนักงาน</h2>
-          <p class="text-sm font-bold text-slate-400 mt-1">ข้อมูลพนักงาน</p>
+    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left border-collapse whitespace-nowrap">
+          <thead class="bg-slate-50/50 text-slate-400 font-bold border-b border-slate-50">
+            <tr class="text-[10px] uppercase tracking-[0.15em]">
+              <th class="px-8 py-5 text-center w-20">ลำดับ</th>
+              <th class="px-6 py-5">รายชื่อพนักงาน</th>
+              <th class="px-6 py-5">สาขา / สังกัด</th>
+              <th class="px-6 py-5">ตำแหน่งปัจจุบัน</th>
+              <th class="px-6 py-5 text-center">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <tr v-if="isLoading">
+              <td colspan="5" class="px-6 py-12 text-center text-blue-600 font-bold animate-pulse">กำลังโหลดข้อมูล...</td>
+            </tr>
+            <tr v-else-if="filteredPositions.length === 0">
+              <td colspan="5" class="px-6 py-12 text-center text-slate-400 font-bold italic">ไม่พบข้อมูลที่ค้นหา</td>
+            </tr>
+            <tr v-else v-for="(item, index) in filteredPositions" :key="item.id" class="hover:bg-blue-50/30 transition-colors group">
+              <td class="px-8 py-6 text-center text-slate-300 font-bold">{{ index + 1 }}</td>
+              <td class="px-6 py-6">
+                <div class="font-bold text-slate-700">{{ item.employee_name }}</div>
+                <div class="text-[10px] text-slate-400">{{ item.email || '-' }}</div>
+              </td>
+              <td class="px-6 py-6 text-slate-600 font-medium">{{ item.branch || 'ไม่ระบุ' }}</td>
+              <td class="px-6 py-6">
+                <div class="font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{{ item.name }}</div>
+                <div v-if="item.temp_position_end_date" 
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-600 text-[10px] font-bold mt-1">
+                  ⏱️ รักษาการถึง: {{ formatDate(item.temp_position_end_date) }}
+                </div>
+              </td>
+              <td class="px-6 py-6 text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <button @click="openEditModal(item)" class="h-9 w-9 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-blue-600 hover:text-white transition-all shadow-sm">✏️</button>
+                  <button @click="confirmDelete(item)" class="h-9 w-9 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-rose-500 hover:text-white transition-all shadow-sm">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+      <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-modal-in">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+          <h3 class="text-lg font-bold text-blue-600">แก้ไขตำแหน่งงาน</h3>
+          <button @click="showModal = false" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
         </div>
 
-        <div class="p-12 space-y-10 overflow-y-auto max-h-[75vh]">
-          
-          <div class="grid grid-cols-2 gap-x-12 gap-y-10">
-            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <label class="text-[11px] font-bold text-slate-400 uppercase mb-1 block">ชื่อ-นามสกุล</label>
-              <input v-model="form.name" type="text" class="w-full border-b border-slate-200 py-1 outline-none focus:border-blue-500 text-sm font-bold text-slate-600 bg-transparent">
-            </div>
-            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <label class="text-[11px] font-bold text-slate-400 uppercase mb-1 block">อีเมล</label>
-              <input v-model="form.email" type="text" class="w-full border-b border-slate-200 py-1 outline-none focus:border-blue-500 text-sm font-bold text-slate-600 bg-transparent">
-            </div>
-            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <label class="text-[11px] font-bold text-slate-400 uppercase mb-1 block">เบอร์โทรศัพท์</label>
-              <input v-model="form.phone" type="text" class="w-full border-b border-slate-200 py-1 outline-none focus:border-blue-500 text-sm font-bold text-slate-600 bg-transparent">
-            </div>
-            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 opacity-70">
-              <label class="text-[11px] font-bold text-slate-400 uppercase mb-1 block">วันที่เริ่มงาน</label>
-              <div class="py-1 text-sm font-bold text-slate-400 border-b border-transparent">{{ form.start_work_date }}</div>
-            </div>
+        <div class="p-8 space-y-6 overflow-y-auto">
+          <div class="space-y-1">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">พนักงาน</label>
+            <input v-model="form.employee_name" type="text" disabled class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-500 cursor-not-allowed outline-none" />
           </div>
 
-          <div v-if="form.employment_type === 'ประจำ'" class="grid grid-cols-2 gap-x-12">
-            <div class="p-4 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-              <label class="text-[11px] font-bold text-slate-400 uppercase mb-1 block">สังกัด (แก้ไขไม่ได้)</label>
-              <select v-model="form.branch" disabled class="w-full py-1 text-sm font-bold text-slate-400 bg-transparent cursor-not-allowed appearance-none border-none">
-                <option value="บริการธุรกิจใหม่">บริการธุรกิจใหม่</option>
-              </select>
-            </div>
-            <div class="p-4 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-              <label class="text-[11px] font-bold text-slate-400 uppercase mb-1 block">ตำแหน่ง (แก้ไขไม่ได้)</label>
-              <select v-model="form.position" disabled class="w-full py-1 text-sm font-bold text-slate-400 bg-transparent cursor-not-allowed appearance-none border-none">
-                <option value="Business Support">Business Support</option>
-              </select>
-            </div>
+          <div class="space-y-1">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">เลือกตำแหน่งใหม่ <span class="text-rose-500">*</span></label>
+            <select v-model="form.position_id" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all">
+              <option value="" disabled>-- กรุณาเลือกตำแหน่ง --</option>
+              <option v-for="pos in masterPositions" :key="pos.position_id" :value="pos.position_id">
+                {{ pos.position_name }} ({{ pos.level_code }})
+              </option>
+            </select>
           </div>
 
-          <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-6">
-            <label class="text-sm font-bold text-slate-500">ประเภทพนักงาน:</label>
-            <div class="flex gap-6">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" v-model="form.employment_type" value="ประจำ" class="w-4 h-4 accent-blue-600">
-                <span class="text-sm font-bold text-slate-600">พนักงานประจำ</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" v-model="form.employment_type" value="ชั่วคราว" class="w-4 h-4 accent-blue-600">
-                <span class="text-sm font-bold text-slate-600">ชั่วคราว</span>
-              </label>
+          <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+            <label class="flex items-center gap-3 cursor-pointer select-none">
+              <input type="checkbox" v-model="form.is_temporary" class="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+              <span class="text-sm font-bold text-slate-700">แต่งตั้งชั่วคราว (รักษาการแทน)</span>
+            </label>
+            <div v-if="form.is_temporary" class="mt-4 animate-fade-in">
+              <label class="block text-[10px] font-bold text-blue-500 mb-2 tracking-widest uppercase">วันที่สิ้นสุดการรักษาการ *</label>
+              <input type="date" v-model="form.end_date" :min="todayDate" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm outline-none focus:border-blue-400" />
             </div>
           </div>
-
-          <div v-if="form.employment_type === 'ชั่วคราว'" class="p-10 bg-[#f8fbff] rounded-[2.5rem] border border-blue-100 space-y-10 animate-fade-in">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="h-6 w-6 rounded bg-blue-500 flex items-center justify-center text-white"><i class="fa-solid fa-check text-[10px]"></i></div>
-                <span class="text-sm font-bold text-slate-700">เป็นการแต่งตั้งชั่วคราว (รักษาการแทน)</span>
-              </div>
-              <div v-if="tempDaysCount > 0" class="text-blue-600 font-bold text-xs bg-white px-4 py-1.5 rounded-full border border-blue-100">
-                ระยะเวลารวม: {{ tempDaysCount }} วัน
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-x-12">
-              <div>
-                <label class="text-[12px] font-bold text-blue-500 mb-2 block italic">เลือกสังกัดใหม่ *</label>
-                <select v-model="form.branch" class="w-full border-b-2 border-blue-400 py-1 text-sm font-bold text-slate-700 bg-transparent outline-none">
-                  <option value="สำนักงานใหญ่">สำนักงานใหญ่</option>
-                  <option value="บริการธุรกิจใหม่">บริการธุรกิจใหม่</option>
-                </select>
-              </div>
-              <div>
-                <label class="text-[12px] font-bold text-blue-500 mb-2 block italic">เลือกตำแหน่งใหม่ *</label>
-                <select v-model="form.position" class="w-full border-b-2 border-blue-400 py-1 text-sm font-bold text-slate-700 bg-transparent outline-none">
-                  <option value="General Staff (STF)">General Staff (STF)</option>
-                  <option value="Business Support">Business Support</option>
-                </select>
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-x-12">
-              <input v-model="form.temp_start_date" type="date" class="border-b-2 border-slate-200 py-1 text-sm font-bold text-slate-600 bg-transparent outline-none">
-              <input v-model="form.temp_end_date" type="date" class="border-b-2 border-slate-200 py-1 text-sm font-bold text-slate-600 bg-transparent outline-none">
-            </div>
-          </div>
-
         </div>
 
-        <div class="px-12 py-10 flex justify-center gap-4 bg-slate-50/30 border-t border-slate-100">
-          <button @click="showModal = false" class="px-10 py-3 rounded-2xl border border-slate-200 text-slate-400 font-bold text-sm hover:bg-white transition-colors">ยกเลิก</button>
-          <button @click="handleSave" class="px-12 py-3 rounded-2xl bg-[#2563eb] text-white font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95">ยืนยันบันทึก</button>
+        <div class="p-6 bg-slate-50 flex justify-end gap-3 border-t border-slate-100">
+          <button @click="showModal = false" class="px-6 py-2.5 rounded-2xl border border-slate-200 text-slate-500 font-bold text-sm hover:bg-white transition-all">ยกเลิก</button>
+          <button @click="handleSave" :disabled="isSaving" class="px-8 py-2.5 rounded-2xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 text-sm hover:bg-blue-700 transition-all flex items-center gap-2">
+            <span v-if="isSaving" class="animate-spin text-lg">🌀</span>
+            {{ isSaving ? 'กำลังบันทึก...' : 'บันทึกข้อมูล' }}
+          </button>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
+import axios from 'axios';
 import Swal from 'sweetalert2';
 
-// --- Data ---
-const employees = ref([
-  { id: 1, name: 'นางสาวสุพิชญา โสมาบุตร (จำ)', employment_type: 'ประจำ', email: 'supitchaya@inet.co.th', phone: '081-234-5678', position: 'Business Support', branch: 'บริการธุรกิจใหม่', start_work_date: '16 ก.ค. 2561' },
-  { id: 2, name: 'นายเกรียงไกร ใจดี', employment_type: 'ชั่วคราว', email: 'gor@gmail.com', phone: '089-123-4444', position: 'General Staff (STF)', branch: 'สำนักงานใหญ่', start_work_date: '28 ก.พ. 2569', temp_start_date: '2026-02-28', temp_end_date: '2026-04-02' }
-]);
-
+// --- States ---
+const positions = ref([]);
+const masterPositions = ref([]);
+const isLoading = ref(true);
+const isSaving = ref(false);
 const showModal = ref(false);
-const form = reactive({ id: null, name: '', email: '', phone: '', employment_type: 'ประจำ', position: '', branch: '', start_work_date: '', temp_start_date: '', temp_end_date: '' });
+const searchQuery = ref('');
+const selectedType = ref('all');
 
-// --- Methods ---
-const calculateDays = (start, end) => {
-  if (!start || !end) return 0;
-  const s = new Date(start);
-  const e = new Date(end);
-  return Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24)) + 1;
-};
+const form = reactive({
+  id: null,
+  employee_name: '',
+  position_id: '',
+  is_temporary: false,
+  end_date: ''
+});
 
-const tempDaysCount = computed(() => calculateDays(form.temp_start_date, form.temp_end_date));
-
-const openEditModal = (emp) => {
-  Object.assign(form, { ...emp });
-  showModal.value = true;
-};
-
-const handleSave = () => {
-  const idx = employees.value.findIndex(e => e.id === form.id);
-  if (idx !== -1) {
-    employees.value[idx] = { ...form };
-    showModal.value = false;
-    
-    Swal.fire({ 
-      title: 'สำเร็จ!', 
-      text: 'บันทึกข้อมูลเรียบร้อยแล้ว', 
-      icon: 'success', 
-      confirmButtonText: 'ตกลง', 
-      confirmButtonColor: '#2563eb',
-      customClass: { popup: 'rounded-[2rem]' }
-    });
+// --- Fetch Data ---
+const fetchPositions = async () => {
+  isLoading.value = true;
+  try {
+    const response = await axios.get('/api/manage-positions-list');
+    positions.value = response.data;
+  } catch (error) {
+    console.error("Fetch Positions Error:", error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
-const confirmDelete = (emp) => {
-  Swal.fire({
-    title: 'ยืนยันการลบ?',
-    text: `คุณต้องการลบข้อมูลของ "${emp.name}" ใช่หรือไม่?`,
-    icon: 'warning',
-    showCancelButton: true,
+const fetchMasterPositions = async () => {
+  try {
+    const response = await axios.get('/api/positions');
+    masterPositions.value = response.data;
+  } catch (error) {
+    console.error("Fetch Master Error:", error);
+  }
+};
+
+onMounted(() => {
+  fetchPositions();
+  fetchMasterPositions();
+});
+
+// --- Computed ---
+const temporaryCount = computed(() => {
+  return positions.value.filter(p => p.temp_position_end_date !== null).length;
+});
+
+const filteredPositions = computed(() => {
+  let result = positions.value;
+  if (selectedType.value !== 'all') {
+    result = result.filter(p => 
+      selectedType.value === 'temporary' ? p.temp_position_end_date !== null : p.temp_position_end_date === null
+    );
+  }
+  if (searchQuery.value) {
+    const search = searchQuery.value.toLowerCase();
+    result = result.filter(p => 
+      (p.employee_name?.toLowerCase().includes(search)) || 
+      (p.name?.toLowerCase().includes(search))
+    );
+  }
+  return result;
+});
+
+const todayDate = computed(() => new Date().toISOString().split('T')[0]);
+
+// --- Actions ---
+const openEditModal = (item) => {
+  // พยายามจับคู่ตำแหน่งเดิมกับ ID ใน Master
+  const matchedPos = masterPositions.value.find(p => p.position_name === item.name);
+  
+  Object.assign(form, { 
+    id: item.id, 
+    employee_name: item.employee_name, 
+    position_id: matchedPos?.position_id || '', 
+    is_temporary: !!item.temp_position_end_date, 
+    end_date: item.temp_position_end_date || '' 
+  });
+  showModal.value = true;
+};
+
+const handleSave = async () => {
+  if (!form.position_id) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกตำแหน่งใหม่', 'warning');
+  if (form.is_temporary && !form.end_date) return Swal.fire('แจ้งเตือน', 'กรุณาระบุวันที่สิ้นสุดการรักษาการ', 'warning');
+
+  isSaving.value = true;
+  try {
+    await axios.patch(`/api/employees/${form.id}/position`, { 
+      position_id: form.position_id, 
+      is_temporary: form.is_temporary, 
+      end_date: form.is_temporary ? form.end_date : null 
+    });
+    showModal.value = false;
+    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1500, showConfirmButton: false });
+    fetchPositions();
+  } catch (error) {
+    Swal.fire({ 
+      icon: 'error', 
+      title: 'เกิดข้อผิดพลาด', 
+      text: error.response?.data?.message || 'ไม่สามารถบันทึกข้อมูลได้' 
+    });
+  } finally {
+    isSaving.value = false;
+  }
+};
+
+const confirmDelete = async (item) => {
+  const result = await Swal.fire({ 
+    title: 'ยืนยันการลบ?', 
+    text: `คุณต้องการลบข้อมูลพนักงาน "${item.employee_name}" หรือไม่?`, 
+    icon: 'warning', 
+    showCancelButton: true, 
     confirmButtonColor: '#f43f5e',
-    cancelButtonColor: '#94a3b8',
-    confirmButtonText: '<i class="fa-solid fa-trash-can mr-2"></i> ยืนยันลบข้อมูล',
-    cancelButtonText: 'ยกเลิก',
-    reverseButtons: true,
-    customClass: {
-      popup: 'rounded-[2.5rem]',
-      confirmButton: 'rounded-xl px-6 py-3 font-bold',
-      cancelButton: 'rounded-xl px-6 py-3 font-bold'
+    confirmButtonText: 'ยืนยันลบ',
+    cancelButtonText: 'ยกเลิก'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await axios.delete(`/api/employees/${item.id}`);
+      Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', timer: 1000, showConfirmButton: false });
+      fetchPositions();
+    } catch (e) {
+      Swal.fire('Error', 'ไม่สามารถลบข้อมูลได้', 'error');
     }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      employees.value = employees.value.filter(e => e.id !== emp.id);
-      Swal.fire({
-        title: 'ลบแล้ว!',
-        text: 'ข้อมูลพนักงานถูกลบออกจากระบบแล้ว',
-        icon: 'success',
-        confirmButtonColor: '#2563eb',
-        customClass: { popup: 'rounded-[2rem]' }
-      });
-    }
+  }
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString('th-TH', { 
+    year: 'numeric', month: 'short', day: 'numeric' 
   });
 };
 </script>
 
 <style scoped>
-.font-ibm { font-family: 'IBM Plex Sans Thai', sans-serif; }
-.animate-fade-in { animation: fadeIn 0.3s ease-out; }
-.animate-modal-in { animation: modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-modal-in {
+  animation: zoomIn 0.3s ease-out;
+}
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(30px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
 
-/* ปรับแต่ง Font ให้ SweetAlert ใช้ฟอนต์เดียวกับโปรเจกต์ */
-:deep(.swal2-popup) {
-  font-family: 'IBM Plex Sans Thai', sans-serif;
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
