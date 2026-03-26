@@ -1,6 +1,5 @@
 <template>
     <div class="px-8 py-10 bg-slate-50 min-h-screen font-sans">
-        <!-- Header -->
         <div class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-slate-800 tracking-tight leading-tight">ภาพรวมระบบ</h1>
@@ -16,7 +15,6 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-
             <div
                 class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
                 <div class="flex justify-between items-start">
@@ -35,14 +33,13 @@
                 </div>
             </div>
 
-            <!-- Total Requests -->
             <div
                 class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
                 <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">คำร้องทั้งหมด</span>
                         <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats.requests_total
-                        }}</span>
+                            }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-colors duration-300">
@@ -55,14 +52,13 @@
                 </div>
             </div>
 
-            <!-- Pending Requests -->
             <div
                 class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
                 <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">รออนุมัติ</span>
                         <span class="text-4xl font-extrabold text-amber-500 tracking-tight">{{ stats.requests_pending
-                        }}</span>
+                            }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white group-hover:border-amber-500 transition-colors duration-300">
@@ -75,14 +71,13 @@
                 </div>
             </div>
 
-            <!-- Approved Requests -->
             <div
                 class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
                 <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">อนุมัติแล้ว</span>
                         <span class="text-4xl font-extrabold text-emerald-600 tracking-tight">{{ stats.requests_approved
-                        }}</span>
+                            }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-500 transition-colors duration-300">
@@ -96,7 +91,6 @@
             </div>
         </div>
 
-        <!-- Recent Activities Table -->
         <div
             class="bg-white rounded-2xl border border-slate-200/60 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
             <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-white">
@@ -140,18 +134,16 @@
                                 <div class="flex items-center gap-4">
                                     <div
                                         class="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs border border-white shadow-sm">
-                                        {{ req.requester_first_name ? req.requester_first_name.charAt(0) : '?' }}
+                                        {{ req.first_name ? req.first_name.charAt(0) : '?' }}
                                     </div>
-                                    <div class="font-bold text-slate-700">{{ req.requester_first_name }} {{
-                                        req.requester_last_name }}</div>
+                                    <div class="font-bold text-slate-700">{{ req.first_name }} {{ req.last_name }}</div>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="font-medium text-slate-600">{{ req.request_type }}</span>
+                                <span class="font-medium text-slate-600">{{ req.request_type_name }}</span>
                             </td>
                             <td class="px-8 py-4">
-                                <span class="text-sm font-medium text-slate-500">{{ formatDate(req.created_at)
-                                }}</span>
+                                <span class="text-sm font-medium text-slate-500">{{ formatDate(req.created_at) }}</span>
                             </td>
                             <td class="px-8 py-4 text-center">
                                 <span :class="statusBadgeClass(req.status)"
@@ -184,8 +176,10 @@
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router'; // ✅ เพิ่ม Import Router
 
-// 1. กำหนดค่าเริ่มต้นเพื่อป้องกัน undefined
+const router = useRouter(); // ✅ ประกาศตัวแปร Router
+
 const stats = ref({
     employees: 0,
     requests_total: 0,
@@ -199,7 +193,7 @@ const fetchData = async () => {
         const res = await axios.get('/api/dashboard');
         stats.value = res.data.stats;
         recentRequests.value = res.data.recent_requests;
-        // เพิ่มระบบเด้งแจ้งเตือน (เช็คจากตัวแปรที่ส่งมาจาก Controller)
+
         if (res.data.is_notify_expired == 1) {
             Swal.fire({
                 title: 'แจ้งเตือนระบบ',
@@ -210,20 +204,15 @@ const fetchData = async () => {
                 allowOutsideClick: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // 1. ถ้ายอมรับแล้ว ให้ยิง API ไปปิดสวิตช์ในฐานข้อมูลเป็น 0
                     axios.post('/api/clear-expired-alert').catch(err => console.error(err));
-
-                    // 2. เคลียร์ข้อมูลการล็อกอินเดิมทิ้งก่อน (สำคัญมาก!)
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
-
-                    router.replace('/login');
+                    router.replace('/login'); // ✅ ตอนนี้ทำงานได้แล้วเพราะมี router
                 }
             });
         }
     } catch (e) {
         console.error('Dashboard Error:', e);
-        // ไม่ต้องทำอะไร ปล่อยให้ใช้ค่า Default (0) ไป หน้าจอจะได้ไม่ขาว
     }
 };
 
