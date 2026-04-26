@@ -8,7 +8,7 @@
             </div>
 
             <div v-if="stats?.last_updated"
-                class="flex items-center gap-2 text-xs font-semibold text-slate-400 bg-white px-3 py-1.5 rounded-full border border-slate-200/60 shadow-sm">
+                class="flex items-center gap-2 text-xs font-semibold text-slate-400 bg-white px-3 py-1.5 rounded-full border border-slate-200/60 shadow-sm transition-all duration-500">
                 <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                 อัปเดตล่าสุด: {{ formatDate(stats.last_updated) }}
             </div>
@@ -20,7 +20,8 @@
                 <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">พนักงานทั้งหมด</span>
-                        <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats.employees }}</span>
+                        <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ isLoading ? '-' :
+                            stats.employees }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-colors duration-300">
@@ -38,8 +39,8 @@
                 <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">คำร้องทั้งหมด</span>
-                        <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ stats.requests_total
-                            }}</span>
+                        <span class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ isLoading ? '-' :
+                            stats.requests_total }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-colors duration-300">
@@ -57,8 +58,8 @@
                 <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">รออนุมัติ</span>
-                        <span class="text-4xl font-extrabold text-amber-500 tracking-tight">{{ stats.requests_pending
-                            }}</span>
+                        <span class="text-4xl font-extrabold text-amber-500 tracking-tight">{{ isLoading ? '-' :
+                            stats.requests_pending }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white group-hover:border-amber-500 transition-colors duration-300">
@@ -76,8 +77,8 @@
                 <div class="flex justify-between items-start">
                     <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-500 mb-1">อนุมัติแล้ว</span>
-                        <span class="text-4xl font-extrabold text-emerald-600 tracking-tight">{{ stats.requests_approved
-                            }}</span>
+                        <span class="text-4xl font-extrabold text-emerald-600 tracking-tight">{{ isLoading ? '-' :
+                            stats.requests_approved }}</span>
                     </div>
                     <div
                         class="h-12 w-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-500 transition-colors duration-300">
@@ -128,7 +129,29 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        <tr v-for="req in recentRequests" :key="req.request_id"
+                        <tr v-if="isLoading">
+                            <td colspan="4" class="px-8 py-16 text-center">
+                                <div
+                                    class="flex justify-center items-center gap-2 text-sm font-bold text-blue-600 animate-pulse">
+                                    กำลังโหลดข้อมูล...
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr v-else-if="recentRequests.length === 0">
+                            <td colspan="4" class="px-8 py-16 text-center">
+                                <div class="flex flex-col items-center justify-center text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-4 text-slate-300"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                    </svg>
+                                    <p class="font-medium text-sm">ยังไม่มีรายการคำร้องในระบบ</p>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr v-else v-for="req in recentRequests" :key="req.request_id"
                             class="hover:bg-slate-50/70 transition-colors group">
                             <td class="px-8 py-4">
                                 <div class="flex items-center gap-4">
@@ -153,18 +176,6 @@
                                 </span>
                             </td>
                         </tr>
-                        <tr v-if="recentRequests.length === 0">
-                            <td colspan="4" class="px-8 py-16 text-center">
-                                <div class="flex flex-col items-center justify-center text-slate-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-4 text-slate-300"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                    </svg>
-                                    <p class="font-medium text-sm">ยังไม่มีรายการคำร้องในระบบ</p>
-                                </div>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -176,10 +187,11 @@
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router'; // ✅ เพิ่ม Import Router
+import { useRouter } from 'vue-router';
 
-const router = useRouter(); // ✅ ประกาศตัวแปร Router
+const router = useRouter();
 
+const isLoading = ref(true); // เพิ่มตัวแปรเช็คสถานะการโหลด
 const stats = ref({
     employees: 0,
     requests_total: 0,
@@ -189,6 +201,7 @@ const stats = ref({
 const recentRequests = ref([]);
 
 const fetchData = async () => {
+    isLoading.value = true; // เริ่มโหลด
     try {
         const res = await axios.get('/api/dashboard');
         stats.value = res.data.stats;
@@ -207,12 +220,14 @@ const fetchData = async () => {
                     axios.post('/api/clear-expired-alert').catch(err => console.error(err));
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
-                    router.replace('/login'); // ✅ ตอนนี้ทำงานได้แล้วเพราะมี router
+                    router.replace('/login');
                 }
             });
         }
     } catch (e) {
         console.error('Dashboard Error:', e);
+    } finally {
+        isLoading.value = false; // โหลดเสร็จสิ้น (ไม่ว่าจะ Error หรือสำเร็จ)
     }
 };
 

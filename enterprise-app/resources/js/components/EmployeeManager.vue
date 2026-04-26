@@ -113,7 +113,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm font-bold text-emerald-600">{{ emp.employment_type_name || '-'
-                                        }}</div>
+                                    }}</div>
                                     <div class="text-xs text-slate-400 font-bold uppercase mt-0.5 tracking-wider">{{
                                         emp.employee_category_name || '-' }}</div>
                                 </td>
@@ -491,8 +491,8 @@
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-sm font-bold text-slate-700">ลำดับความสำคัญ (1=สูงสุด)</label>
-                            <input type="number" v-model="formMasterPos.priority_level" min="1" max="99"
-                                class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 outline-none shadow-sm" />
+                            <input type="number" v-model="formMasterPos.level" min="1" max="99" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-4
+                            focus:ring-blue-500/10 focus:border-blue-400 outline-none shadow-sm" />
                         </div>
 
                         <div
@@ -577,7 +577,12 @@ const isLoadingMasterPos = ref(false);
 const isMasterPosModalOpen = ref(false);
 const isEditingMasterPos = ref(false);
 const formMasterPos = ref({
-    position_id: null, position_name: '', position_name_en: '', level_code: '', priority_level: 99, is_active: true
+    position_id: null,
+    position_name: '',
+    position_name_en: '',
+    level_code: '',
+    level: 99,
+    is_active: true
 });
 
 // =====================================
@@ -720,10 +725,11 @@ const openMasterPosModal = (pos = null) => {
         formMasterPos.value = { ...pos, is_active: Number(pos.is_active) === 1 };
     } else {
         isEditingMasterPos.value = false;
-        formMasterPos.value = { position_id: null, position_name: '', position_name_en: '', level_code: '', priority_level: 99, is_active: true };
+        formMasterPos.value = { position_id: null, position_name: '', position_name_en: '', level_code: '', level: 99, is_active: true }; // ✅ แก้ตรงนี้ด้วย
     }
     isMasterPosModalOpen.value = true;
 };
+
 const closeMasterPosModal = () => isMasterPosModalOpen.value = false;
 
 const saveMasterPosition = async () => {

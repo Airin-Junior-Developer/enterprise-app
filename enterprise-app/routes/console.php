@@ -47,7 +47,7 @@ Artisan::command('hr:check', function () {
     $this->line("Total Employees: {$users}");
 
     try {
-        \DB::connection()->getPdo();
+        DB::connection()->getPdo();
         $this->info('Database Connection: OK');
     } catch (\Exception $e) {
         $this->error('Database Connection: FAILED');
