@@ -1,0 +1,177 @@
+=========================================================
+  สคริปต์อธิบายเทคนิค — HR System Enterprise
+=========================================================
+
+ภาพรวมสถาปัตยกรรม
+---------------------------------------------------------
+โปรเจกต์นี้ใช้รูปแบบ SPA (Single-Page Application)
+แบ่งการทำงานออกเป็น 2 ฝั่ง:
+
+  [ Vue.js (Browser) ]  <-->  [ Laravel API ]  <-->  [ TiDB Cloud ]
+       Frontend                   Backend               Database
+
+
+=========================================================
+  BACKEND — Laravel 12 (PHP 8.2+)
+=========================================================
+
+เทคโนโลยี        | เวอร์ชัน | เหตุผลที่ใช้
+------------------|----------|--------------------------------------------
+Laravel           | 12       | Framework PHP ครบจบในที่เดียว มี Routing,
+                  |          | ORM, Auth, Middleware พร้อมใช้ ลดเวลาเขียน
+Laravel Sanctum   | 4.0      | ออก API Token สำหรับ login แบบ stateless
+                  |          | เหมาะกับ SPA ไม่ต้องใช้ session/cookie
+Eloquent ORM      | built-in | แปลง SQL เป็น PHP Object โค้ดอ่านง่าย
+Laravel Tinker    | 2.10     | REPL ทดสอบ query / debug ข้อมูลได้ทันที
+
+
+=========================================================
+  FRONTEND — Vue.js 3 + Vite
+=========================================================
+
+เทคโนโลยี        | เวอร์ชัน | เหตุผลที่ใช้
+------------------|----------|--------------------------------------------
+Vue.js 3          | 3.5      | Component-based UI แยกหน้าจอเป็นส่วนๆ
+                  |          | ใช้ <script setup> + Composition API
+                  |          | โค้ดกระชับ อ่านง่าย นำกลับมาใช้ซ้ำได้
+Vue Router 4      | 4.6      | จัดการ URL ฝั่ง client ไม่ต้อง reload หน้า
+Vite              | 7.0      | Build tool เร็วมาก Hot Reload ทำงานทันที
+                  |          | เร็วกว่า Webpack หลายเท่า
+Axios             | 1.11     | HTTP Client ยิง API มี interceptor ดักจับ
+                  |          | Error 401 แล้ว auto logout อัตโนมัติ
+SweetAlert2       | 11       | Popup confirm/success/error สวยงาม
+                  |          | แทน window.alert() ธรรมดา
+Tailwind CSS      | 4        | Utility-first CSS สร้าง UI เร็ว
+                  |          | ไม่ต้องเขียน CSS file เอง
+Heroicons Vue     | 2.2      | ไอคอน SVG คุณภาพสูง ใช้ใน Vue component
+
+
+=========================================================
+  DATABASE — TiDB Cloud (MySQL compatible)
+=========================================================
+
+เทคโนโลยี           | เหตุผลที่ใช้
+---------------------|------------------------------------------------
+TiDB Cloud           | ฐานข้อมูล MySQL บน Cloud ใช้ได้เลย
+                     | ไม่ต้องติดตั้ง DB Server ในเครื่อง
+Database Views       | รวม JOIN หลายตารางไว้ใน View ให้ query ง่ายขึ้น
+Laravel Migrations   | ควบคุม schema ด้วย version control rollback ได้
+
+
+=========================================================
+  ระบบ Authentication & Authorization
+=========================================================
+
+ขั้นตอน:
+  Login
+    --> ส่ง email + password ไป POST /api/login
+    --> Laravel ตรวจด้วย Auth::attempt()
+    --> ออก Sanctum Token ส่งกลับ
+    --> Vue เก็บ token ใน localStorage
+    --> ทุก request ถัดไปแนบ "Authorization: Bearer {token}"
+
+2 ระดับ Middleware:
+  1. auth:sanctum  --> ทุก API route ต้อง login ก่อน
+  2. admin_hr      --> เฉพาะ HR Manager / Super Admin
+                       ถึงจะสร้าง/แก้ไข/ลบข้อมูลหลักได้
+
+
+=========================================================
+  โครงสร้างโฟลเดอร์ (สำคัญ)
+=========================================================
+
+enterprise-app/
+├── app/
+│   ├── Http/Controllers/Hr/
+│   │   ├── AuthController.php         (Login / Logout)
+│   │   ├── DashboardController.php    (สถิติภาพรวม)
+│   │   ├── EmployeeController.php     (CRUD พนักงาน)
+│   │   ├── PositionController.php     (จัดการตำแหน่ง)
+│   │   ├── BranchController.php       (จัดการสาขา)
+│   │   ├── RequestController.php      (คำร้อง)
+│   │   └── ApprovalController.php     (อนุมัติคำร้อง)
+│   ├── Http/Middleware/
+│   │   └── CheckAdminOrHr.php         (ตรวจสิทธิ์ Role)
+│   └── Models/
+│       ├── User.php                   (Model หลักพนักงาน)
+│       └── Hr/ (Position, Branch, EmploymentType ...)
+├── resources/js/
+│   ├── App.vue                        (Layout + Sidebar)
+│   ├── router.js                      (URL แต่ละหน้า)
+│   └── components/
+│       ├── Login.vue
+│       ├── Dashboard.vue
+│       ├── EmployeeManager.vue        (พนักงาน + ตำแหน่ง)
+│       ├── BranchManager.vue
+│       ├── RequestManager.vue
+│       ├── ApprovalManager.vue
+│       ├── RequestTypeManager.vue
+│       └── Sidebar.vue
+└── routes/
+    ├── api.php                        (API routes ทั้งหมด)
+    └── web.php                        (SPA entry point)
+
+
+=========================================================
+  Flow การทำงานหลัก
+=========================================================
+
+[Login]
+  Vue กรอก email+password
+    --> POST /api/login
+    --> Laravel ตรวจ Auth::attempt()
+    --> สร้าง Token --> ส่งกลับ
+    --> Vue เก็บ token + redirect Dashboard
+
+[ดึงข้อมูลพนักงาน]
+  Vue โหลดหน้า
+    --> GET /api/employees (แนบ token)
+    --> Middleware ตรวจ token
+    --> Controller JOIN ตาราง users + branches + positions + types
+    --> ส่งกลับ JSON ครบทุก field
+    --> Vue แสดงในตาราง
+
+[Token หมดอายุ]
+  API ตอบ 401
+    --> axios interceptor ดักจับ
+    --> ลบ token + user จาก localStorage
+    --> Redirect ไป /login อัตโนมัติ
+
+
+=========================================================
+  เทคนิคพิเศษในโปรเจกต์
+=========================================================
+
+1. Role-based Access Control (RBAC)
+   ตรวจสอบจากชื่อตำแหน่งใน DB:
+   allowedRoles = ['super admin', 'hr manager', 'system admin']
+
+2. Temporary Position (รักษาการแทน)
+   - บันทึก temp_position_end_date ไว้
+   - Dashboard โหลดแล้วตรวจวันหมดอายุ
+   - คืนตำแหน่งเดิมอัตโนมัติ
+
+3. Navigation Guard
+   ก่อนเข้าทุกหน้า router.js ตรวจ token + role
+   ถ้าไม่มีสิทธิ์ --> redirect ไปหน้าที่เหมาะสม
+
+4. DB::table JOIN แทน View
+   View employees_list ขาดบาง field
+   --> ใช้ DB::table JOIN โดยตรงให้ครบถ้วน
+
+
+=========================================================
+  สรุป Stack ทั้งหมด
+=========================================================
+
+  PHP 8.2 + Laravel 12    --> Backend API
+  Laravel Sanctum          --> Token Authentication
+  TiDB Cloud (MySQL)       --> Database
+  Vue.js 3 (script setup)  --> Frontend SPA
+  Vue Router 4             --> Client-side Routing
+  Vite 7                   --> Build Tool
+  Axios                    --> HTTP Client + Interceptor
+  Tailwind CSS 4           --> Styling
+  SweetAlert2              --> UI Alerts/Popups
+
+=========================================================

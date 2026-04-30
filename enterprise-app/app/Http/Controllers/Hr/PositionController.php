@@ -5,17 +5,19 @@ namespace App\Http\Controllers\Hr;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Hr\Position;
-use Illuminate\Support\Facades\Schema; // ✅ ตรวจสอบโครงสร้างตารางจริง
 use Illuminate\Support\Facades\DB;
+
 
 class PositionController extends Controller
 {
     // 1. ดึงข้อมูลทั้งหมด
     public function index()
     {
-        // เปลี่ยนการเรียงลำดับ: เรียงตาม priority_level (น้อยไปมาก) ก่อน แล้วตามด้วยชื่อตำแหน่ง (ก-ฮ)
+        // เรียงตาม priority_level ก่อน (ผู้ใช้กำหนดเอง)
+        // ถ้า priority_level เท่ากัน ให้เรียงตาม level_code (CEO > MGR > SUP > STF) แล้วตามชื่อ
         return response()->json(
             Position::orderBy('priority_level', 'asc')
+                ->orderByRaw("FIELD(level_code, 'CEO', 'MGR', 'SUP', 'STF') ASC")
                 ->orderBy('position_name', 'asc')
                 ->get()
         );

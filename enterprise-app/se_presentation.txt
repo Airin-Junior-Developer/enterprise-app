@@ -1,0 +1,235 @@
+=========================================================
+  สคริปต์นำเสนอวิชา Software Engineering (SE)
+  โปรเจกต์: HR System Enterprise
+=========================================================
+
+
+=========================================================
+  1. ที่มาและปัญหา (Problem Statement)
+=========================================================
+
+ปัญหาที่พบในองค์กร:
+  - ระบบจัดการพนักงานเดิมใช้ Excel / กระดาษ
+  - ขาดการควบคุมสิทธิ์การเข้าถึงข้อมูล
+  - ไม่มีระบบติดตามการยื่นคำร้องและสถานะ
+  - การเปลี่ยนตำแหน่ง/รักษาการต้องแจ้งด้วยปากเปล่า
+
+สิ่งที่ระบบแก้ได้:
+  - จัดการข้อมูลพนักงานแบบ Centralized (ศูนย์กลาง)
+  - ควบคุมสิทธิ์ตาม Role (Super Admin / HR / พนักงาน)
+  - ติดตามสถานะคำร้องแบบ Real-time
+  - มอบหมายตำแหน่งชั่วคราว (รักษาการ) พร้อมวันหมดอายุ
+
+
+=========================================================
+  2. Software Development Process
+=========================================================
+
+แนวทางที่ใช้: Iterative Development (พัฒนาแบบวนซ้ำ)
+
+  รอบที่ 1 --> ออกแบบ Database Schema + API หลัก
+  รอบที่ 2 --> สร้าง UI หน้าหลัก (Login, Dashboard, พนักงาน)
+  รอบที่ 3 --> ระบบคำร้อง + อนุมัติ
+  รอบที่ 4 --> ระบบสิทธิ์ + Security
+  รอบที่ 5 --> Bug fix + Cleanup + เพิ่มฟีเจอร์รักษาการ
+
+เหตุผลที่ไม่ใช้ Waterfall:
+  - ความต้องการเปลี่ยนระหว่างพัฒนา
+  - ต้องการ Feedback จากผู้ใช้ก่อนทำ Feature ถัดไป
+
+
+=========================================================
+  3. Requirements Engineering
+=========================================================
+
+Functional Requirements (สิ่งที่ระบบต้องทำ):
+  FR01 - ผู้ใช้สามารถ Login ด้วย Email + Password
+  FR02 - Admin/HR สามารถเพิ่ม/แก้ไข/ลบพนักงาน
+  FR03 - ระบบบันทึกและแสดงตำแหน่ง/สาขาของพนักงาน
+  FR04 - พนักงานยื่นคำร้องได้ (ลา/ขอเบิก/อื่นๆ)
+  FR05 - ผู้บังคับบัญชาอนุมัติหรือปฏิเสธคำร้อง
+  FR06 - Admin มอบหมายตำแหน่งชั่วคราวพร้อมวันหมดอายุ
+  FR07 - Dashboard แสดงสถิติภาพรวมองค์กร
+
+Non-Functional Requirements (คุณสมบัติที่ระบบควรมี):
+  NFR01 - Security: ทุก API ต้องผ่านการยืนยัน Token
+  NFR02 - Performance: โหลดข้อมูลพนักงานภายใน 2 วินาที
+  NFR03 - Usability: ใช้งานได้บน Mobile (Responsive)
+  NFR04 - Maintainability: โค้ดแยกชัดเจน Controller / Model / View
+  NFR05 - Availability: ฐานข้อมูลบน Cloud ไม่ขึ้นกับเครื่อง Dev
+
+
+=========================================================
+  4. System Architecture (สถาปัตยกรรมระบบ)
+=========================================================
+
+Pattern ที่ใช้: MVC + REST API + SPA
+
+  Model (M)      --> Laravel Eloquent ORM (User, Position, Branch...)
+  View (V)       --> Vue.js Components (อยู่ฝั่ง Client ทั้งหมด)
+  Controller (C) --> Laravel Controllers (จัดการ Business Logic)
+
+ทำไมถึงแยก Frontend/Backend ออกจากกัน?
+  - Frontend (Vue) พัฒนาแยกได้อิสระ ไม่ขึ้นกับ Backend
+  - Backend เป็นแค่ API ให้ข้อมูล --> ในอนาคตต่อ Mobile App ได้เลย
+  - ลด coupling ระหว่างส่วนต่างๆ ของระบบ
+
+ทำไมถึงใช้ SPA (Single-Page Application)?
+  - ผู้ใช้ไม่ต้อง reload หน้าทุกครั้ง ประสบการณ์เหมือน App
+  - เฉพาะข้อมูลที่เปลี่ยนถูกโหลดใหม่ ประหยัด bandwidth
+
+
+=========================================================
+  5. Database Design
+=========================================================
+
+หลักการออกแบบที่ใช้: Normalization (ลด Redundancy)
+
+ตารางหลัก:
+  users                --> ข้อมูลพนักงานและ credentials
+  positions            --> ตำแหน่งงาน (แยกจาก users เพื่อนำกลับมาใช้ซ้ำ)
+  branches             --> สาขา
+  employment_types     --> ประเภทการจ้างงาน (รายเดือน/รายวัน)
+  employee_categories  --> หมวดหมู่พนักงาน
+  requests             --> คำร้องของพนักงาน
+  requests_type        --> ประเภทคำร้อง
+
+ความสัมพันธ์ (Relationships):
+  users  -->  positions      (Many-to-One: หลายคนมีตำแหน่งเดียวกันได้)
+  users  -->  branches       (Many-to-One: หลายคนอยู่สาขาเดียวกันได้)
+  users  -->  requests       (One-to-Many: คนหนึ่งยื่นได้หลายคำร้อง)
+
+Database View (employees_list):
+  --> รวม JOIN ตารางหลักไว้ล่วงหน้า
+  --> ทำให้ Query ข้อมูลแสดงผลง่ายขึ้น
+  --> (แต่ขาด field บางส่วน จึงใช้ DB::table JOIN แทน)
+
+
+=========================================================
+  6. Security Design (การออกแบบความปลอดภัย)
+=========================================================
+
+Authentication (การยืนยันตัวตน):
+  ใช้ Laravel Sanctum --> ออก API Token หลัง Login สำเร็จ
+  Token เก็บฝั่ง Client ใน localStorage
+  ทุก Request แนบ Token ใน HTTP Header: Authorization: Bearer {token}
+
+Authorization (การควบคุมสิทธิ์):
+  ใช้ Role-Based Access Control (RBAC)
+  แบ่งเป็น 2 ระดับ:
+
+  ระดับ 1 (auth:sanctum):
+    --> ต้องล็อกอินก่อน ถึงเข้า API ได้
+    --> ทุก API route ต้องผ่านชั้นนี้
+
+  ระดับ 2 (admin_hr Middleware):
+    --> เฉพาะตำแหน่ง Super Admin / HR Manager
+    --> ถึงจะ สร้าง/แก้ไข/ลบ ข้อมูลได้
+
+Password Security:
+  --> ใช้ Laravel Hash (bcrypt) เข้ารหัสก่อนบันทึก
+  --> ไม่มีการเก็บรหัสผ่านแบบ plain text
+
+Frontend Guard:
+  --> Vue Router ตรวจสิทธิ์ก่อนเข้าทุกหน้า
+  --> ถ้า Token หายหรือหมดอายุ --> redirect ไป Login ทันที
+
+
+=========================================================
+  7. Software Design Principles ที่นำมาใช้
+=========================================================
+
+Separation of Concerns:
+  --> Backend ทำหน้าที่แค่ API (ข้อมูล)
+  --> Frontend ทำหน้าที่แค่ UI (แสดงผล)
+  --> ไม่ปนกัน ทำให้ debug และ maintain ง่าย
+
+Single Responsibility Principle (SRP):
+  --> แต่ละ Controller รับผิดชอบเรื่องเดียว
+  --> EmployeeController --> พนักงาน
+  --> BranchController   --> สาขา
+  --> AuthController     --> Login/Logout
+
+DRY (Don't Repeat Yourself):
+  --> employeeQuery() เป็น private method ที่ใช้ใน index() และ show()
+  --> ไม่เขียน SQL JOIN ซ้ำในหลายที่
+
+Middleware Pattern:
+  --> Logic ตรวจสิทธิ์แยกออกจาก Controller
+  --> CheckAdminOrHr.php รับผิดชอบเรื่อง authorization แทน
+
+
+=========================================================
+  8. Testing & Quality Assurance
+=========================================================
+
+วิธีที่ใช้ทดสอบในโปรเจกต์นี้:
+  - Manual Testing ผ่าน Browser
+  - Laravel Tinker สำหรับทดสอบ Query ฝั่ง Backend
+  - ตรวจสอบ HTTP Response ผ่าน Network tab ของ Browser DevTools
+
+สิ่งที่ตรวจสอบ:
+  - API ตอบกลับ status code ถูกต้อง (200, 401, 403, 404, 500)
+  - Validation ข้อมูลก่อน save (required fields, format)
+  - การแสดงผลข้อมูลครบถ้วนบนหน้าจอ
+
+
+=========================================================
+  9. Maintenance & Code Quality
+=========================================================
+
+สิ่งที่ทำเพื่อให้ maintain ง่าย:
+  - ลบ Import ที่ไม่ใช้ออก (Schema, ViewEmployee)
+  - ลบไฟล์ที่ไม่จำเป็น (ManagePositionView, ViewRequest, fix.js)
+  - แต่ละ Component ทำหน้าที่ชัดเจน ไม่ยุ่งกัน
+
+Version Control:
+  - ใช้ Git จัดการ source code
+  - สามารถ rollback ถ้าเกิดปัญหา
+
+Environment Config:
+  - ค่าที่เปลี่ยนตาม Environment (DB, API Key) อยู่ใน .env
+  - ไม่ Hardcode ใน Source Code
+
+
+=========================================================
+  10. ประเด็นที่น่าพูดถึงสำหรับวิชา SE
+=========================================================
+
+ด้าน Architecture:
+  "เราเลือก SPA Architecture แยก Frontend/Backend ออกจากกัน
+   เพราะต้องการ Loose Coupling ทำให้ทั้งสองส่วนพัฒนาแยกกันได้
+   และ Backend สามารถรองรับ Client อื่น เช่น Mobile App ในอนาคต"
+
+ด้าน Security:
+  "ระบบใช้ Token-based Authentication ด้วย Sanctum
+   ทุก Request ต้องแนบ Token มาด้วย และมี Middleware
+   ตรวจสิทธิ์ 2 ชั้น ทำให้มั่นใจว่าคนที่ไม่มีสิทธิ์ไม่สามารถ
+   เรียก API ได้แม้จะรู้ URL"
+
+ด้าน Database:
+  "ออกแบบ Database ตาม Normalization แยกตาราง positions
+   ออกจาก users เพื่อลด Data Redundancy และสามารถ reuse
+   ตำแหน่งงานเดียวกันกับพนักงานหลายคนได้"
+
+ด้าน Process:
+  "ใช้ Iterative Development ไม่ใช่ Waterfall เพราะ
+   ความต้องการบางส่วนชัดเจนขึ้นหลังจากเห็น Prototype แรก
+   ทำให้ยืดหยุ่นได้มากกว่า"
+
+ด้าน Design Principles:
+  "นำ SRP และ Separation of Concerns มาใช้จริง
+   แต่ละ Controller รับผิดชอบแค่ Resource เดียว
+   ทำให้เมื่อมีการแก้ไข Bug หรือเพิ่มฟีเจอร์
+   กระทบแค่ไฟล์ที่เกี่ยวข้องเท่านั้น"
+
+=========================================================
+  สรุปในหนึ่งประโยค
+=========================================================
+
+  "โปรเจกต์นี้นำหลักการ Software Engineering มาใช้จริง
+   ทั้งการแยก Layer ชัดเจน การออกแบบ Security หลายชั้น
+   การจัดการ Requirements และการพัฒนาแบบ Iterative
+   เพื่อให้ได้ระบบที่ Maintainable และ Secure"
+
+=========================================================

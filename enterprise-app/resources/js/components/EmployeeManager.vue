@@ -491,7 +491,7 @@
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-sm font-bold text-slate-700">ลำดับความสำคัญ (1=สูงสุด)</label>
-                            <input type="number" v-model="formMasterPos.level" min="1" max="99" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-4
+                            <input type="number" v-model.number="formMasterPos.priority_level" min="1" max="99" class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-4
                             focus:ring-blue-500/10 focus:border-blue-400 outline-none shadow-sm" />
                         </div>
 

@@ -12,29 +12,28 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employee_position_histories', function (Blueprint $table) {
-            Schema::create('employee_position_histories', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    // พนักงาน
-    $table->foreignId('user_id')
-      ->constrained()
-      ->cascadeOnDelete();
+            // พนักงาน
+            $table->foreignId('user_id')
+                ->references('user_id')->on('users')
+                ->cascadeOnDelete();
 
-    // ตำแหน่งที่ถูกปรับ
-    $table->foreignId('position_id')->constrained()->cascadeOnDelete();
+            // ตำแหน่งที่ถูกปรับ
+            $table->foreignId('position_id')
+                ->references('position_id')->on('positions')
+                ->cascadeOnDelete();
 
-    // ถาวร / ชั่วคราว
-    $table->enum('type',['permanent','temporary']);
+            // ถาวร / ชั่วคราว
+            $table->enum('type',['permanent','temporary']);
 
-    // วันที่เริ่ม
-    $table->date('start_date')->nullable();
+            // วันที่เริ่ม
+            $table->date('start_date')->nullable();
 
-    // วันที่หมดอายุ
-    $table->date('end_date')->nullable();
+            // วันที่หมดอายุ
+            $table->date('end_date')->nullable();
 
-    $table->timestamps();
-});
-
+            $table->timestamps();
         });
     }
 

@@ -1,0 +1,42 @@
+======================================================
+
+เนื่องจากเป็นเครื่อง Mac ใหม่ นี่คือสิ่งที่คุณต้องติดตั้งตามลำดับเพื่อให้สามารถรันโปรเจกต์นี้ได้:
+
+1. Homebrew (เครื่องมือจัดการแพ็กเกจสำหรับ macOS)
+   - เปิดแอป Terminal แล้วรันคำสั่ง:
+     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+2. PHP (เวอร์ชัน 8.2 ขึ้นไป - อ้างอิงจาก composer.json)
+   - รันคำสั่งใน Terminal:
+     brew install php@8.2
+   - (หลังจากติดตั้งเสร็จ ให้ทำตามคำแนะนำบนหน้าจอเพื่อเพิ่ม PHP ลงใน PATH ของเครื่อง หรือรีสตาร์ท Terminal)
+
+3. Composer (เครื่องมือจัดการแพ็กเกจของ PHP)
+   - รันคำสั่งใน Terminal:
+     brew install composer
+
+4. Node.js และ npm (สำหรับจัดการไลบรารี Frontend เช่น Vue.js และ Vite)
+   - รันคำสั่งใน Terminal:
+     brew install node
+
+5. (ตัวเลือกเสริม) MySQL Client / Server
+   - จากไฟล์ .env โปรเจกต์นี้มีการเชื่อมต่อกับฐานข้อมูลบนคลาวด์ (TiDB) อยู่แล้ว (DB_HOST=gateway01.ap-southeast-1.prod.aws.tidbcloud.com) ดังนั้นอาจจะไม่ต้องลง DB Server ในเครื่อง
+   - แต่ถ้าคุณต้องการ import ไฟล์ enterprise_db.sql ที่ดาวน์โหลดมาเพื่อทดสอบในเครื่อง ให้ติดตั้ง MySQL โดยใช้คำสั่ง:
+     brew install mysql
+     brew services start mysql
+
+
+ขั้นตอนการเริ่มรันโปรเจกต์ (หลังจากติดตั้ง 1-4 เสร็จแล้ว)
+------------------------------------------------------
+1. เปิด Terminal และ cd เข้าไปที่โฟลเดอร์โปรเจกต์:
+   cd /Users/airin/Desktop/enterprise-app/enterprise-app
+
+2. รันคำสั่งติดตั้งและตั้งค่าแบบอัตโนมัติ (โปรเจกต์นี้มี script เตรียมไว้ให้แล้ว):
+   composer setup
+
+   (คำสั่งนี้จะทำการ install แพ็กเกจของ PHP, Node.js, สร้างไฟล์ .env, สร้าง Key และ Migrate Database ให้โดยอัตโนมัติ)
+
+3. รันโปรเจกต์เพื่อเริ่มการพัฒนา (Start Development Server):
+   composer dev
+
+   (ระบบจะเปิดทั้ง PHP server และ Vite สำหรับ Frontend ขึ้นมาพร้อมใช้งาน)
