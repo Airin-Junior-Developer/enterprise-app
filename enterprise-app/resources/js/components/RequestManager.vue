@@ -257,10 +257,12 @@
                         </div>
 
                         <div v-if="isFinancialType">
-                            <label class="block text-xs font-bold text-slate-500 mb-1">จำนวนเงิน (บาท)</label>
-                            <input v-model="form.amount" type="number" step="0.01"
+                            <label class="block text-sm font-bold text-slate-700 mb-1">จำนวนเงิน (บาท) <span
+                                    class="text-rose-500">*</span></label>
+                            <input v-model="form.amount" type="number" step="0.01" max="30000" required
                                 class="w-full border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="0.00" />
+                                placeholder="สูงสุดไม่เกิน 30,000 บาท" />
+                            <p class="text-xs text-rose-500 mt-1 font-bold">* เบิกได้สูงสุดไม่เกิน 30,000 บาทต่อครั้ง</p>
                         </div>
 
                         <div>
@@ -307,13 +309,13 @@ const requestTypes = ref([]);
 const isLeaveType = computed(() => {
     if (!form.value.request_type_id) return false;
     const selected = requestTypes.value.find(t => t.id === form.value.request_type_id);
-    return selected && ['ลากิจ', 'ลาป่วย', 'ลาพักร้อน'].some(t => selected.Name_Type.includes(t));
+    return selected && selected.category === 'date';
 });
 
 const isFinancialType = computed(() => {
     if (!form.value.request_type_id) return false;
     const selected = requestTypes.value.find(t => t.id === form.value.request_type_id);
-    return selected && ['ปรับเงินเดือน', 'เบิกค่าใช้จ่าย', 'เบิกค่าเดินทาง', 'เบิกค่ารักษาพยาบาล'].some(t => selected.Name_Type.includes(t));
+    return selected && selected.category === 'money';
 });
 
 watch(() => form.value.start_date, (newStart) => {
@@ -400,6 +402,9 @@ const closeModal = () => isModalOpen.value = false;
 
 const saveRequest = async () => {
     if (!form.value.user_id) return Swal.fire('Error', 'ไม่ระบุผู้ส่งคำร้อง', 'error');
+    if (isFinancialType.value && form.value.amount > 30000) {
+        return Swal.fire('แจ้งเตือน', 'จำนวนเงินต้องไม่เกิน 30,000 บาท', 'warning');
+    }
     isLoading.value = true;
     try {
         await axios.post('/api/requests', form.value);

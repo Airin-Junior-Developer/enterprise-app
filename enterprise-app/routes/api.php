@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/request-types/all', [RequestTypeController::class, 'indexAll']);
         Route::post('/request-types', [RequestTypeController::class, 'store']);
         Route::put('/request-types/{id}', [RequestTypeController::class, 'update']);
+        Route::delete('/request-types/{id}', [RequestTypeController::class, 'destroy']);
         Route::patch('/request-types/{id}/toggle', [RequestTypeController::class, 'toggleStatus']);
 
         // ข้อมูลสรุป Master Data ทั้งหมด

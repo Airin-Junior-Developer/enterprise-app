@@ -28,4 +28,14 @@ class Request extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];
+
+    public function requester()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id', 'user_id');
+    }
+
+    public function requestType()
+    {
+        return $this->belongsTo(RequestType::class, 'request_type_id', 'id');
+    }
 }

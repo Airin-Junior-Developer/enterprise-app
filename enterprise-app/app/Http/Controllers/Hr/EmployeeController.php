@@ -14,8 +14,49 @@ class EmployeeController extends Controller
     public function index()
     {
         try {
-            // ดึงข้อมูลจาก View เพื่อโชว์ในตาราง
-            return response()->json(ViewEmployee::all());
+            $currentUser = auth()->user();
+            if ($currentUser) {
+                $currentUser->load('position');
+            }
+
+            $query = User::with(['branch', 'position', 'employmentType', 'employeeCategory']);
+
+            if ($currentUser && $currentUser->position) {
+                $posName = strtolower(trim($currentUser->position->position_name));
+                $levelCode = strtoupper(trim($currentUser->position->level_code));
+                
+                $canSeeAll = str_contains($posName, 'admin') || $levelCode === 'CEO';
+                
+                if (!$canSeeAll) {
+                    $query->where('branch_id', $currentUser->branch_id);
+                }
+            } else if ($currentUser) {
+                $query->where('branch_id', $currentUser->branch_id);
+            }
+
+            $users = $query->get()->map(function($user) {
+                return [
+                    'user_id' => $user->user_id,
+                    'prefix' => $user->prefix,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'status' => $user->status,
+                    'id_card_number' => $user->id_card_number,
+                    'phone_number' => $user->phone_number,
+                    'temp_position_end_date' => $user->temp_position_end_date,
+                    'branch_id' => $user->branch_id,
+                    'position_id' => $user->position_id,
+                    'employment_type_id' => $user->employment_type_id,
+                    'employee_category_id' => $user->employee_category_id,
+                    'branch_name' => $user->branch ? $user->branch->branch_name : null,
+                    'position_name' => $user->position ? $user->position->position_name : null,
+                    'employment_type_name' => $user->employmentType ? $user->employmentType->name : null,
+                    'employee_category_name' => $user->employeeCategory ? $user->employeeCategory->name : null,
+                ];
+            });
+
+            return response()->json($users);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Database Error: ' . $e->getMessage()], 500);
         }

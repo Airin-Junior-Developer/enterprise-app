@@ -20,6 +20,7 @@ class RequestTypeController extends Controller
     {
         $validated = $request->validate([
             'Name_Type' => 'required|string|max:255',
+            'category' => 'required|in:date,money',
             'is_active' => 'boolean'
         ]);
 
@@ -35,6 +36,7 @@ class RequestTypeController extends Controller
 
         $validated = $request->validate([
             'Name_Type' => 'required|string|max:255',
+            'category' => 'required|in:date,money',
             'is_active' => 'boolean'
         ]);
 
@@ -56,5 +58,17 @@ class RequestTypeController extends Controller
             'message' => 'อัปเดตสถานะสำเร็จ',
             'is_active' => $type->is_active
         ]);
+    }
+
+    // 5. ลบประเภทคำร้อง
+    public function destroy($id)
+    {
+        try {
+            $type = RequestType::findOrFail($id);
+            $type->delete();
+            return response()->json(['message' => 'ลบประเภทคำร้องสำเร็จ']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'ไม่สามารถลบได้ (อาจมีข้อมูลคำร้องที่ใช้ประเภทนี้อยู่)'], 500);
+        }
     }
 }

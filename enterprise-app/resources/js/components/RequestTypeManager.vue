@@ -22,6 +22,7 @@
                     <tr class="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
                         <th class="p-5 font-bold w-20 text-center">ลำดับ</th>
                         <th class="p-5 font-bold">ชื่อประเภทคำร้อง</th>
+                        <th class="p-5 font-bold text-center">รูปแบบ</th>
                         <th class="p-5 font-bold text-center w-40">สถานะ</th>
                         <th class="p-5 font-bold text-center w-32">จัดการ</th>
                     </tr>
@@ -32,6 +33,12 @@
                         <td class="p-5 text-center text-slate-400 font-mono text-sm">{{ index + 1 }}</td>
                         <td class="p-5 font-bold text-slate-700">{{ type.Name_Type }}</td>
 
+                        <td class="p-5 text-center">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold border"
+                                :class="type.category === 'money' ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-blue-50 text-blue-600 border-blue-200'">
+                                {{ type.category === 'money' ? 'เบิกเงิน' : 'ระบุวัน' }}
+                            </span>
+                        </td>
                         <td class="p-5 text-center">
                             <button @click="toggleStatus(type)"
                                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none"
@@ -48,14 +55,26 @@
                         </td>
 
                         <td class="p-5 text-center">
-                            <button @click="openModal(type)"
-                                class="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </button>
+                            <div class="flex items-center justify-center gap-2">
+                                <button @click="openModal(type)"
+                                    class="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                    title="แก้ไข">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button @click="deleteType(type.id)"
+                                    class="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                                    title="ลบ">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     <tr v-if="types.length === 0">
@@ -73,12 +92,23 @@
                     </h3>
                     <button @click="closeModal" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
                 </div>
-                <div class="p-6">
-                    <label class="block text-sm font-bold text-slate-700 mb-2">ชื่อประเภทคำร้อง <span
-                            class="text-rose-500">*</span></label>
-                    <input type="text" v-model="form.Name_Type"
-                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none transition-all"
-                        placeholder="เช่น ลาพักร้อน, เบิกค่าเดินทาง..." />
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">ชื่อประเภทคำร้อง <span
+                                class="text-rose-500">*</span></label>
+                        <input type="text" v-model="form.Name_Type"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                            placeholder="เช่น ลาพักร้อน, เบิกค่าเดินทาง..." />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">รูปแบบคำร้อง <span
+                                class="text-rose-500">*</span></label>
+                        <select v-model="form.category"
+                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+                            <option value="date">ระบุช่วงวัน (เช่น การลา)</option>
+                            <option value="money">ระบุจำนวนเงิน (เช่น เบิกค่าใช้จ่าย)</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
                     <button @click="closeModal"
@@ -100,7 +130,7 @@ import { ref, onMounted } from 'vue';
 const types = ref([]);
 const showModal = ref(false);
 const isEditMode = ref(false);
-const form = ref({ id: null, Name_Type: '', is_active: true });
+const form = ref({ id: null, Name_Type: '', category: 'date', is_active: true });
 
 // ดึงข้อมูลประเภทคำร้องทั้งหมด
 const fetchTypes = async () => {
@@ -145,7 +175,7 @@ const openModal = (type = null) => {
         form.value = { ...type };
     } else {
         isEditMode.value = false;
-        form.value = { id: null, Name_Type: '', is_active: true };
+        form.value = { id: null, Name_Type: '', category: 'date', is_active: true };
     }
     showModal.value = true;
 };
@@ -170,6 +200,29 @@ const saveType = async () => {
         const errorMsg = e.response?.data?.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์';
         Swal.fire('Error', errorMsg, 'error');
     }
+};
+
+const deleteType = (id) => {
+    Swal.fire({
+        title: 'ยืนยันการลบ?',
+        text: "คุณแน่ใจหรือไม่ที่จะลบประเภทคำร้องนี้?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#94a3b8',
+        confirmButtonText: 'ลบ',
+        cancelButtonText: 'ยกเลิก'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await axios.delete(`/api/request-types/${id}`);
+                Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
+                fetchTypes();
+            } catch (e) {
+                Swal.fire('Error', e.response?.data?.message || 'ไม่สามารถลบได้ (อาจมีการใช้งานอยู่)', 'error');
+            }
+        }
+    });
 };
 
 onMounted(() => {

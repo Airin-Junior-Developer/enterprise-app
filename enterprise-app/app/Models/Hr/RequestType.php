@@ -12,6 +12,7 @@ class RequestType extends Model
     // ระบุฟิลด์ที่อนุญาตให้แก้ไข
     protected $fillable = [
         'Name_Type', // ตรงกับ Vue (v-model="form.Name_Type")
+        'category',
         'is_active'
     ];
 

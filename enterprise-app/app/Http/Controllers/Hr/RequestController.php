@@ -9,6 +9,28 @@ use App\Models\Hr\Request as RequestModel;
 
 class RequestController extends Controller
 {
+    private function formatRequests($requests)
+    {
+        return $requests->map(function ($req) {
+            return [
+                'request_id' => $req->request_id,
+                'user_id' => $req->user_id,
+                'requester_first_name' => optional($req->requester)->first_name,
+                'requester_last_name' => optional($req->requester)->last_name,
+                'requester_branch' => optional(optional($req->requester)->branch)->branch_name,
+                'requester_position' => optional(optional($req->requester)->position)->position_name,
+                'request_type_name' => optional($req->requestType)->Name_Type,
+                'subject' => $req->subject,
+                'reason' => $req->reason,
+                'start_date' => $req->start_date ? $req->start_date->toDateString() : null,
+                'end_date' => $req->end_date ? $req->end_date->toDateString() : null,
+                'amount' => $req->amount,
+                'status' => $req->status,
+                'created_at' => $req->created_at,
+            ];
+        });
+    }
+
     // 1. ดึงรายการคำร้อง (แยกตามโหมด: ของฉัน vs หน้าอนุมัติ)
     public function index(Request $request)
     {
@@ -18,22 +40,22 @@ class RequestController extends Controller
         if ($request->query('mode') === 'approval') {
             // ถ้าเป็น HR หรือ Super Admin ให้ดึงข้อมูล "ทั้งหมด" มาแสดง
             if ($user->isAdminOrHr()) {
-                $requests = DB::table('requests_list')
+                $requests = RequestModel::with(['requester.branch', 'requester.position', 'requestType'])
                     ->orderBy('created_at', 'desc')
                     ->get();
-                return response()->json($requests);
+                return response()->json($this->formatRequests($requests));
             }
             // ถ้าไม่ใช่ HR/Admin แอบเข้ามา ให้ส่ง Array ว่างกลับไป (ป้องกันการแอบดู)
             return response()->json([]);
         }
 
         // 🔵 ถ้าเป็นการเข้าหน้า "รายการคำร้อง" ปกติ ให้ดึงเฉพาะของ User คนปัจจุบัน
-        $requests = DB::table('requests_list')
+        $requests = RequestModel::with(['requester.branch', 'requester.position', 'requestType'])
             ->where('user_id', $user->user_id)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json($requests);
+        return response()->json($this->formatRequests($requests));
     }
 
     // 2. ดึงประเภทคำร้อง (สำหรับ Dropdown)
@@ -56,7 +78,7 @@ class RequestController extends Controller
             'reason' => 'nullable|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date', // วันจบต้องไม่ก่อนวันเริ่ม
-            'amount' => 'nullable|numeric'
+            'amount' => 'nullable|numeric|max:30000' // ไม่เกิน 30,000 บาท
         ]);
 
         // เติมข้อมูลที่เหลือ
