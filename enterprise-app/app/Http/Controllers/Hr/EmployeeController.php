@@ -6,47 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\ViewEmployee;
 use Illuminate\Support\Facades\DB;
-
 
 class EmployeeController extends Controller
 {
-    // Query พนักงานครบทุก field รวมถึง id_card_number, phone_number ฯลฯ
-    private function employeeQuery()
-    {
-        return DB::table('users as u')
-            ->leftJoin('branches as b', 'u.branch_id', '=', 'b.branch_id')
-            ->leftJoin('positions as p', 'u.position_id', '=', 'p.position_id')
-            ->leftJoin('employment_types as et', 'u.employment_type_id', '=', 'et.id')
-            ->leftJoin('employee_categories as ec', 'u.employee_category_id', '=', 'ec.id')
-            ->select(
-                'u.user_id',
-                'u.prefix',
-                'u.first_name',
-                'u.last_name',
-                'u.email',
-                'u.id_card_number',
-                'u.phone_number',
-                'u.branch_id',
-                'u.position_id',
-                'u.employment_type_id',
-                'u.employee_category_id',
-                'u.status',
-                'u.temp_position_end_date',
-                'u.original_position_id',
-                'u.created_at',
-                'u.updated_at',
-                'b.branch_name',
-                'p.position_name',
-                'et.name as employment_type_name',
-                'ec.name as employee_category_name'
-            );
-    }
-
     public function index()
     {
         try {
-            return response()->json($this->employeeQuery()->get());
+            // ดึงข้อมูลจาก View เพื่อโชว์ในตาราง
+            return response()->json(ViewEmployee::all());
         } catch (\Exception $e) {
             return response()->json(['message' => 'Database Error: ' . $e->getMessage()], 500);
         }
@@ -55,8 +24,7 @@ class EmployeeController extends Controller
     public function show($id)
     {
         try {
-            $employee = $this->employeeQuery()->where('u.user_id', $id)->first();
-            if (!$employee) return response()->json(['message' => 'Not Found'], 404);
+            $employee = ViewEmployee::where('user_id', $id)->firstOrFail();
             return response()->json($employee);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Not Found'], 404);
@@ -114,13 +82,6 @@ class EmployeeController extends Controller
             $validated['password'] = Hash::make($request->password);
         } else {
             unset($validated['password']);
-        }
-
-        // ลบ field ที่เป็น null ออก เพื่อไม่ให้ทับค่าเดิมในฐานข้อมูล
-        foreach (['branch_id', 'position_id', 'employment_type_id', 'employee_category_id'] as $field) {
-            if (is_null($validated[$field] ?? null) || ($validated[$field] ?? '') === '') {
-                unset($validated[$field]);
-            }
         }
 
         try {
