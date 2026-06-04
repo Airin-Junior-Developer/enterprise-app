@@ -111,6 +111,7 @@ const isLoading = ref(false);
 const isSaving = ref(false);
 const showForm = ref(false);
 
+// API returns salary history sorted by effective_date DESC — records[0] is the most recent salary
 const lastNewSalary = computed(() => records.value.length > 0 ? records.value[0].new_salary : 0);
 const emptyForm = () => ({ effective_date: '', old_salary: lastNewSalary.value, new_salary: 0, promotion_type: '', notes: '' });
 const form = ref(emptyForm());
