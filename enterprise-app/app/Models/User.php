@@ -35,6 +35,7 @@ class User extends Authenticatable
         'employment_type_id',   // ✅ ต้องมีบรรทัดนี้
         'employee_category_id', // ✅ ต้องมีบรรทัดนี้
         'status',
+        'google_id',
     ];
 
     protected $hidden = [

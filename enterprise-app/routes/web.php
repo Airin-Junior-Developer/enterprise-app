@@ -1,11 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\SocialAuthController;
 
 // หน้าแรก (Root)
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle'])
+    ->name('google.redirect');
 
 // หน้าสำหรับการกู้คืนฐานข้อมูลชั่วคราว
 Route::get('/restore-db', function () {

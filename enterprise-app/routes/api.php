@@ -11,6 +11,7 @@ use App\Http\Controllers\Hr\RequestController;
 use App\Http\Controllers\Hr\RequestTypeController;
 use App\Http\Controllers\Hr\MasterDataController;
 use App\Http\Controllers\Hr\ApprovalController;
+use App\Http\Controllers\Auth\SocialAuthController;
 
 
 /*
@@ -21,6 +22,7 @@ use App\Http\Controllers\Hr\ApprovalController;
 
 // 1. ประตูด่านหน้า (Public)
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 // 2. โซนสมาชิก (ต้อง Login ผ่าน Sanctum เท่านั้น)
 Route::middleware(['session.timeout', 'auth:sanctum'])->group(function () {
