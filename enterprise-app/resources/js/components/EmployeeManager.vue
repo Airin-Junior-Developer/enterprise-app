@@ -493,6 +493,12 @@ const fetchAllData = async () => {
       axios.get('/api/master-data'),
     ]);
     employees.value = empRes.data;
+    // Re-point selectedEmployee to the freshly fetched object to avoid stale form data
+    if (selectedEmployee.value) {
+      selectedEmployee.value = employees.value.find(
+        e => e.user_id === selectedEmployee.value.user_id
+      ) ?? null;
+    }
     branches.value = branchRes.data;
     masterPositions.value = posRes.data.map(p => ({ ...p, is_active: Number(p.is_active) === 1 }));
     employmentTypes.value = masterRes.data.employment_types;
