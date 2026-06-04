@@ -4,10 +4,13 @@ namespace App\Models\Hr;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class Branch extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    protected static string $auditModule = 'HR';
 
     protected $primaryKey = 'branch_id'; // ระบุ Primary Key
 
