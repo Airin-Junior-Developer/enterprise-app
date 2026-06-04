@@ -26,6 +26,10 @@ class DatabaseSeeder extends Seeder
         // 3. เปิดการตรวจสอบ Foreign Key กลับคืน
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
+        $this->call([
+            PermissionSeeder::class,
+        ]);
+
         // --- เริ่มสร้างข้อมูลจำลอง ---
 
         // 4. สร้างสาขา (Branches)
