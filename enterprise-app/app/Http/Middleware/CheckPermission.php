@@ -12,7 +12,11 @@ class CheckPermission
     {
         $user = $request->user();
 
-        if (!$user || !$user->hasPermission($module, $action)) {
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        if (!$user->hasPermission($module, $action)) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

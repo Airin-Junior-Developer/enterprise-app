@@ -21,13 +21,13 @@ class Role extends Model
     protected $fillable = [
         'role_name',
         'description',
-        'permissions' // เก็บ JSON สิทธิ์รายโมดูล
+        'legacy_permissions' // เก็บ JSON สิทธิ์รายโมดูล
     ];
 
     // 4. แปลงข้อมูล JSON ใน Database ให้เป็น Array ใน PHP อัตโนมัติ
     // เวลาเรียก $role->permissions จะได้ Array ทันที ไม่ต้อง json_decode เอง
     protected $casts = [
-        'permissions' => 'array',
+        'legacy_permissions' => 'array',
     ];
 
     // ความสัมพันธ์กับ User (Many-to-Many)

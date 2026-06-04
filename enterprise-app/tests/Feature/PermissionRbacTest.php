@@ -22,7 +22,7 @@ class PermissionRbacTest extends TestCase
         $role = Role::create([
             'role_name' => 'hr_manager',
             'description' => 'HR Manager',
-            'permissions' => [],
+            'legacy_permissions' => [],
         ]);
         $role->permissions()->attach($permission->id);
 
@@ -43,7 +43,7 @@ class PermissionRbacTest extends TestCase
         $role = Role::create([
             'role_name' => 'super_admin',
             'description' => 'Super Administrator',
-            'permissions' => [],
+            'legacy_permissions' => [],
         ]);
         $user = User::factory()->create();
         $user->roles()->attach($role->role_id);
