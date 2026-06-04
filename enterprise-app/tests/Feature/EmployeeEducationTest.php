@@ -110,4 +110,37 @@ class EmployeeEducationTest extends TestCase
         $response->assertOk();
         $this->assertDatabaseMissing('employee_educations', ['id' => $record->id]);
     }
+
+    public function test_employee_can_read_their_own_education_records(): void
+    {
+        $employee = User::factory()->create();
+        EmployeeEducation::create([
+            'user_id'          => $employee->user_id,
+            'institution_name' => 'Own University',
+            'degree_level'     => "Bachelor's",
+            'field_of_study'   => 'Computer Science',
+        ]);
+
+        $response = $this->actingAs($employee, 'sanctum')
+            ->getJson("/api/employees/{$employee->user_id}/education");
+
+        $response->assertOk()->assertJsonCount(1);
+    }
+
+    public function test_employee_cannot_read_another_employees_education_records(): void
+    {
+        $employee = User::factory()->create();
+        $other    = User::factory()->create();
+        EmployeeEducation::create([
+            'user_id'          => $other->user_id,
+            'institution_name' => 'Other University',
+            'degree_level'     => "Bachelor's",
+            'field_of_study'   => 'Physics',
+        ]);
+
+        $response = $this->actingAs($employee, 'sanctum')
+            ->getJson("/api/employees/{$other->user_id}/education");
+
+        $response->assertForbidden();
+    }
 }

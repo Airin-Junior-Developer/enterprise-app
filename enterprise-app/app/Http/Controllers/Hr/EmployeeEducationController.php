@@ -11,7 +11,7 @@ class EmployeeEducationController extends Controller
     public function index(Request $request, int $userId): JsonResponse
     {
         $auth = $request->user();
-        if ($auth->user_id !== $userId && !$auth->hasPermission('HR', 'create') && !$auth->hasPermission('HR', 'view')) {
+        if ((int) $auth->user_id !== $userId && !$auth->hasPermission('HR', 'create') && !$auth->hasPermission('HR', 'view')) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
