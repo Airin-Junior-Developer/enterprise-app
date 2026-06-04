@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -83,10 +84,28 @@ class User extends Authenticatable
         return in_array($posName, $allowedRoles);
     }
 
-    public function roles()
+    public function roles(): BelongsToMany
     {
         // เชื่อมไปยังตาราง user_roles ที่เราสร้างไว้เพื่อจับคู่ User กับ Role
-        return $this->belongsToMany(\App\Models\Role::class, 'user_roles', 'user_id', 'role_id');
+        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
+    }
+
+    public function hasPermission(string $module, string $action): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->roles()
+            ->whereHas('permissions', function ($q) use ($module, $action) {
+                $q->where('module', $module)->where('action', $action);
+            })
+            ->exists();
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->roles()->where('role_name', 'super_admin')->exists();
     }
 
     public function employmentType()

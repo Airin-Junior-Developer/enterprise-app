@@ -11,6 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasTable('requests_type')) {
+            return;
+        }
+
+        if (Schema::hasColumn('requests_type', 'category')) {
+            return;
+        }
+
         Schema::table('requests_type', function (Blueprint $table) {
             $table->string('category')->default('date')->after('Name_Type');
         });
@@ -21,6 +29,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (!Schema::hasTable('requests_type')) {
+            return;
+        }
+
         Schema::table('requests_type', function (Blueprint $table) {
             $table->dropColumn('category');
         });
