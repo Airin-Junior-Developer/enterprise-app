@@ -148,29 +148,42 @@ notes:              nullable|string
 effective_date:  required|date
 old_salary:      required|numeric|min:0
 new_salary:      required|numeric|min:0
-promotion_type:  required|in:Annual Raise,Promotion,Merit,Adjustment
+promotion_type:  required|in:step_increment,level_promotion,qualification_adjustment,special_adjustment
 notes:           nullable|string
 ```
 
+Promotion type display labels:
+- `step_increment` → "เลื่อนขั้น"
+- `level_promotion` → "เลื่อนระดับ"
+- `qualification_adjustment` → "ปรับวุฒิ"
+- `special_adjustment` → "ปรับพิเศษ"
+
 ### API Routes
 
-All routes are protected by `auth:sanctum`, `session.timeout`, and `admin_hr` middleware. Added inside the existing `admin_hr` group in `routes/api.php`.
+Routes are split into two groups in `routes/api.php`:
+
+**Employee self-read routes** — protected by `auth:sanctum` + `session.timeout` only. An employee may only read their own records (controller enforces `{id}` == `auth()->id()` or HR Admin bypass).
+
+```
+GET    /api/employees/{id}/education
+GET    /api/employees/{id}/work-history
+GET    /api/employees/{id}/salary-history
+```
+
+**HR Admin write routes** — protected by `auth:sanctum`, `session.timeout`, and `admin_hr` middleware.
 
 ```
 # Education
-GET    /api/employees/{id}/education
 POST   /api/employees/{id}/education
 PUT    /api/employees/{id}/education/{eduId}
 DELETE /api/employees/{id}/education/{eduId}
 
 # Work History
-GET    /api/employees/{id}/work-history
 POST   /api/employees/{id}/work-history
 PUT    /api/employees/{id}/work-history/{histId}
 DELETE /api/employees/{id}/work-history/{histId}
 
 # Salary History
-GET    /api/employees/{id}/salary-history
 POST   /api/employees/{id}/salary-history
 DELETE /api/employees/{id}/salary-history/{salId}
 ```
