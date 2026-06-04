@@ -10,6 +10,8 @@ class EmployeeEducation extends Model
 {
     use LogsActivity;
 
+    protected $table = 'employee_educations';
+
     protected static string $auditModule = 'HR';
 
     protected $fillable = [

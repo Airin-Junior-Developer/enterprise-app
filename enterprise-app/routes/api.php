@@ -12,6 +12,9 @@ use App\Http\Controllers\Hr\RequestTypeController;
 use App\Http\Controllers\Hr\MasterDataController;
 use App\Http\Controllers\Hr\ApprovalController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\Hr\EmployeeEducationController;
+use App\Http\Controllers\Hr\EmployeeWorkHistoryController;
+use App\Http\Controllers\Hr\EmployeeSalaryHistoryController;
 
 
 /*
@@ -75,6 +78,11 @@ Route::middleware(['session.timeout', 'auth:sanctum'])->group(function () {
         return response()->json(['message' => 'Cleared']);
     });
 
+    // Employee self-read routes (own records only — enforced in controller)
+    Route::get('/employees/{id}/education', [EmployeeEducationController::class, 'index']);
+    Route::get('/employees/{id}/work-history', [EmployeeWorkHistoryController::class, 'index']);
+    Route::get('/employees/{id}/salary-history', [EmployeeSalaryHistoryController::class, 'index']);
+
     // ---------------------------------------------------------
     // 3. โซนหวงห้าม (Admin & HR Only) - แก้ไขข้อมูลหลัก
     // ---------------------------------------------------------
@@ -105,5 +113,19 @@ Route::middleware(['session.timeout', 'auth:sanctum'])->group(function () {
 
         // ข้อมูลสรุป Master Data ทั้งหมด
         Route::get('/master-data', [MasterDataController::class, 'index']);
+
+        // Education
+        Route::post('/employees/{id}/education', [EmployeeEducationController::class, 'store']);
+        Route::put('/employees/{id}/education/{eduId}', [EmployeeEducationController::class, 'update']);
+        Route::delete('/employees/{id}/education/{eduId}', [EmployeeEducationController::class, 'destroy']);
+
+        // Work History
+        Route::post('/employees/{id}/work-history', [EmployeeWorkHistoryController::class, 'store']);
+        Route::put('/employees/{id}/work-history/{histId}', [EmployeeWorkHistoryController::class, 'update']);
+        Route::delete('/employees/{id}/work-history/{histId}', [EmployeeWorkHistoryController::class, 'destroy']);
+
+        // Salary History
+        Route::post('/employees/{id}/salary-history', [EmployeeSalaryHistoryController::class, 'store']);
+        Route::delete('/employees/{id}/salary-history/{salId}', [EmployeeSalaryHistoryController::class, 'destroy']);
     });
 });
