@@ -24,6 +24,13 @@ trait LogsActivity
         static::deleted(function ($model) {
             static::writeAuditLog('delete', $model, $model->toArray(), []);
         });
+
+        // Only register forceDeleted hook on models that use SoftDeletes
+        if (method_exists(static::class, 'bootSoftDeletes')) {
+            static::forceDeleted(function ($model) {
+                static::writeAuditLog('force_delete', $model, $model->toArray(), []);
+            });
+        }
     }
 
     private static function writeAuditLog(string $action, $model, array $old, array $new): void
