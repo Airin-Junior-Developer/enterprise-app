@@ -3,9 +3,13 @@
 namespace App\Models\Hr;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class RequestType extends Model
 {
+    use LogsActivity;
+
+    protected static string $auditModule = 'HR';
     // ระบุชื่อตารางให้ตรงกับ Database
     protected $table = 'requests_type';
 

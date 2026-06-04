@@ -3,9 +3,13 @@
 namespace App\Models\Hr;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class Position extends Model
 {
+    use LogsActivity;
+
+    protected static string $auditModule = 'HR';
     // ระบุชื่อตาราง (เผื่อไว้)
     protected $table = 'positions';
 

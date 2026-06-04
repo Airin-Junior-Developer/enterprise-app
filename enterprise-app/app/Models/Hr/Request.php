@@ -3,9 +3,13 @@
 namespace App\Models\Hr;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\LogsActivity;
 
 class Request extends Model
 {
+    use LogsActivity;
+
+    protected static string $auditModule = 'HR';
     protected $table = 'requests';
     protected $primaryKey = 'request_id'; // ✅ สำคัญ: ต้องระบุ PK เพราะไม่ใช่ 'id'
 

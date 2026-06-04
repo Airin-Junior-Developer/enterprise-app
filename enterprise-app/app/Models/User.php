@@ -10,10 +10,13 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Hr\Branch;
 use App\Models\Hr\Position;
+use App\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, LogsActivity;
+
+    protected static string $auditModule = 'Core';
 
     // ระบุ Primary Key ให้ตรงกับ Migration
     protected $primaryKey = 'user_id';
