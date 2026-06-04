@@ -27,6 +27,11 @@ Route::middleware(['session.timeout', 'auth:sanctum'])->group(function () {
 
     // ระบบ Authentication
     Route::post('/logout', [AuthController::class, 'logout']);
+    // Revoke ALL tokens for this user (force logout from all devices)
+    Route::post('/logout-all', function (Illuminate\Http\Request $request) {
+        $request->user()->tokens()->delete();
+        return response()->json(['message' => 'Logged out from all devices.']);
+    });
     Route::get('/user', [AuthController::class, 'user']);
 
     // ระบบ Dashboard
