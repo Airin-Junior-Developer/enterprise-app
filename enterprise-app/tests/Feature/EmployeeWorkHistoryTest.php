@@ -125,4 +125,37 @@ class EmployeeWorkHistoryTest extends TestCase
         $response->assertOk();
         $this->assertDatabaseMissing('employee_work_histories', ['id' => $record->id]);
     }
+
+    public function test_employee_can_read_their_own_work_history(): void
+    {
+        $employee = User::factory()->create();
+        EmployeeWorkHistory::create([
+            'user_id'        => $employee->user_id,
+            'company_name'   => 'Own Co',
+            'position_title' => 'Developer',
+            'start_date'     => '2020-01-01',
+        ]);
+
+        $response = $this->actingAs($employee, 'sanctum')
+            ->getJson("/api/employees/{$employee->user_id}/work-history");
+
+        $response->assertOk()->assertJsonCount(1);
+    }
+
+    public function test_employee_cannot_read_another_employees_work_history(): void
+    {
+        $employee = User::factory()->create();
+        $other    = User::factory()->create();
+        EmployeeWorkHistory::create([
+            'user_id'        => $other->user_id,
+            'company_name'   => 'Other Co',
+            'position_title' => 'Manager',
+            'start_date'     => '2019-01-01',
+        ]);
+
+        $response = $this->actingAs($employee, 'sanctum')
+            ->getJson("/api/employees/{$other->user_id}/work-history");
+
+        $response->assertForbidden();
+    }
 }
