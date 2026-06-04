@@ -15,8 +15,17 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // ลงทะเบียนชื่อเล่น 'admin_hr' ตรงนี้ครับ
         $middleware->alias([
-            'admin_hr' => CheckAdminOrHr::class,
+            'admin_hr'        => CheckAdminOrHr::class,
+            'permission'      => \App\Http\Middleware\CheckPermission::class,
+            'session.timeout' => \App\Http\Middleware\SessionTimeout::class,
         ]);
+
+        // Ensure session.timeout runs before auth:sanctum so it can check
+        // last_used_at before Sanctum updates it on each request
+        $middleware->prependToPriorityList(
+            \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
+            \App\Http\Middleware\SessionTimeout::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

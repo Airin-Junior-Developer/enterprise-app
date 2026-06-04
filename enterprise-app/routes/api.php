@@ -23,7 +23,7 @@ use App\Http\Controllers\Hr\ApprovalController;
 Route::post('/login', [AuthController::class, 'login']);
 
 // 2. โซนสมาชิก (ต้อง Login ผ่าน Sanctum เท่านั้น)
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['session.timeout', 'auth:sanctum'])->group(function () {
 
     // ระบบ Authentication
     Route::post('/logout', [AuthController::class, 'logout']);
