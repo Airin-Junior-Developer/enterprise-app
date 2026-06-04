@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('institution_name', 255);
             $table->string('degree_level', 100);
             $table->string('field_of_study', 255);
-            $table->smallInteger('graduation_year')->unsigned()->nullable();
+            $table->unsignedSmallInteger('graduation_year')->nullable();
             $table->decimal('gpa', 3, 2)->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
